@@ -1,0 +1,373 @@
+ <!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- -------------------------------------------------- -->
+<script type="module">
+//------------------------------------------------------------
+//##################################################
+//------------------------------------------------------------
+import RPC from './js/tb.rpc-100-20230713-2150.class.js';
+//------------------------------------------------------------
+//##################################################
+//------------------------------------------------------------
+import UnitTest from './js/tb.unittest-102-20230713-2150.class.js';
+//------------------------------------------------------------
+const ut=new UnitTest({show_passes: true});
+//------------------------------------------------------------
+//##################################################
+//------------------------------------------------------------
+window.addEventListener('load', (event) =>
+{
+    //##################################################
+    //------------------------------------------------------------
+    const rpc = new RPC({debug: false});
+    //------------------------------------------------------------
+    const server_url = '/';
+    //------------------------------------------------------------
+    ut.write('<hr>');
+    //------------------------------------------------------------
+    //##################################################
+    //------------------------------------------------------------
+    ut.queue(
+    [
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            rpc.send_request({url:server_url})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', server_url);
+                //----------
+                ut.test('script_name', rpc.script_name);
+                ut.test('request content_type', rpc.content_type);
+                ut.compare('status', rpc.status, 200);
+                ut.compare('status_text', rpc.status_text, 'OK');
+                //----------
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'].replace('utf','UTF'), 'text/html; charset=UTF-8');
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}echo`;
+            //----------
+            const REQUEST = 'ECHO_TEST';
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------
+                ut.compare('response', response, REQUEST);
+                //----------
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'text/plain; charset=UTF-8');
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}headers`;
+            //----------
+            const REQUEST = '';
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------
+                ut.test('response', response);
+                ut.compare('response', /Content-Type/i.test(response), true);
+                //----------
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'text/plain; charset=UTF-8');
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            rpc.content_type = 'application/json; charset=UTF-8';
+            //----------
+            const url  = `${server_url}rpc`;
+            //----------
+            const REQUEST = '';
+            // const RESPONSE = '{"error":"unexpected end of JSON input"}';
+            const RESPONSE = '{"error":"invalid request"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE);
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}rpc`;
+            //----------
+            const REQUEST = '{"INVALID_DATA"}';
+            const RESPONSE = `{"error":"invalid character '}' after object key"}`;
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE);
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}rpc`;
+            //----------
+            const REQUEST = '{"test_key":"test_data"}';
+            const RESPONSE = '{"error":"method is not defined"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE);
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}rpc`;
+            //----------
+            const REQUEST = '{"method":"INVALID_METHOD"}';
+            const RESPONSE = '{"error":"method not found"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE);
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}rpc`;
+            //----------
+            const REQUEST = '{"method":"echo","data":"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\u{1f427}"}';
+            const RESPONSE = '{"method":"echo","data":"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\u{1f427}"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST, utf8Encode: true})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE)
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}jsonrpc`;
+            //----------
+            const REQUEST = 'INVALID_REQUEST';
+            const RESPONSE = `{"error":{"code":-32700,"data":"invalid character 'I' looking for beginning of value","message":"parse error"},"id":null,"jsonrpc":"2.0"}`;
+            //----------
+            rpc.send_request({url:url, request: REQUEST, utf8Encode: true})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE)
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}jsonrpc`;
+            //----------
+            const REQUEST = '{"id":101}';
+            const RESPONSE = '{"error":{"code":-32601,"message":"method not found"},"id":101,"jsonrpc":"2.0"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST, utf8Encode: true})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE)
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            const url  = `${server_url}jsonrpc`;
+            //----------
+            const REQUEST = '{"id":102,"method":"echo","data":"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\u{1f427}"}';
+            const RESPONSE = '{"id":102,"jsonrpc":"2.0","result":"{\\"id\\":102,\\"method\\":\\"echo\\",\\"data\\":\\"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\u{1f427}\\"}"}';
+            //----------
+            rpc.send_request({url:url, request: REQUEST, utf8Encode: true})
+            .then(response => 
+            {
+                //----------
+                ut.test('url', url);
+                //----------
+                ut.test('request content_type', rpc.content_type);
+                //----------                
+                ut.test('response headers', rpc.response_headers);
+                ut.compare('response content-type', rpc.response_headers['content-type'], 'application/json; charset=UTF-8');
+                //----------
+                ut.compare('response', response, RESPONSE)
+                //----------
+            })
+            .catch(error => ut.compare('send_request', error, ''))
+            .finally(() => 
+            { ut.write('<hr>'); ut.run_next(); });
+            //----------
+        },
+        //------------------------------------------------------------
+        //############################################################
+        //------------------------------------------------------------
+        function()
+        {
+            //----------
+            ut.displayTestResults()
+            //----------
+            ut.write('<hr>');
+            //----------
+        },
+        //------------------------------------------------------------
+        //############################################################
+        //------------------------------------------------------------
+    ]
+    //------------------------------------------------------------
+    ).run_next();
+    //------------------------------------------------------------
+    //############################################################
+});
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+function mt_rand(){ return String(Math.floor(Math.random()*9999999999)).padStart(10,'0'); }
+//------------------------------------------------------------
+
+
+</script>
+</head>
+</html>
