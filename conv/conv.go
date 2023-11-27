@@ -168,7 +168,6 @@ func Base91_encode(dataString string, escapeBool bool) string {
 	dataString = base91.StdEncoding.EncodeToString([]byte(dataString))
 	//------------------------------------------------------------
 	if escapeBool {
-
 		//------------------------------------------------------------
 		replacer := strings.NewReplacer(
 			"\x22", "-q",
@@ -198,7 +197,6 @@ func Base91_decode(dataString string, unescapeBool bool) (string, error) {
 	}
 	//------------------------------------------------------------
 	if unescapeBool {
-
 		//------------------------------------------------------------
 		replacer := strings.NewReplacer(
 			"-g", "\x60",
