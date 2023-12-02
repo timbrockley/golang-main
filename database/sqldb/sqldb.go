@@ -203,7 +203,6 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 //------------------------------------------------------------
 
 func Connect(conn SQLdbStruct, checkENV ...bool) (SQLdbStruct, error) {
-
 	//------------------------------------------------------------
 	return conn, conn.Connect(checkENV...)
 	//------------------------------------------------------------
