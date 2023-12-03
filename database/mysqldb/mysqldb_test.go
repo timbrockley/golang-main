@@ -27,7 +27,14 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
-	conn1, err = Connect(MySQLdbStruct{Database: "test"}, true)
+	conn1, err = Connect(MySQLdbStruct{Database: "MADE_UP_NAME_FDSDFDDVDHIFHDIH"}, true)
+	//------------------------------------------------------------
+	if err == nil {
+
+		t.Error("Connect should fail if database does not exist")
+	}
+	//------------------------------------------------------------
+	conn1, err = Connect(MySQLdbStruct{Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 

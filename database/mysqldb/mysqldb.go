@@ -25,6 +25,8 @@ type MySQLdbStruct struct {
 	//----------
 	Database string
 	//----------
+	AutoCreate bool
+	//----------
 	DB *sql.DB
 	//----------
 }
@@ -75,7 +77,7 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 		//----------
 		AllowNativePasswords: conn.AllowNativePasswords,
 		//----------
-		DBName: conn.Database,
+		// DBName: conn.Database,
 		//----------
 	}
 	//------------------------------------------------------------
@@ -89,8 +91,25 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 	conn.DB, err = sql.Open("mysql", mysqlConfig.FormatDSN())
 	//----------
 	if err == nil {
-
+		//----------
 		err = conn.DB.Ping()
+		//----------
+		if err == nil && conn.Database != "" {
+			//----------
+			if conn.AutoCreate {
+				//----------
+				_, err = conn.DB.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", conn.Database))
+				//----------
+			}
+			//----------
+			if err == nil {
+				//----------
+				_, err = conn.DB.Exec(fmt.Sprintf("USE %s;", conn.Database))
+				//----------
+			}
+			//----------
+		}
+		//----------
 	}
 	//------------------------------------------------------------
 	return err

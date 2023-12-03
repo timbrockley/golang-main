@@ -33,7 +33,7 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	db_type = "mysql"
 	//------------------------------------------------------------
-	mysql_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test"}, true)
+	mysql_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)

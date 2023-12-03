@@ -87,16 +87,18 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 			if conn.Database == "" {
 				conn.Database = os.Getenv("MYSQL_DATABASE")
 			}
+			//----------
+			if conn.Database == "" {
+				conn.Database = "_system"
+			}
 			//------------------------------------------------------------
 		}
 		//------------------------------------------------------------
-		conn.connMySQL = mysqldb.MySQLdbStruct{Host: conn.Host, User: conn.User, Password: conn.Password, AllowNativePasswords: conn.AllowNativePasswords, Database: conn.Database}
+		conn.connMySQL = mysqldb.MySQLdbStruct{Host: conn.Host, User: conn.User, Password: conn.Password, AllowNativePasswords: conn.AllowNativePasswords, Database: conn.Database, AutoCreate: conn.AutoCreate}
 		//----------
 		err = conn.connMySQL.Connect()
 		//------------------------------------------------------------
 		if err == nil {
-			//----------
-			conn.Database = conn.connMySQL.Database
 			//----------
 			conn.DB = conn.connMySQL.DB
 			//----------
@@ -181,8 +183,6 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 		//----------
 		conn.Database = conn.connSQLite.Database
 		conn.DatabaseExt = conn.connSQLite.DatabaseExt
-		//----------
-		conn.AutoCreate = conn.connSQLite.AutoCreate
 		//----------
 		if err == nil {
 			//----------
