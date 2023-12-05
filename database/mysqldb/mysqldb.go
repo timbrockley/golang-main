@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -189,6 +190,51 @@ func (conn *MySQLdbStruct) Close() error {
 //------------------------------------------------------------
 
 //------------------------------------------------------------
+// TableExists method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) TableExists(table string) (bool, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return false, errors.New("not connected")
+	}
+	//----------
+	if table == "" {
+		return false, errors.New("table cannot be blank")
+	}
+	//----------
+	if !CheckTableName(table) {
+		return false, errors.New("invalid table name")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s' LIMIT 1;", conn.Database, table))
+	//------------------------------------------------------------
+	if err != nil {
+		return false, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var count int
+	//----------
+	for rows.Next() {
+		//----------
+		err = rows.Scan(&count)
+		//----------
+	}
+	//----------
+	if err != nil {
+		return false, err
+	}
+	//------------------------------------------------------------
+	return count == 1, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
@@ -211,6 +257,10 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(table string) (
 	//----------
 	if table == "" {
 		return nil, nil, errors.New("table cannot be blank")
+	}
+	//----------
+	if !CheckTableName(table) {
+		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
@@ -279,6 +329,10 @@ func (conn *MySQLdbStruct) GetTableInfo(table string) (
 	//----------
 	if table == "" {
 		return nil, nil, errors.New("table cannot be blank")
+	}
+	//----------
+	if !CheckTableName(table) {
+		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
@@ -465,6 +519,31 @@ func EscapeMySQLString(dataString string) string {
 	)
 	//------------------------------------------------------------
 	return replacer.Replace(dataString)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+func CheckTableName(tableName string) bool {
+	//------------------------------------------------------------
+	var err error
+	var match bool
+	//------------------------------------------------------------
+	// should start with underscore or a letter
+	//------------------------------------------------------------
+	match, err = regexp.MatchString(`^[_A-Za-z]+`, tableName)
+	//------------------------------------------------------------
+	if err != nil || !match {
+		return false
+	}
+	//------------------------------------------------------------
+	// remaining characters should only contain underscores, letters or numbers
+	//------------------------------------------------------------
+	match, err = regexp.MatchString(`^[_A-Za-z0-9]*$`, tableName)
+	//----------
+	return err == nil && match
 	//------------------------------------------------------------
 }
 

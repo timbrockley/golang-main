@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/timbrockley/golang-main/database/mysqldb"
@@ -295,6 +296,10 @@ func (conn *SQLdbStruct) GetSQLTableInfo(table string) (
 	if table == "" {
 		return nil, nil, errors.New("table cannot be blank")
 	}
+	//----------
+	if !CheckTableName(table) {
+		return nil, nil, errors.New("invalid table name")
+	}
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//------------------------------------------------------------
@@ -332,6 +337,10 @@ func (conn *SQLdbStruct) GetTableInfo(table string) (
 	if table == "" {
 		return nil, nil, errors.New("table cannot be blank")
 	}
+	//----------
+	if !CheckTableName(table) {
+		return nil, nil, errors.New("invalid table name")
+	}
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//------------------------------------------------------------
@@ -358,6 +367,28 @@ func (conn *SQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]a
 	} else {
 		//----------
 		return conn.connSQLite.QueryRecords(strings.TrimSpace(query), args...)
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// TableExists method
+//------------------------------------------------------------
+
+func (conn *SQLdbStruct) TableExists(table string) (bool, error) {
+	//------------------------------------------------------------
+	if strings.ToLower(conn.DBType) == "mysql" {
+		//----------
+		return conn.connMySQL.TableExists(table)
+		//----------
+	} else {
+		//----------
+		return conn.connSQLite.TableExists(table)
 		//----------
 	}
 	//------------------------------------------------------------
@@ -394,6 +425,31 @@ func EscapeDoubleQuotes(dataString string) string {
 func EscapeMySQLString(dataString string) string {
 	//------------------------------------------------------------
 	return mysqldb.EscapeMySQLString(dataString)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+func CheckTableName(tableName string) bool {
+	//------------------------------------------------------------
+	var err error
+	var match bool
+	//------------------------------------------------------------
+	// should start with underscore or a letter
+	//------------------------------------------------------------
+	match, err = regexp.MatchString(`^[_A-Za-z]+`, tableName)
+	//------------------------------------------------------------
+	if err != nil || !match {
+		return false
+	}
+	//------------------------------------------------------------
+	// remaining characters should only contain underscores, letters or numbers
+	//------------------------------------------------------------
+	match, err = regexp.MatchString(`^[_A-Za-z0-9]*$`, tableName)
+	//----------
+	return err == nil && match
 	//------------------------------------------------------------
 }
 
