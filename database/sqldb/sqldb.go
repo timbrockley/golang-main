@@ -276,7 +276,7 @@ func (conn *SQLdbStruct) Close() error {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *SQLdbStruct) GetSQLTableInfo(table string) (
+func (conn *SQLdbStruct) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -289,25 +289,33 @@ func (conn *SQLdbStruct) GetSQLTableInfo(table string) (
 		return nil, nil, errors.New("not connected")
 	}
 	//----------
-	if strings.ToLower(conn.DBType) != "sqlite" && conn.Database == "" {
-		return nil, nil, errors.New("database cannot be blank")
+	if strings.ToLower(conn.DBType) != "sqlite" {
+		//----------
+		if conn.Database == "" {
+			return nil, nil, errors.New("database name cannot be blank")
+		}
+		//----------
+		if !CheckDatabaseName(conn.Database) {
+			return nil, nil, errors.New("invalid database name")
+		}
+		//----------
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//------------------------------------------------------------
-		return conn.connMySQL.GetSQLTableInfo(table)
+		return conn.connMySQL.GetSQLTableInfo(tableName)
 		//------------------------------------------------------------
 	} else {
 		//------------------------------------------------------------
-		return conn.connSQLite.GetSQLTableInfo(table)
+		return conn.connSQLite.GetSQLTableInfo(tableName)
 		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
@@ -317,7 +325,7 @@ func (conn *SQLdbStruct) GetSQLTableInfo(table string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *SQLdbStruct) GetTableInfo(table string) (
+func (conn *SQLdbStruct) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -330,25 +338,33 @@ func (conn *SQLdbStruct) GetTableInfo(table string) (
 		return nil, nil, errors.New("not connected")
 	}
 	//----------
-	if strings.ToLower(conn.DBType) != "sqlite" && conn.Database == "" {
-		return nil, nil, errors.New("database cannot be blank")
+	if strings.ToLower(conn.DBType) != "sqlite" {
+		//----------
+		if conn.Database == "" {
+			return nil, nil, errors.New("database name cannot be blank")
+		}
+		//----------
+		if !CheckDatabaseName(conn.Database) {
+			return nil, nil, errors.New("invalid database name")
+		}
+		//----------
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//------------------------------------------------------------
-		return conn.connMySQL.GetTableInfo(table)
+		return conn.connMySQL.GetTableInfo(tableName)
 		//------------------------------------------------------------
 	} else {
 		//------------------------------------------------------------
-		return conn.connSQLite.GetTableInfo(table)
+		return conn.connSQLite.GetTableInfo(tableName)
 		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
@@ -380,15 +396,15 @@ func (conn *SQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]a
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *SQLdbStruct) TableExists(table string) (bool, error) {
+func (conn *SQLdbStruct) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//----------
-		return conn.connMySQL.TableExists(table)
+		return conn.connMySQL.TableExists(tableName)
 		//----------
 	} else {
 		//----------
-		return conn.connSQLite.TableExists(table)
+		return conn.connSQLite.TableExists(tableName)
 		//----------
 	}
 	//------------------------------------------------------------
@@ -430,6 +446,14 @@ func EscapeMySQLString(dataString string) string {
 
 //------------------------------------------------------------
 //############################################################
+//------------------------------------------------------------
+
+func CheckDatabaseName(databaseName string) bool {
+	//------------------------------------------------------------
+	return CheckTableName(databaseName)
+	//------------------------------------------------------------
+}
+
 //------------------------------------------------------------
 
 func CheckTableName(tableName string) bool {

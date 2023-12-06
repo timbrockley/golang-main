@@ -163,24 +163,24 @@ func (conn *SQLiteDBStruct) QueryRow(query string, args ...any) *sql.Row {
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *SQLiteDBStruct) TableExists(table string) (bool, error) {
+func (conn *SQLiteDBStruct) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return false, errors.New("not connected")
 	}
 	//----------
-	if table == "" {
-		return false, errors.New("table cannot be blank")
+	if tableName == "" {
+		return false, errors.New("table name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckTableName(tableName) {
 		return false, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM sqlite_master WHERE type='table' AND name='%s' LIMIT 1;", table))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM sqlite_master WHERE type='table' AND name='%s' LIMIT 1;", tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return false, err
@@ -208,7 +208,7 @@ func (conn *SQLiteDBStruct) TableExists(table string) (bool, error) {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *SQLiteDBStruct) GetSQLTableInfo(table string) (
+func (conn *SQLiteDBStruct) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -221,18 +221,18 @@ func (conn *SQLiteDBStruct) GetSQLTableInfo(table string) (
 		return nil, nil, errors.New("not connected")
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query("SELECT IFNULL(cid, 0)+1, IFNULL(name, ''), IFNULL(type, '') FROM PRAGMA_TABLE_INFO(?);", table)
+	rows, err = conn.DB.Query("SELECT IFNULL(cid, 0)+1, IFNULL(name, ''), IFNULL(type, '') FROM PRAGMA_TABLE_INFO(?);", tableName)
 	//------------------------------------------------------------
 	var columInfoRows []struct {
 		Sequence int
@@ -273,7 +273,7 @@ func (conn *SQLiteDBStruct) GetSQLTableInfo(table string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *SQLiteDBStruct) GetTableInfo(table string) (
+func (conn *SQLiteDBStruct) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -286,18 +286,18 @@ func (conn *SQLiteDBStruct) GetTableInfo(table string) (
 		return nil, nil, errors.New("not connected")
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s LIMIT 1;", table))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s LIMIT 1;", tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return nil, nil, err
@@ -464,6 +464,16 @@ func (conn *SQLiteDBStruct) Close() error {
 //------------------------------------------------------------
 //############################################################
 //------------------------------------------------------------
+
+//------------------------------------------------------------
+// CheckDatabaseName
+//------------------------------------------------------------
+
+func CheckDatabaseName(databaseName string) bool {
+	//------------------------------------------------------------
+	return CheckTableName(databaseName)
+	//------------------------------------------------------------
+}
 
 //------------------------------------------------------------
 // CheckTableName

@@ -89,6 +89,10 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 		//----------
 	}
 	//------------------------------------------------------------
+	if conn.Database != "" && !CheckDatabaseName(conn.Database) {
+		return errors.New("invalid database name")
+	}
+	//------------------------------------------------------------
 	conn.DB, err = sql.Open("mysql", mysqlConfig.FormatDSN())
 	//----------
 	if err == nil {
@@ -193,24 +197,32 @@ func (conn *MySQLdbStruct) Close() error {
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) TableExists(table string) (bool, error) {
+func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return false, errors.New("not connected")
 	}
 	//----------
-	if table == "" {
-		return false, errors.New("table cannot be blank")
+	if conn.Database == "" {
+		return false, errors.New("database name cannot be blank")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if !CheckDatabaseName(conn.Database) {
+		return false, errors.New("invalid database name")
+	}
+	//----------
+	if tableName == "" {
+		return false, errors.New("table name cannot be blank")
+	}
+	//----------
+	if !CheckTableName(tableName) {
 		return false, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s' LIMIT 1;", conn.Database, table))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s' LIMIT 1;", conn.Database, tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return false, err
@@ -238,7 +250,7 @@ func (conn *MySQLdbStruct) TableExists(table string) (bool, error) {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetSQLTableInfo(table string) (
+func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -252,14 +264,18 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(table string) (
 	}
 	//----------
 	if conn.Database == "" {
-		return nil, nil, errors.New("database cannot be blank")
+		return nil, nil, errors.New("database name cannot be blank")
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if !CheckDatabaseName(conn.Database) {
+		return nil, nil, errors.New("invalid database name")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
+	}
+	//----------
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
@@ -274,7 +290,7 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(table string) (
 	//----------
 	columnInfoMap := map[string]string{}
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query("SELECT IFNULL(ORDINAL_POSITION, 0), IFNULL(COLUMN_NAME, ''), IFNULL(DATA_TYPE, '') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;", conn.Database, table)
+	rows, err = conn.DB.Query("SELECT IFNULL(ORDINAL_POSITION, 0), IFNULL(COLUMN_NAME, ''), IFNULL(DATA_TYPE, '') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;", conn.Database, tableName)
 	//------------------------------------------------------------
 	if err == nil {
 		//------------------------------------------------------------
@@ -310,7 +326,7 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(table string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetTableInfo(table string) (
+func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -324,21 +340,25 @@ func (conn *MySQLdbStruct) GetTableInfo(table string) (
 	}
 	//----------
 	if conn.Database == "" {
-		return nil, nil, errors.New("database cannot be blank")
+		return nil, nil, errors.New("database name cannot be blank")
 	}
 	//----------
-	if table == "" {
-		return nil, nil, errors.New("table cannot be blank")
+	if !CheckDatabaseName(conn.Database) {
+		return nil, nil, errors.New("invalid database name")
 	}
 	//----------
-	if !CheckTableName(table) {
+	if tableName == "" {
+		return nil, nil, errors.New("table name cannot be blank")
+	}
+	//----------
+	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 1;", conn.Database, table))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 1;", conn.Database, tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return nil, nil, err
@@ -524,6 +544,14 @@ func EscapeMySQLString(dataString string) string {
 
 //------------------------------------------------------------
 //############################################################
+//------------------------------------------------------------
+
+func CheckDatabaseName(databaseName string) bool {
+	//------------------------------------------------------------
+	return CheckTableName(databaseName)
+	//------------------------------------------------------------
+}
+
 //------------------------------------------------------------
 
 func CheckTableName(tableName string) bool {

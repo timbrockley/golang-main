@@ -98,6 +98,8 @@ func TestExec(t *testing.T) {
 	//------------------------------------------------------------
 	result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES(?,?);", "Volkswagen", 21600)
 	//------------------------------------------------------------
+	_, _ = conn1.Exec("FLUSH TABLES;")
+	//------------------------------------------------------------
 	if result == nil {
 		t.Error("invalid result")
 	}
