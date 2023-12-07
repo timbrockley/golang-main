@@ -172,6 +172,69 @@ func (conn *MySQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
+// LockTables method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) LockTables(Tables ...string) error {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	if Tables == nil {
+		//------------------------------------------------------------
+		return errors.New("no tables defined")
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+	tableLocks := []string{}
+	//----------
+	for _, tableName := range Tables {
+		//----------
+		if !CheckTableName(tableName) {
+			//----------
+			err = fmt.Errorf("invalid table name: (%s)", tableName)
+			break
+			//----------
+		} else {
+			//----------
+			tableLocks = append(tableLocks, fmt.Sprintf("%s WRITE", tableName))
+			//---------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+	if err == nil {
+		//------------------------------------------------------------
+		_, err = conn.DB.Exec(fmt.Sprintf("LOCK TABLES %s;", strings.Join(tableLocks, ", ")))
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+	return err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// UnlockTables method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) UnlockTables() error {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	_, err = conn.DB.Exec("UNLOCK TABLES;")
+	//------------------------------------------------------------
+	return err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // Close method
 //------------------------------------------------------------
 
@@ -556,8 +619,26 @@ func CheckDatabaseName(databaseName string) bool {
 
 func CheckTableName(tableName string) bool {
 	//------------------------------------------------------------
+	// checks table name (and database name if prepends table name)
+	//------------------------------------------------------------
 	var err error
 	var match bool
+	//------------------------------------------------------------
+	if strings.Contains(tableName, ".") {
+		//----------
+		elements := strings.Split(tableName, ".")
+		//----------
+		if len(elements) != 2 {
+			return false
+		}
+		//----------
+		if !CheckDatabaseName(elements[0]) {
+			return false
+		}
+		//----------
+		tableName = elements[1]
+		//----------
+	}
 	//------------------------------------------------------------
 	// should start with underscore or a letter
 	//------------------------------------------------------------

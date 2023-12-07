@@ -263,7 +263,7 @@ func TestGetSQLTableInfo(t *testing.T) {
 		Type     string
 	}
 	//----------
-	columnInfoMap := map[string]string{}
+	var columnInfoMap map[string]string
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = conn1.GetSQLTableInfo("cars")
 	//----------
@@ -287,7 +287,11 @@ func TestGetSQLTableInfo(t *testing.T) {
 			}
 			//----------
 		}
-		//----------
+		//------------------------------------------------------------
+		if fmt.Sprint(columnInfoMap) != "map[id:int name:varchar price:int]" {
+			t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:int name:varchar price:int]")
+		}
+		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
 }
@@ -306,7 +310,7 @@ func TestGetTableInfo(t *testing.T) {
 		Type     string
 	}
 	//----------
-	columnInfoMap := map[string]string{}
+	var columnInfoMap map[string]string
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = conn1.GetTableInfo("cars")
 	//----------
@@ -325,14 +329,14 @@ func TestGetTableInfo(t *testing.T) {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
 			}
 			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
-			}
-			//----------
 		}
-		//----------
+		//------------------------------------------------------------
+		if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
+			t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
+		}
+		//------------------------------------------------------------
 	}
-	//------------------------------------------------------------
+	// ------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -375,6 +379,59 @@ func TestQueryRecords(t *testing.T) {
 			//----------
 		}
 		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+// LockTables
+//--------------------------------------------------------------------------------
+
+func TestLockTables(t *testing.T) {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	err = conn1.LockTables()
+	//----------
+	if err == nil {
+
+		t.Error("LockTables should report no tables defined")
+	}
+	//------------------------------------------------------------
+	err = conn1.LockTables("")
+	//----------
+	if err == nil {
+
+		t.Error("LockTables should report invalid table name")
+	}
+	//------------------------------------------------------------
+	err = conn1.LockTables("1")
+	//----------
+	if err == nil {
+
+		t.Error("LockTables should report invalid table name")
+	}
+	//------------------------------------------------------------
+	err = conn1.LockTables("test.cars")
+	//----------
+	if err != nil {
+
+		t.Error(err)
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+// UnlockTables
+//--------------------------------------------------------------------------------
+
+func TestUnlockTables(t *testing.T) {
+	//------------------------------------------------------------
+	err := conn1.UnlockTables()
+	//----------
+	if err != nil {
+
+		t.Error(err)
 	}
 	//------------------------------------------------------------
 }
