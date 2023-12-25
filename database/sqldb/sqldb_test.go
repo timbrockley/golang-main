@@ -158,7 +158,7 @@ func TestExec(t *testing.T) {
 			"USE test;",
 			"DROP TABLE IF EXISTS cars;",
 			"CREATE TABLE cars(id INT NOT NULL AUTO_INCREMENT, name VARCHAR(255), price INT DEFAULT 0 NOT NULL, PRIMARY KEY(id));",
-			"INSERT INTO cars(name,price) VALUES('Skoda',9000);",
+			"INSERT INTO cars(name,price) VALUES('Mazda',9001);",
 		}
 		//--------------------------------------------------
 		for _, stmt := range testData {
@@ -440,8 +440,8 @@ func TestQueryRecords(t *testing.T) {
 			//----------
 		} else {
 			//----------
-			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]") {
-				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]")
+			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]") {
+				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]")
 			}
 			//----------
 			if fmt.Sprintf("%T", records[0]["id"]) != "int" {

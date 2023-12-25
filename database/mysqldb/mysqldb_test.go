@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 )
 
 //------------------------------------------------------------
@@ -73,7 +74,22 @@ func TestExec(t *testing.T) {
 		t.Error(err)
 	}
 	//------------------------------------------------------------
+	_, err = conn1.Exec(`
+		BEGIN;
+		USE test;
+		DROP TABLE IF EXISTS cars;
+		CREATE TABLE cars(id INT NOT NULL AUTO_INCREMENT, name VARCHAR(255), price INT DEFAULT 0 NOT NULL, PRIMARY KEY(id));
+		COMMIT;
+	`)
+	//----------
+	if err != nil {
+		t.Error(err)
+	}
+	//------------------------------------------------------------
+	time.Sleep(2 * time.Second)
+	//------------------------------------------------------------
 	testData := []string{
+		"BEGIN;",
 		"USE test",
 		"DROP TABLE IF EXISTS cars;",
 		"CREATE TABLE cars(id INT NOT NULL AUTO_INCREMENT, name VARCHAR(255), price INT DEFAULT 0 NOT NULL, PRIMARY KEY(id));",
@@ -84,6 +100,7 @@ func TestExec(t *testing.T) {
 		"INSERT INTO cars(name, price) VALUES('Bentley',350000);",
 		"INSERT INTO cars(name, price) VALUES('Citroen',21000);",
 		"INSERT INTO cars(name, price) VALUES('Hummer',41400);",
+		"COMMIT;",
 	}
 	//--------------------------------------------------
 	for _, stmt := range testData {
@@ -107,6 +124,8 @@ func TestExec(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	//------------------------------------------------------------
+	time.Sleep(1 * time.Second)
 	//------------------------------------------------------------
 }
 

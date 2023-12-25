@@ -78,6 +78,8 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 		//----------
 		AllowNativePasswords: conn.AllowNativePasswords,
 		//----------
+		MultiStatements: true,
+		//----------
 		// DBName: conn.Database,
 		//----------
 	}
