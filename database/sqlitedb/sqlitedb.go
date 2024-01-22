@@ -71,7 +71,7 @@ func (conn *SQLiteDBStruct) Connect() error {
 		//----------
 		if filePath == "" {
 			//----------
-			// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+			// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 			_, filePath, _, _ = runtime.Caller(1)
 			//----------
 			filePath = file.FilePathBase(filePath) + ".db"

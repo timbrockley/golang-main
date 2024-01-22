@@ -276,7 +276,7 @@ func LoadENVs(FilePath ...string) error {
 		//----------
 	} else {
 		//----------
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 		//----------
 		filename = FindENVFilename(file.Path(filePath))

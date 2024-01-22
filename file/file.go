@@ -230,7 +230,7 @@ func Path(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ func FilePathSplit(FilePath ...string) (string, string) {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ func FilePathBaseToFilename(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ func FilePathBase(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ func FilenameBase(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -382,7 +382,7 @@ func Filename(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -410,7 +410,7 @@ func FilenameExt(FilePath ...string) string {
 
 	} else {
 
-		// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//--------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ func Log(messageString string) error {
 	//----------
 	t := time.Now().UTC()
 	//----------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	pc, callingFilePath, callingLineNumber, ok = runtime.Caller(1)
 	details := runtime.FuncForPC(pc)
 	if ok && details != nil {

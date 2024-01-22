@@ -39,7 +39,7 @@ func TestConnect(t *testing.T) {
 		t.Error("error not returned for made up database name using autoCreate=false")
 	}
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ = runtime.Caller(0)
 	filePath = file.FilePathBase(filePath) + ".db"
 	filePath = strings.Replace(filePath, `_test`, "", -1)
@@ -62,7 +62,7 @@ func TestConnect(t *testing.T) {
 		t.Errorf("databaseExt = %q but should = %q", conn1.DatabaseExt, "db")
 	}
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ = runtime.Caller(0)
 	filePath = file.FilePathBase(filePath) + ".db"
 	filenameBase = file.FilenameBase(filePath)

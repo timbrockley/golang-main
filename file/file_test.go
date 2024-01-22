@@ -36,7 +36,7 @@ func TestMain(t *testing.T) {
 		}
 	}
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, testDataFilename, _, _ = runtime.Caller(0)
 	//------------------------------------------------------------
 	testDataFilename = filepath.FromSlash(testDataFilename)
@@ -365,7 +365,7 @@ func TestFilePathSplit(t *testing.T) {
 func TestFilePathBaseToFilename(t *testing.T) {
 
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
 	//------------------------------------------------------------
 	filePath = FilePathBaseToFilename(filePath)
@@ -442,7 +442,7 @@ func TestFilePathBase(t *testing.T) {
 func TestFilenameBase(t *testing.T) {
 
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
 	//------------------------------------------------------------
 	filePath = FilenameBase(filePath)
@@ -488,7 +488,7 @@ func TestFilenameBase(t *testing.T) {
 func TestFilename(t *testing.T) {
 
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
 	//------------------------------------------------------------
 	filePath = Filename(filePath)
@@ -534,7 +534,7 @@ func TestFilename(t *testing.T) {
 func TestFilenameExt(t *testing.T) {
 
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
 	//------------------------------------------------------------
 	filePath = FilenameExt(filePath)

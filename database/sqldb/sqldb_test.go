@@ -43,7 +43,7 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	db_type = "sqlite"
 	//------------------------------------------------------------
-	// runtime.Caller(0) = this script / runtime.Caller(1) = calling script
+	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ = runtime.Caller(0)
 	//----------
 	filePath = file.FilePathBase(filePath) + ".db"
