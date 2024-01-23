@@ -298,13 +298,11 @@ func LoadENVs(FilePath ...string) error {
 
 func FindENVFilename(path string) string {
 	//------------------------------------------------------------
-	var filename string
-	//------------------------------------------------------------
-	HOSTNAME := GetHostname()
+	HOSTNAME := strings.ToLower(GetHostname())
 	//----------
 	dockerYesNo := file.FilePathExists("/.dockerenv")
 	//----------
-	OS := GetOS()
+	OS := strings.ToLower(GetOS())
 	//------------------------------------------------------------
 	FILENAME_HOSTNAME_DOCKER_EXT := "." + HOSTNAME + "_docker.env"
 	FILENAME_HOSTNAME_OS_EXT := "." + HOSTNAME + "_" + OS + ".env"
@@ -315,30 +313,28 @@ func FindENVFilename(path string) string {
 	//------------------------------------------------------------
 	if dockerYesNo && file.FilePathExists(file.FilePathJoin(path, FILENAME_HOSTNAME_DOCKER_EXT)) {
 
-		filename = FILENAME_HOSTNAME_DOCKER_EXT
+		return FILENAME_HOSTNAME_DOCKER_EXT
 
 	} else if file.FilePathExists(file.FilePathJoin(path, FILENAME_HOSTNAME_OS_EXT)) {
 
-		filename = FILENAME_HOSTNAME_OS_EXT
+		return FILENAME_HOSTNAME_OS_EXT
 
 	} else if file.FilePathExists(file.FilePathJoin(path, FILENAME_HOSTNAME_EXT)) {
 
-		filename = FILENAME_HOSTNAME_EXT
+		return FILENAME_HOSTNAME_EXT
 
 	} else if dockerYesNo && file.FilePathExists(file.FilePathJoin(path, FILENAME_DOCKER_EXT)) {
 
-		filename = FILENAME_DOCKER_EXT
+		return FILENAME_DOCKER_EXT
 
 	} else if file.FilePathExists(file.FilePathJoin(path, FILENAME_OS_EXT)) {
 
-		filename = FILENAME_OS_EXT
+		return FILENAME_OS_EXT
 
 	} else {
 
-		filename = FILENAME_EXT
+		return FILENAME_EXT
 	}
-	//------------------------------------------------------------
-	return filename
 	//------------------------------------------------------------
 }
 
@@ -408,13 +404,13 @@ func GetHostname() string {
 
 func GetOS() string {
 	//--------------------------------------------------------------------------------
-	OS := runtime.GOOS
+	OS := strings.ToLower(runtime.GOOS)
 	//--------------------------------------------------------------------------------
 	// if OS == "darwin" {
 	// 	OS = "mac"
 	// }
 	//--------------------------------------------------------------------------------
-	return strings.ToLower(OS)
+	return OS
 	//--------------------------------------------------------------------------------
 }
 
