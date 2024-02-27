@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/timbrockley/golang-main/database/mysqldb"
+	"github.com/timbrockley/golang-main/database/postgresdb"
 	"github.com/timbrockley/golang-main/database/sqlitedb"
 	"github.com/timbrockley/golang-main/file"
 	"github.com/timbrockley/golang-main/system"
@@ -38,8 +39,9 @@ type SQLdbStruct struct {
 	//----------
 	DB *sql.DB
 	//----------
-	connMySQL  mysqldb.MySQLdbStruct
-	connSQLite sqlitedb.SQLiteDBStruct
+	connMySQL    mysqldb.MySQLdbStruct
+	connPostgres postgresdb.PostgresDBStruct
+	connSQLite   sqlitedb.SQLiteDBStruct
 	//----------
 }
 
@@ -102,6 +104,37 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 		if err == nil {
 			//----------
 			conn.DB = conn.connMySQL.DB
+			//----------
+		}
+		//------------------------------------------------------------
+
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+
+		//------------------------------------------------------------
+		if checkENV != nil && checkENV[0] {
+			//------------------------------------------------------------
+			conn.Host = os.Getenv("POSTGRES_HOST")
+			//----------
+			conn.User = os.Getenv("POSTGRES_USER")
+			conn.Password = os.Getenv("POSTGRES_PWD")
+			//----------
+			if conn.Database == "" {
+				conn.Database = os.Getenv("POSTGRES_DATABASE")
+			}
+			//----------
+			if conn.Database == "" {
+				conn.Database = "_system"
+			}
+			//------------------------------------------------------------
+		}
+		//------------------------------------------------------------
+		conn.connPostgres = postgresdb.PostgresDBStruct{Host: conn.Host, User: conn.User, Password: conn.Password, Database: conn.Database, AutoCreate: conn.AutoCreate}
+		//----------
+		err = conn.connPostgres.Connect()
+		//------------------------------------------------------------
+		if err == nil {
+			//----------
+			conn.DB = conn.connPostgres.DB
 			//----------
 		}
 		//------------------------------------------------------------
@@ -248,50 +281,6 @@ func (conn *SQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
-// LockTables method
-//------------------------------------------------------------
-
-func (conn *SQLdbStruct) LockTables(Tables ...string) error {
-	//------------------------------------------------------------
-	if conn.DB == nil {
-		return errors.New("not connected")
-	}
-	//------------------------------------------------------------
-	if strings.ToLower(conn.DBType) == "mysql" {
-		//------------------------------------------------------------
-		return conn.connMySQL.LockTables(Tables...)
-		//------------------------------------------------------------
-	} else {
-		//------------------------------------------------------------
-		return conn.connSQLite.LockTables()
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// UnlockTables method
-//------------------------------------------------------------
-
-func (conn *SQLdbStruct) UnlockTables() error {
-	//------------------------------------------------------------
-	if conn.DB == nil {
-		return errors.New("not connected")
-	}
-	//------------------------------------------------------------
-	if strings.ToLower(conn.DBType) == "mysql" {
-		//------------------------------------------------------------
-		return conn.connMySQL.UnlockTables()
-		//------------------------------------------------------------
-	} else {
-		//------------------------------------------------------------
-		return conn.connSQLite.UnlockTables()
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
 // Close method
 //------------------------------------------------------------
 
@@ -306,6 +295,7 @@ func (conn *SQLdbStruct) Close() error {
 	conn.DB = nil
 	//------------------------------------------------------------
 	_ = conn.connMySQL.Close()
+	_ = conn.connPostgres.Close()
 	_ = conn.connSQLite.Close()
 	//------------------------------------------------------------
 	return err
@@ -357,6 +347,10 @@ func (conn *SQLdbStruct) GetSQLTableInfo(tableName string) (
 		//------------------------------------------------------------
 		return conn.connMySQL.GetSQLTableInfo(tableName)
 		//------------------------------------------------------------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//------------------------------------------------------------
+		return conn.connPostgres.GetSQLTableInfo(tableName)
+		//------------------------------------------------------------
 	} else {
 		//------------------------------------------------------------
 		return conn.connSQLite.GetSQLTableInfo(tableName)
@@ -406,6 +400,10 @@ func (conn *SQLdbStruct) GetTableInfo(tableName string) (
 		//------------------------------------------------------------
 		return conn.connMySQL.GetTableInfo(tableName)
 		//------------------------------------------------------------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//------------------------------------------------------------
+		return conn.connPostgres.GetTableInfo(tableName)
+		//------------------------------------------------------------
 	} else {
 		//------------------------------------------------------------
 		return conn.connSQLite.GetTableInfo(tableName)
@@ -423,6 +421,10 @@ func (conn *SQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]a
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//----------
 		return conn.connMySQL.QueryRecords(strings.TrimSpace(query), args...)
+		//----------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//----------
+		return conn.connPostgres.QueryRecords(strings.TrimSpace(query), args...)
 		//----------
 	} else {
 		//----------
@@ -445,6 +447,10 @@ func (conn *SQLdbStruct) TableExists(tableName string) (bool, error) {
 	if strings.ToLower(conn.DBType) == "mysql" {
 		//----------
 		return conn.connMySQL.TableExists(tableName)
+		//----------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//----------
+		return conn.connPostgres.TableExists(tableName)
 		//----------
 	} else {
 		//----------
@@ -485,6 +491,14 @@ func EscapeDoubleQuotes(dataString string) string {
 func EscapeMySQLString(dataString string) string {
 	//------------------------------------------------------------
 	return mysqldb.EscapeMySQLString(dataString)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+
+func EscapePostgreSQLString(dataString string) string {
+	//------------------------------------------------------------
+	return postgresdb.EscapePostgreSQLString(dataString)
 	//------------------------------------------------------------
 }
 
