@@ -12,7 +12,7 @@ import (
 
 //------------------------------------------------------------
 
-var conn1 postgresDBStruct
+var conn1 PostgresDBStruct
 
 //------------------------------------------------------------
 //############################################################
@@ -27,7 +27,7 @@ func TestConnect1(t *testing.T) {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
-	conn1, err = Connect(postgresDBStruct{Database: "MADE_UP_NAME_FDSDFDDVDHIFHDIH"}, true)
+	conn1, err = Connect(PostgresDBStruct{Database: "MADE_UP_NAME_FDSDFDDVDHIFHDIH"}, true)
 	//------------------------------------------------------------
 	if err == nil {
 		t.Error("connection should fail if database does not exist")
@@ -40,7 +40,7 @@ func TestConnect2(t *testing.T) {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
-	conn1, err = Connect(postgresDBStruct{Database: "test", AutoCreate: true}, true)
+	conn1, err = Connect(PostgresDBStruct{Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 

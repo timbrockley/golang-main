@@ -16,7 +16,7 @@ import (
 
 //------------------------------------------------------------
 
-type postgresDBStruct struct {
+type PostgresDBStruct struct {
 	//----------
 	Host string
 	//----------
@@ -49,7 +49,7 @@ func init() {
 // Connect method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) Connect(checkENV ...bool) error {
+func (conn *PostgresDBStruct) Connect(checkENV ...bool) error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -113,10 +113,10 @@ func (conn *postgresDBStruct) Connect(checkENV ...bool) error {
 //------------------------------------------------------------
 // Connect - interface to connect method
 //------------------------------------------------------------
-// conn, err = Connect(postgresDBStruct{ }, checkENV)
+// conn, err = Connect(PostgresDBStruct{ }, checkENV)
 //------------------------------------------------------------
 
-func Connect(conn postgresDBStruct, checkENV ...bool) (postgresDBStruct, error) {
+func Connect(conn PostgresDBStruct, checkENV ...bool) (PostgresDBStruct, error) {
 	//------------------------------------------------------------
 	return conn, conn.Connect(checkENV...)
 	//------------------------------------------------------------
@@ -126,7 +126,7 @@ func Connect(conn postgresDBStruct, checkENV ...bool) (postgresDBStruct, error) 
 // Exec method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) Exec(query string, args ...any) (sql.Result, error) {
+func (conn *PostgresDBStruct) Exec(query string, args ...any) (sql.Result, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -140,7 +140,7 @@ func (conn *postgresDBStruct) Exec(query string, args ...any) (sql.Result, error
 // Query method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) Query(query string, args ...any) (*sql.Rows, error) {
+func (conn *PostgresDBStruct) Query(query string, args ...any) (*sql.Rows, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -154,7 +154,7 @@ func (conn *postgresDBStruct) Query(query string, args ...any) (*sql.Rows, error
 // QueryRow method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) QueryRow(query string, args ...any) *sql.Row {
+func (conn *PostgresDBStruct) QueryRow(query string, args ...any) *sql.Row {
 	//------------------------------------------------------------
 	return conn.DB.QueryRow(strings.TrimSpace(query), args...)
 	//------------------------------------------------------------
@@ -164,7 +164,7 @@ func (conn *postgresDBStruct) QueryRow(query string, args ...any) *sql.Row {
 // Close method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) Close() error {
+func (conn *PostgresDBStruct) Close() error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -186,7 +186,7 @@ func (conn *postgresDBStruct) Close() error {
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) TableExists(tableName string) (bool, error) {
+func (conn *PostgresDBStruct) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return false, errors.New("not connected")
@@ -239,7 +239,7 @@ func (conn *postgresDBStruct) TableExists(tableName string) (bool, error) {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) GetSQLTableInfo(tableName string) (
+func (conn *PostgresDBStruct) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -315,7 +315,7 @@ func (conn *postgresDBStruct) GetSQLTableInfo(tableName string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) GetTableInfo(tableName string) (
+func (conn *PostgresDBStruct) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -363,7 +363,7 @@ func (conn *postgresDBStruct) GetTableInfo(tableName string) (
 // GetRowsInfo method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) GetRowsInfo(rows *sql.Rows) (
+func (conn *PostgresDBStruct) GetRowsInfo(rows *sql.Rows) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -412,7 +412,7 @@ func (conn *postgresDBStruct) GetRowsInfo(rows *sql.Rows) (
 // ScanRows method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
+func (conn *PostgresDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var records []map[string]any
 	//------------------------------------------------------------
@@ -468,7 +468,7 @@ func (conn *postgresDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, err
 // QueryRecords method
 //------------------------------------------------------------
 
-func (conn *postgresDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+func (conn *PostgresDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
