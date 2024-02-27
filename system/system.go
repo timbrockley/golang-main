@@ -88,9 +88,127 @@ func ConvertToInt(value any) int {
 			//----------
 			return value.(int)
 			//----------
+		} else if fmt.Sprintf("%T", value) == "int32" {
+			//----------
+			return value.(int)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int64" {
+			//----------
+			return value.(int)
+			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------
 			return int(value.(float64))
+			//----------
+		} else if fmt.Sprintf("%T", value) == "bool" {
+			//----------
+			if value.(bool) {
+				return 1
+			} else {
+				return 0
+			}
+			//----------
+		} else {
+			//----------
+			return 0
+			//----------
+		}
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ConvertToInt32
+//------------------------------------------------------------
+
+func ConvertToInt32(value any) int32 {
+	//------------------------------------------------------------
+	if value == nil {
+		//----------
+		return 0
+		//----------
+	} else {
+
+		if fmt.Sprintf("%T", value) == "string" {
+			//----------
+			valueSplit := strings.Split(value.(string), ".")
+			if len(valueSplit) > 0 {
+				int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
+				return int32(int64Val)
+			} else {
+				return 0
+			}
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int" {
+			//----------
+			return value.(int32)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int32" {
+			//----------
+			return value.(int32)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int64" {
+			//----------
+			return value.(int32)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "float64" {
+			//----------
+			return int32(value.(float64))
+			//----------
+		} else if fmt.Sprintf("%T", value) == "bool" {
+			//----------
+			if value.(bool) {
+				return 1
+			} else {
+				return 0
+			}
+			//----------
+		} else {
+			//----------
+			return 0
+			//----------
+		}
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ConvertToInt64
+//------------------------------------------------------------
+
+func ConvertToInt64(value any) int64 {
+	//------------------------------------------------------------
+	if value == nil {
+		//----------
+		return 0
+		//----------
+	} else {
+
+		if fmt.Sprintf("%T", value) == "string" {
+			//----------
+			valueSplit := strings.Split(value.(string), ".")
+			if len(valueSplit) > 0 {
+				int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
+				return int64Val
+			} else {
+				return 0
+			}
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int" {
+			//----------
+			return value.(int64)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int32" {
+			//----------
+			return value.(int64)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int64" {
+			//----------
+			return value.(int64)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "float64" {
+			//----------
+			return int64(value.(float64))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "bool" {
 			//----------
@@ -149,6 +267,14 @@ func ConvertToFloat64(value any) float64 {
 		} else if fmt.Sprintf("%T", value) == "int" {
 			//----------
 			return float64(value.(int))
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int32" {
+			//----------
+			return float64(value.(int32))
+			//----------
+		} else if fmt.Sprintf("%T", value) == "int64" {
+			//----------
+			return float64(value.(int64))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------

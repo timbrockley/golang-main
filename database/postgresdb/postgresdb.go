@@ -1,6 +1,6 @@
 //------------------------------------------------------------
 
-package mysqldb
+package postgresDB
 
 import (
 	"database/sql"
@@ -10,19 +10,18 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/timbrockley/golang-main/system"
 )
 
 //------------------------------------------------------------
 
-type MySQLdbStruct struct {
+type postgresDBStruct struct {
 	//----------
 	Host string
 	//----------
-	User                 string
-	Password             string
-	AllowNativePasswords bool
+	User     string
+	Password string
 	//----------
 	Database string
 	//----------
@@ -50,7 +49,7 @@ func init() {
 // Connect method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
+func (conn *postgresDBStruct) Connect(checkENV ...bool) error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -58,36 +57,14 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 	//------------------------------------------------------------
 	if checkENV != nil && checkENV[0] {
 		//----------
-		conn.Host = os.Getenv("MYSQL_HOST")
+		conn.Host = os.Getenv("POSTGRES_HOST")
 		//----------
-		conn.User = os.Getenv("MYSQL_USER")
-		conn.Password = os.Getenv("MYSQL_PWD")
-		//----------
-		conn.AllowNativePasswords = os.Getenv("MYSQL_ALLOW_NATIVE_PASSWORDS") == "true"
+		conn.User = os.Getenv("POSTGRES_USER")
+		conn.Password = os.Getenv("POSTGRES_PWD")
 		//----------
 		if conn.Database == "" {
-			conn.Database = os.Getenv("MYSQL_DATABASE")
+			conn.Database = os.Getenv("POSTGRES_DATABASE")
 		}
-		//----------
-	}
-	//------------------------------------------------------------
-	mysqlConfig := mysql.Config{
-		//----------
-		User:   conn.User,
-		Passwd: conn.Password,
-		//----------
-		AllowNativePasswords: conn.AllowNativePasswords,
-		//----------
-		MultiStatements: true,
-		//----------
-		// DBName: conn.Database,
-		//----------
-	}
-	//------------------------------------------------------------
-	if conn.Host != "" {
-		//----------
-		mysqlConfig.Addr = conn.Host
-		mysqlConfig.Net = "tcp"
 		//----------
 	}
 	//------------------------------------------------------------
@@ -95,23 +72,33 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 		return errors.New("invalid database name")
 	}
 	//------------------------------------------------------------
-	conn.DB, err = sql.Open("mysql", mysqlConfig.FormatDSN())
+	var connString string
+	//------------------------------------------------------------
+	connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
+	conn.DB, err = sql.Open("postgres", connString)
 	//----------
 	if err == nil {
 		//----------
 		err = conn.DB.Ping()
 		//----------
-		if err == nil && conn.Database != "" {
+		if err != nil {
 			//----------
 			if conn.AutoCreate {
 				//----------
-				_, err = conn.DB.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", conn.Database))
+				connString = fmt.Sprintf("host=%s user=%s password=%s sslmode=disable", conn.Host, conn.User, conn.Password)
+				conn.DB, err = sql.Open("postgres", connString)
 				//----------
-			}
-			//----------
-			if err == nil {
-				//----------
-				_, err = conn.DB.Exec(fmt.Sprintf("USE %s;", conn.Database))
+				if err == nil {
+					_, _ = conn.DB.Exec(fmt.Sprintf("CREATE DATABASE %s;", conn.Database))
+					_ = conn.DB.Close()
+					connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
+					conn.DB, _ = sql.Open("postgres", connString)
+					//----------
+					if err == nil {
+						err = conn.DB.Ping()
+					}
+					//----------
+				}
 				//----------
 			}
 			//----------
@@ -126,10 +113,10 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 //------------------------------------------------------------
 // Connect - interface to connect method
 //------------------------------------------------------------
-// conn, err = Connect(MySQLdbStruct{ }, checkENV)
+// conn, err = Connect(postgresDBStruct{ }, checkENV)
 //------------------------------------------------------------
 
-func Connect(conn MySQLdbStruct, checkENV ...bool) (MySQLdbStruct, error) {
+func Connect(conn postgresDBStruct, checkENV ...bool) (postgresDBStruct, error) {
 	//------------------------------------------------------------
 	return conn, conn.Connect(checkENV...)
 	//------------------------------------------------------------
@@ -139,7 +126,7 @@ func Connect(conn MySQLdbStruct, checkENV ...bool) (MySQLdbStruct, error) {
 // Exec method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Exec(query string, args ...any) (sql.Result, error) {
+func (conn *postgresDBStruct) Exec(query string, args ...any) (sql.Result, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -153,7 +140,7 @@ func (conn *MySQLdbStruct) Exec(query string, args ...any) (sql.Result, error) {
 // Query method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Query(query string, args ...any) (*sql.Rows, error) {
+func (conn *postgresDBStruct) Query(query string, args ...any) (*sql.Rows, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -167,72 +154,9 @@ func (conn *MySQLdbStruct) Query(query string, args ...any) (*sql.Rows, error) {
 // QueryRow method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
+func (conn *postgresDBStruct) QueryRow(query string, args ...any) *sql.Row {
 	//------------------------------------------------------------
 	return conn.DB.QueryRow(strings.TrimSpace(query), args...)
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// LockTables method
-//------------------------------------------------------------
-
-func (conn *MySQLdbStruct) LockTables(Tables ...string) error {
-	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
-	if conn.DB == nil {
-		return errors.New("not connected")
-	}
-	//------------------------------------------------------------
-	if Tables == nil {
-		//------------------------------------------------------------
-		return errors.New("no tables defined")
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-	tableLocks := []string{}
-	//----------
-	for _, tableName := range Tables {
-		//----------
-		if !CheckTableName(tableName) {
-			//----------
-			err = fmt.Errorf("invalid table name: (%s)", tableName)
-			break
-			//----------
-		} else {
-			//----------
-			tableLocks = append(tableLocks, fmt.Sprintf("%s WRITE", tableName))
-			//---------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-	if err == nil {
-		//------------------------------------------------------------
-		_, err = conn.DB.Exec(fmt.Sprintf("LOCK TABLES %s;", strings.Join(tableLocks, ", ")))
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-	return err
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// UnlockTables method
-//------------------------------------------------------------
-
-func (conn *MySQLdbStruct) UnlockTables() error {
-	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
-	if conn.DB == nil {
-		return errors.New("not connected")
-	}
-	//------------------------------------------------------------
-	_, err = conn.DB.Exec("UNLOCK TABLES;")
-	//------------------------------------------------------------
-	return err
 	//------------------------------------------------------------
 }
 
@@ -240,7 +164,7 @@ func (conn *MySQLdbStruct) UnlockTables() error {
 // Close method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Close() error {
+func (conn *postgresDBStruct) Close() error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -262,7 +186,7 @@ func (conn *MySQLdbStruct) Close() error {
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
+func (conn *postgresDBStruct) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return false, errors.New("not connected")
@@ -287,7 +211,7 @@ func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s' LIMIT 1;", conn.Database, tableName))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='%s' LIMIT 1;", tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return false, err
@@ -315,7 +239,7 @@ func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
+func (conn *postgresDBStruct) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -355,7 +279,7 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
 	//----------
 	columnInfoMap := map[string]string{}
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query("SELECT IFNULL(ORDINAL_POSITION, 0), IFNULL(COLUMN_NAME, ''), IFNULL(DATA_TYPE, '') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=?;", conn.Database, tableName)
+	rows, err = conn.DB.Query("SELECT COALESCE(ORDINAL_POSITION, 0), COALESCE(COLUMN_NAME, ''), COALESCE(DATA_TYPE, '') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = $1;", tableName)
 	//------------------------------------------------------------
 	if err == nil {
 		//------------------------------------------------------------
@@ -391,7 +315,7 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
+func (conn *postgresDBStruct) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -423,7 +347,7 @@ func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s.%s LIMIT 1;", conn.Database, tableName))
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT * FROM %s LIMIT 1;", tableName))
 	//------------------------------------------------------------
 	if err != nil {
 		return nil, nil, err
@@ -439,7 +363,7 @@ func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
 // GetRowsInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetRowsInfo(rows *sql.Rows) (
+func (conn *postgresDBStruct) GetRowsInfo(rows *sql.Rows) (
 	[]struct {
 		Sequence int
 		Name     string
@@ -488,7 +412,7 @@ func (conn *MySQLdbStruct) GetRowsInfo(rows *sql.Rows) (
 // ScanRows method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
+func (conn *postgresDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var records []map[string]any
 	//------------------------------------------------------------
@@ -512,17 +436,15 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 			//----------
 			for index, value := range scans {
 				//----------
-				value = string(value.([]byte))
-				//----------
 				Name := columns[index]
 				Type := strings.ToUpper(columnTypes[Name])
 				//----------
 				switch Type {
-				case "BIGINT", "BIT", "BIT VARYING", "INT", "INTEGER", "MEDIUMINT", "SERIAL", "SMALLINT", "SMALLSERIAL", "TINYINT":
+				case "BIGINT", "BIGSERIAL", "BIT", "BIT VARYING", "INT", "INTEGER", "MEDIUMINT", "SERIAL", "SMALLINT", "SMALLSERIAL", "TINYINT":
 					value = system.ConvertToInt(value)
 				case "DEC", "DECIMAL", "DOUBLE", "DOUBLE PRECISION", "FIXED", "FLOAT", "NUMERIC", "REAL":
 					value = system.ConvertToFloat(value)
-				case "BIGSERIAL", "BINARY", "BLOB", "BYTE", "BYTEA", "LONGBLOB", "TINYBLOB", "VARBINARY":
+				case "BINARY", "BLOB", "BYTE", "BYTEA", "LONGBLOB", "TINYBLOB", "VARBINARY":
 					value = system.ConvertToBytes(value)
 				case "BOOL", "BOOLEAN":
 					value = system.ConvertToBool(value)
@@ -546,7 +468,7 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 // QueryRecords method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+func (conn *postgresDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
@@ -591,19 +513,9 @@ func EscapeDoubleQuotes(dataString string) string {
 
 //------------------------------------------------------------
 
-func EscapeMySQLString(dataString string) string {
+func EscapePostgreSQLString(dataString string) string {
 	//------------------------------------------------------------
-	replacer := strings.NewReplacer(
-		"\\", "\\\\",
-		"\x00", "\\\x00",
-		"\r", "\\r",
-		"\n", "\\n",
-		"\x1A", "\\Z",
-		`"`, `\"`,
-		`'`, `\'`,
-	)
-	//------------------------------------------------------------
-	return replacer.Replace(dataString)
+	return pq.QuoteLiteral(dataString)
 	//------------------------------------------------------------
 }
 
