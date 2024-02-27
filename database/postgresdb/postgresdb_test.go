@@ -1,6 +1,6 @@
 //------------------------------------------------------------
 
-package postgresDB
+package postgresdb
 
 import (
 	"database/sql"
