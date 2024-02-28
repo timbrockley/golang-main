@@ -16,6 +16,7 @@ import (
 //--------------------------------------------------------------------------------
 
 var mysql_conn SQLdbStruct
+var postgres_conn SQLdbStruct
 var sqlite_conn SQLdbStruct
 
 //--------------------------------------------------------------------------------
@@ -34,6 +35,16 @@ func TestConnect(t *testing.T) {
 	db_type = "mysql"
 	//------------------------------------------------------------
 	mysql_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test", AutoCreate: true}, true)
+	//------------------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	db_type = "postgres"
+	//------------------------------------------------------------
+	postgres_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -172,6 +183,33 @@ func TestExec(t *testing.T) {
 		}
 		//------------------------------------------------------------
 	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	if postgres_conn.DB == nil {
+		t.Error("postgres database handle does not exist")
+	} else {
+		//------------------------------------------------------------
+		// postgres
+		//------------------------------------------------------------
+		testData = []string{
+			"DROP TABLE IF EXISTS cars;",
+			"CREATE TABLE cars(id SERIAL PRIMARY KEY, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);",
+			"INSERT INTO cars(name,price) VALUES('Mazda',9001);",
+		}
+		//--------------------------------------------------
+		for _, stmt := range testData {
+			//------------------------------------------------------------
+			_, err = postgres_conn.Exec(stmt)
+			//------------------------------------------------------------
+			if err != nil {
+				t.Error(err)
+			}
+			//------------------------------------------------------------
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
 
 	//------------------------------------------------------------
 	if sqlite_conn.DB == nil {
@@ -242,6 +280,32 @@ func TestQueryRow(t *testing.T) {
 	//------------------------------------------------------------
 
 	//------------------------------------------------------------
+	if postgres_conn.DB == nil {
+		t.Error("mysql database handle does not exist")
+	} else {
+		//------------------------------------------------------------
+		// postgres
+		//------------------------------------------------------------
+		row1 = postgres_conn.QueryRow("SELECT COUNT(*) AS count FROM cars")
+		//------------------------------------------------------------
+		err = row1.Scan(&count)
+		//------------------------------------------------------------
+		if err != nil {
+
+			t.Error(err)
+
+		} else {
+
+			if count != EXPECTED_count {
+
+				t.Errorf("count = %d but should = %d", count, EXPECTED_count)
+			}
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
 	if sqlite_conn.DB == nil {
 		t.Error("sqlite database handle does not exist")
 	} else {
@@ -284,6 +348,8 @@ func TestGetSQLTableInfo(t *testing.T) {
 	//----------
 	var columnInfoMap map[string]string
 	//------------------------------------------------------------
+
+	//------------------------------------------------------------
 	// mysql
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = mysql_conn.GetSQLTableInfo("cars")
@@ -305,6 +371,35 @@ func TestGetSQLTableInfo(t *testing.T) {
 			//----------
 			if fmt.Sprint(columnInfoMap) != "map[id:int name:varchar price:int]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:int name:varchar price:int]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = postgres_conn.GetSQLTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id integer}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id integer}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:integer name:character varying price:integer]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:integer name:character varying price:integer]")
 			}
 			//----------
 		}
@@ -358,6 +453,8 @@ func TestGetTableInfo(t *testing.T) {
 	//----------
 	var columnInfoMap map[string]string
 	//------------------------------------------------------------
+
+	//------------------------------------------------------------
 	// mysql
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = mysql_conn.GetTableInfo("cars")
@@ -379,6 +476,35 @@ func TestGetTableInfo(t *testing.T) {
 			//----------
 			if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = postgres_conn.GetTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INT4}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INT4}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:INT4 name:VARCHAR price:INT4]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT4 name:VARCHAR price:INT4]")
 			}
 			//----------
 		}
@@ -425,9 +551,48 @@ func TestQueryRecords(t *testing.T) {
 	var err error
 	var records []map[string]any
 	//------------------------------------------------------------
+
+	//------------------------------------------------------------
 	// mysql
 	//------------------------------------------------------------
 	records, err = mysql_conn.QueryRecords("SELECT * FROM test.cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 1
+		//----------
+		if len(records) != length {
+			t.Errorf("len(records) = %d but should = %d", len(records), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]") {
+				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["id"]) != "int" {
+				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
+				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
+				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	records, err = mysql_conn.QueryRecords("SELECT * FROM cars")
 	//----------
 	if err != nil {
 		t.Error(err)
@@ -527,6 +692,36 @@ func TestTableExists(t *testing.T) {
 	}
 	//------------------------------------------------------------
 	result, err = mysql_conn.TableExists("cars")
+	//------------------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		if result != true {
+
+			t.Errorf("result = %v but should = %v", result, !result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	result, err = postgres_conn.TableExists("MADE_UP_TABLE_NAME_DFDFDFDFDSFDSFFD")
+	//------------------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		if result != false {
+
+			t.Errorf("result = %v but should = %v", result, !result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+	result, err = postgres_conn.TableExists("cars")
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -657,6 +852,21 @@ func TestEscapeMySQLString(t *testing.T) {
 }
 
 //--------------------------------------------------------------------------------
+
+func TestEscapePostgreSQLString(t *testing.T) {
+	//------------------------------------------------------------
+	result := EscapePostgreSQLString(`TEST_'"\_TEST`)
+	//----------
+	EXPECTED_result := ` E'TEST_''"\\_TEST'`
+	//------------------------------------------------------------
+	if result != EXPECTED_result {
+
+		t.Errorf(`result = "%v" but should = "%v"`, result, EXPECTED_result)
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
 //################################################################################
 //--------------------------------------------------------------------------------
 
@@ -669,6 +879,12 @@ func TestClose(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	mysql_conn.Close()
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	postgres_conn.Close()
 	//------------------------------------------------------------
 
 	//------------------------------------------------------------
