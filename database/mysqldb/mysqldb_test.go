@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 //------------------------------------------------------------
@@ -101,6 +102,8 @@ func TestExec(t *testing.T) {
 		"COMMIT;",
 	}
 	//--------------------------------------------------
+	time.Sleep(time.Second * 1)
+	//------------------------------------------------------------
 	for _, stmt := range testData {
 		//------------------------------------------------------------
 		_, err = conn1.Exec(stmt)
@@ -114,6 +117,8 @@ func TestExec(t *testing.T) {
 	result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES(?,?);", "Volkswagen", 21600)
 	//------------------------------------------------------------
 	_, _ = conn1.Exec("FLUSH TABLES;")
+	//------------------------------------------------------------
+	time.Sleep(time.Second * 1)
 	//------------------------------------------------------------
 	if result == nil {
 		t.Error("invalid result")

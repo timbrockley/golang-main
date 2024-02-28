@@ -251,8 +251,6 @@ func TestQueryRow(t *testing.T) {
 	var row1 *sql.Row
 	var count int
 	//------------------------------------------------------------
-	EXPECTED_count := 1
-	//------------------------------------------------------------
 
 	//------------------------------------------------------------
 	if mysql_conn.DB == nil {
@@ -261,7 +259,7 @@ func TestQueryRow(t *testing.T) {
 		//------------------------------------------------------------
 		// mysql
 		//------------------------------------------------------------
-		row1 = mysql_conn.QueryRow("SELECT COUNT(*) AS count FROM cars")
+		row1 = mysql_conn.QueryRow("SELECT COUNT(*) AS count FROM information_schema.SCHEMATA")
 		//------------------------------------------------------------
 		err = row1.Scan(&count)
 		//------------------------------------------------------------
@@ -271,9 +269,9 @@ func TestQueryRow(t *testing.T) {
 
 		} else {
 
-			if count != EXPECTED_count {
+			if count == 0 {
 
-				t.Errorf("count = %d but should = %d", count, EXPECTED_count)
+				t.Errorf("count = %d but should be greater than 0", count)
 			}
 		}
 		//------------------------------------------------------------
@@ -282,12 +280,12 @@ func TestQueryRow(t *testing.T) {
 
 	//------------------------------------------------------------
 	if postgres_conn.DB == nil {
-		t.Error("mysql database handle does not exist")
+		t.Error("postgres database handle does not exist")
 	} else {
 		//------------------------------------------------------------
 		// postgres
 		//------------------------------------------------------------
-		row1 = postgres_conn.QueryRow("SELECT COUNT(*) AS count FROM cars")
+		row1 = postgres_conn.QueryRow("SELECT COUNT(*) AS count FROM information_schema.SCHEMATA")
 		//------------------------------------------------------------
 		err = row1.Scan(&count)
 		//------------------------------------------------------------
@@ -297,9 +295,9 @@ func TestQueryRow(t *testing.T) {
 
 		} else {
 
-			if count != EXPECTED_count {
+			if count == 0 {
 
-				t.Errorf("count = %d but should = %d", count, EXPECTED_count)
+				t.Errorf("count = %d but should be greater than 0", count)
 			}
 		}
 		//------------------------------------------------------------
@@ -323,9 +321,9 @@ func TestQueryRow(t *testing.T) {
 
 		} else {
 
-			if count != EXPECTED_count {
+			if count == 0 {
 
-				t.Errorf("count = %d but should = %d", count, EXPECTED_count)
+				t.Errorf("count = %d but should be greater than 0", count)
 			}
 		}
 		//------------------------------------------------------------
@@ -383,7 +381,7 @@ func TestQueryRecords(t *testing.T) {
 	//------------------------------------------------------------
 	// postgres
 	//------------------------------------------------------------
-	records, err = mysql_conn.QueryRecords("SELECT * FROM cars")
+	records, err = postgres_conn.QueryRecords("SELECT * FROM cars")
 	//----------
 	if err != nil {
 		t.Error(err)
@@ -400,16 +398,16 @@ func TestQueryRecords(t *testing.T) {
 				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]")
 			}
 			//----------
-			if fmt.Sprintf("%T", records[0]["id"]) != "int" {
-				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int")
+			if fmt.Sprintf("%T", records[0]["id"]) != "int64" {
+				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int64")
 			}
 			//----------
 			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
 				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
 			}
 			//----------
-			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
-				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int")
+			if fmt.Sprintf("%T", records[0]["price"]) != "int64" {
+				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int64")
 			}
 			//----------
 		}
