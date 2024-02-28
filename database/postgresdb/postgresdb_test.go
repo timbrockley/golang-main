@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 )
 
 //------------------------------------------------------------
@@ -70,8 +69,6 @@ func TestExec(t *testing.T) {
 		t.Error(err)
 	}
 	//------------------------------------------------------------
-	time.Sleep(2 * time.Second)
-	//------------------------------------------------------------
 	testData := []string{
 		"BEGIN;",
 		"DROP TABLE IF EXISTS cars;",
@@ -96,8 +93,6 @@ func TestExec(t *testing.T) {
 		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
-	// time.Sleep(1 * time.Second)
-	//------------------------------------------------------------
 	result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES($1, $2);", "Volkswagen", 21600)
 	// result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES('Car Name', 10000);")
 	//------------------------------------------------------------
@@ -108,8 +103,6 @@ func TestExec(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	//------------------------------------------------------------
-	// time.Sleep(1 * time.Second)
 	//------------------------------------------------------------
 }
 
