@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -274,6 +275,54 @@ func TestQueryRow(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 //------------------------------------------------------------
+// QueryRecords
+//------------------------------------------------------------
+
+func TestQueryRecords(t *testing.T) {
+	//------------------------------------------------------------
+	var err error
+	var records []map[string]any
+	//------------------------------------------------------------
+	records, err = conn1.QueryRecords("SELECT * FROM cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 8
+		//----------
+		if len(records) != length {
+			t.Errorf("len(records) = %d but should = %d", len(records), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]") {
+				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["id"]) != "int" {
+				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
+				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
+			}
+			//----------
+			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
+				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+//################################################################################
+//--------------------------------------------------------------------------------
+
+//------------------------------------------------------------
 // GetSQLTableInfo
 //------------------------------------------------------------
 
@@ -317,6 +366,52 @@ func TestGetSQLTableInfo(t *testing.T) {
 }
 
 //------------------------------------------------------------
+// ShowTables
+//------------------------------------------------------------
+
+func TestShowTables(t *testing.T) {
+	//------------------------------------------------------------
+	tables, err := conn1.ShowTables()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		carsExists := slices.Contains(tables, "cars")
+		//----------
+		if !carsExists {
+			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTablesMap
+//------------------------------------------------------------
+
+func TestShowTablesMap(t *testing.T) {
+	//------------------------------------------------------------
+	tablesMap, err := conn1.ShowTablesMap()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		tableInfoMap := tablesMap["cars"]
+		//----------
+		EXPECTED_result := "map[id:INTEGER name:VARCHAR(255) price:INT]"
+		//----------
+		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
+			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // GetTableInfo
 //------------------------------------------------------------
 
@@ -350,50 +445,6 @@ func TestGetTableInfo(t *testing.T) {
 			//----------
 			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// QueryRecords
-//------------------------------------------------------------
-
-func TestQueryRecords(t *testing.T) {
-	//------------------------------------------------------------
-	var err error
-	var records []map[string]any
-	//------------------------------------------------------------
-	records, err = conn1.QueryRecords("SELECT * FROM cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 8
-		//----------
-		if len(records) != length {
-			t.Errorf("len(records) = %d but should = %d", len(records), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]") {
-				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]")
-			}
-			//----------
-			if fmt.Sprintf("%T", records[0]["id"]) != "int" {
-				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int")
-			}
-			//----------
-			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
-				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
-			}
-			//----------
-			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
-				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int")
 			}
 			//----------
 		}

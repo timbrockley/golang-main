@@ -174,6 +174,27 @@ func (conn *MySQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
+// QueryRecords method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
+	//----------
+	if err != nil {
+		return nil, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	return conn.ScanRows(rows)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // LockTables method
 //------------------------------------------------------------
 
@@ -231,24 +252,6 @@ func (conn *MySQLdbStruct) UnlockTables() error {
 	}
 	//------------------------------------------------------------
 	_, err = conn.DB.Exec("UNLOCK TABLES;")
-	//------------------------------------------------------------
-	return err
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// Close method
-//------------------------------------------------------------
-
-func (conn *MySQLdbStruct) Close() error {
-	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
-	if conn.DB != nil {
-		err = conn.DB.Close()
-	}
-	//------------------------------------------------------------
-	conn.DB = nil
 	//------------------------------------------------------------
 	return err
 	//------------------------------------------------------------
@@ -543,23 +546,179 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 }
 
 //------------------------------------------------------------
-// QueryRecords method
+// ShowDatabases method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+func (conn *MySQLdbStruct) ShowDatabases() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return []string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return []string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return []string{}, errors.New("invalid database name")
+	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
-	//----------
+	rows, err = conn.DB.Query("SELECT schema_name FROM information_schema.SCHEMATA;")
+	//------------------------------------------------------------
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	return conn.ScanRows(rows)
+	var tables = []string{}
+	//------------------------------
+	for rows.Next() {
+		//--------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return []string{}, err
+		}
+		//--------------------
+		tables = append(tables, tbl_name)
+		//--------------------
+	}
+	//------------------------------------------------------------
+	return tables, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTables method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) ShowTables() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return []string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return []string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return []string{}, errors.New("invalid database name")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s';", conn.Database))
+	//------------------------------------------------------------
+	if err != nil {
+		return []string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tables = []string{}
+	//------------------------------
+	for rows.Next() {
+		//--------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return []string{}, err
+		}
+		//--------------------
+		tables = append(tables, tbl_name)
+		//--------------------
+	}
+	//------------------------------------------------------------
+	return tables, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTablesMap method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) ShowTablesMap() (map[string]map[string]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return map[string]map[string]string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return map[string]map[string]string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return map[string]map[string]string{}, errors.New("invalid database name")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	var columnInfoMap map[string]string
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s';", conn.Database))
+	//------------------------------------------------------------
+	if err != nil {
+		return map[string]map[string]string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tablesMap = map[string]map[string]string{}
+	//----------------------------------------
+	for rows.Next() {
+		//----------------------------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		_, columnInfoMap, err = conn.GetTableInfo(tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		tablesMap[tbl_name] = columnInfoMap
+		//----------------------------------------
+	}
+	//------------------------------------------------------------
+	return tablesMap, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// Close method
+//------------------------------------------------------------
+
+func (conn *MySQLdbStruct) Close() error {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if conn.DB != nil {
+		err = conn.DB.Close()
+	}
+	//------------------------------------------------------------
+	conn.DB = nil
+	//------------------------------------------------------------
+	return err
 	//------------------------------------------------------------
 }
 

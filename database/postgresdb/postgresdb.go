@@ -172,20 +172,23 @@ func (conn *PostgresDBStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
-// Close method
+// QueryRecords method
 //------------------------------------------------------------
 
-func (conn *PostgresDBStruct) Close() error {
+func (conn *PostgresDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var err error
+	var rows *sql.Rows
 	//------------------------------------------------------------
-	if conn.DB != nil {
-		err = conn.DB.Close()
+	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
+	//----------
+	if err != nil {
+		return nil, err
 	}
 	//------------------------------------------------------------
-	conn.DB = nil
+	defer rows.Close()
 	//------------------------------------------------------------
-	return err
+	return conn.ScanRows(rows)
 	//------------------------------------------------------------
 }
 
@@ -476,23 +479,183 @@ func (conn *PostgresDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, err
 }
 
 //------------------------------------------------------------
-// QueryRecords method
+//############################################################
 //------------------------------------------------------------
 
-func (conn *PostgresDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+//------------------------------------------------------------
+// ShowDatabases method
+//------------------------------------------------------------
+
+func (conn *PostgresDBStruct) ShowDatabases() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return []string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return []string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return []string{}, errors.New("invalid database name")
+	}
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
 	//------------------------------------------------------------
-	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
-	//----------
+	rows, err = conn.DB.Query("SELECT datname FROM pg_database WHERE datistemplate = false;")
+	//------------------------------------------------------------
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	return conn.ScanRows(rows)
+	var tables = []string{}
+	//------------------------------
+	for rows.Next() {
+		//--------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return []string{}, err
+		}
+		//--------------------
+		tables = append(tables, tbl_name)
+		//--------------------
+	}
+	//------------------------------------------------------------
+	return tables, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTables method
+//------------------------------------------------------------
+
+func (conn *PostgresDBStruct) ShowTables() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return []string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return []string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return []string{}, errors.New("invalid database name")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")
+	//------------------------------------------------------------
+	if err != nil {
+		return []string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tables = []string{}
+	//------------------------------
+	for rows.Next() {
+		//--------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return []string{}, err
+		}
+		//--------------------
+		tables = append(tables, tbl_name)
+		//--------------------
+	}
+	//------------------------------------------------------------
+	return tables, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTablesMap method
+//------------------------------------------------------------
+
+func (conn *PostgresDBStruct) ShowTablesMap() (map[string]map[string]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return map[string]map[string]string{}, errors.New("not connected")
+	}
+	//----------
+	if conn.Database == "" {
+		return map[string]map[string]string{}, errors.New("database name cannot be blank")
+	}
+	//----------
+	if !CheckDatabaseName(conn.Database) {
+		return map[string]map[string]string{}, errors.New("invalid database name")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	var columnInfoMap map[string]string
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")
+	//------------------------------------------------------------
+	if err != nil {
+		return map[string]map[string]string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tablesMap = map[string]map[string]string{}
+	//----------------------------------------
+	for rows.Next() {
+		//----------------------------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		_, columnInfoMap, err = conn.GetTableInfo(tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		tablesMap[tbl_name] = columnInfoMap
+		//----------------------------------------
+	}
+	//------------------------------------------------------------
+	return tablesMap, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// Close method
+//------------------------------------------------------------
+
+func (conn *PostgresDBStruct) Close() error {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if conn.DB != nil {
+		err = conn.DB.Close()
+	}
+	//------------------------------------------------------------
+	conn.DB = nil
+	//------------------------------------------------------------
+	return err
 	//------------------------------------------------------------
 }
 

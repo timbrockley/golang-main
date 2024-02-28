@@ -160,6 +160,182 @@ func (conn *SQLiteDBStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
+// QueryRecords method
+//------------------------------------------------------------
+
+func (conn *SQLiteDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
+	//----------
+	if err != nil {
+		return nil, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	return conn.ScanRows(rows)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ScanRows method
+//------------------------------------------------------------
+
+func (conn *SQLiteDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
+	//------------------------------------------------------------
+	var records []map[string]any
+	//------------------------------------------------------------
+	columns, err := sqlRows.Columns()
+	//------------------------------------------------------------
+	if err == nil {
+		//------------------------------------------------------------
+		for sqlRows.Next() {
+			//------------------------------------------------------------
+			scans := make([]any, len(columns))
+			//----------
+			record := make(map[string]any)
+			//----------
+			for i := range scans {
+				scans[i] = &scans[i]
+			}
+			//----------
+			sqlRows.Scan(scans...)
+			//----------
+			for index, value := range scans {
+				//------------------------------------------------------------
+				switch value.(type) {
+				case int8:
+					value = int(value.(int8))
+				case int16:
+					value = int(value.(int16))
+				case int32:
+					value = int(value.(int32))
+				case int64:
+					value = int(value.(int64))
+				case uint:
+					value = int(value.(uint))
+				case uint8:
+					value = int(value.(uint8))
+				case uint16:
+					value = int(value.(uint16))
+				case uint32:
+					value = int(value.(uint32))
+				case uint64:
+					value = int(value.(uint64))
+				case float32:
+					value = float64(value.(float32))
+				case float64:
+					value = value.(float64)
+				}
+				//----------
+				record[columns[index]] = value
+				//------------------------------------------------------------
+			}
+			//------------------------------------------------------------
+			records = append(records, record)
+			//------------------------------------------------------------
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+	return records, err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTables method
+//------------------------------------------------------------
+
+func (conn *SQLiteDBStruct) ShowTables() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return []string{}, errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query("SELECT DISTINCT tbl_name FROM sqlite_master;")
+	//------------------------------------------------------------
+	if err != nil {
+		return []string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tables = []string{}
+	//------------------------------
+	for rows.Next() {
+		//--------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return []string{}, err
+		}
+		//--------------------
+		tables = append(tables, tbl_name)
+		//--------------------
+	}
+	//------------------------------------------------------------
+	return tables, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTablesMap method
+//------------------------------------------------------------
+
+func (conn *SQLiteDBStruct) ShowTablesMap() (map[string]map[string]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return map[string]map[string]string{}, errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	var err error
+	var rows *sql.Rows
+	//------------------------------------------------------------
+	var columnInfoMap map[string]string
+	//------------------------------------------------------------
+	rows, err = conn.DB.Query("SELECT DISTINCT tbl_name FROM sqlite_master;")
+	//------------------------------------------------------------
+	if err != nil {
+		return map[string]map[string]string{}, err
+	}
+	//------------------------------------------------------------
+	defer rows.Close()
+	//------------------------------------------------------------
+	var tablesMap = map[string]map[string]string{}
+	//----------------------------------------
+	for rows.Next() {
+		//----------------------------------------
+		var tbl_name string
+		//--------------------
+		err = rows.Scan(&tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		_, columnInfoMap, err = conn.GetTableInfo(tbl_name)
+		//--------------------
+		if err != nil {
+			return map[string]map[string]string{}, err
+		}
+		//--------------------
+		tablesMap[tbl_name] = columnInfoMap
+		//----------------------------------------
+	}
+	//------------------------------------------------------------
+	return tablesMap, nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // TableExists method
 //------------------------------------------------------------
 
@@ -355,90 +531,6 @@ func (conn *SQLiteDBStruct) GetRowsInfo(rows *sql.Rows) (
 	}
 	//------------------------------------------------------------
 	return columInfoRows, columnInfoMap, err
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ScanRows method
-//------------------------------------------------------------
-
-func (conn *SQLiteDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
-	//------------------------------------------------------------
-	var records []map[string]any
-	//------------------------------------------------------------
-	columns, err := sqlRows.Columns()
-	//------------------------------------------------------------
-	if err == nil {
-		//------------------------------------------------------------
-		for sqlRows.Next() {
-			//------------------------------------------------------------
-			scans := make([]any, len(columns))
-			//----------
-			record := make(map[string]any)
-			//----------
-			for i := range scans {
-				scans[i] = &scans[i]
-			}
-			//----------
-			sqlRows.Scan(scans...)
-			//----------
-			for index, value := range scans {
-				//------------------------------------------------------------
-				switch value.(type) {
-				case int8:
-					value = int(value.(int8))
-				case int16:
-					value = int(value.(int16))
-				case int32:
-					value = int(value.(int32))
-				case int64:
-					value = int(value.(int64))
-				case uint:
-					value = int(value.(uint))
-				case uint8:
-					value = int(value.(uint8))
-				case uint16:
-					value = int(value.(uint16))
-				case uint32:
-					value = int(value.(uint32))
-				case uint64:
-					value = int(value.(uint64))
-				case float32:
-					value = float64(value.(float32))
-				}
-				//----------
-				record[columns[index]] = value
-				//------------------------------------------------------------
-			}
-			//------------------------------------------------------------
-			records = append(records, record)
-			//------------------------------------------------------------
-		}
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-	return records, err
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// QueryRecords method
-//------------------------------------------------------------
-
-func (conn *SQLiteDBStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
-	//------------------------------------------------------------
-	var err error
-	var rows *sql.Rows
-	//------------------------------------------------------------
-	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
-	//----------
-	if err != nil {
-		return nil, err
-	}
-	//------------------------------------------------------------
-	defer rows.Close()
-	//------------------------------------------------------------
-	return conn.ScanRows(rows)
 	//------------------------------------------------------------
 }
 
