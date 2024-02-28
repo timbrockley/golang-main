@@ -76,34 +76,45 @@ func (conn *PostgresDBStruct) Connect(checkENV ...bool) error {
 	//------------------------------------------------------------
 	connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
 	conn.DB, err = sql.Open("postgres", connString)
-	//----------
+	//----------------------------------------
 	if err == nil {
-		//----------
+		//----------------------------------------
 		err = conn.DB.Ping()
-		//----------
-		if err != nil {
-			//----------
-			if conn.AutoCreate {
-				//----------
-				connString = fmt.Sprintf("host=%s user=%s password=%s sslmode=disable", conn.Host, conn.User, conn.Password)
-				conn.DB, err = sql.Open("postgres", connString)
-				//----------
+		//----------------------------------------
+		if err != nil && conn.Database != "" && conn.AutoCreate {
+			//----------------------------------------
+			var DB *sql.DB
+			//----------------------------------------
+			connString = fmt.Sprintf("host=%s user=%s password=%s sslmode=disable", conn.Host, conn.User, conn.Password)
+			DB, err = sql.Open("postgres", connString)
+			//----------------------------------------
+			if err == nil {
+				//----------------------------------------
+				err = DB.Ping()
+				//----------------------------------------
 				if err == nil {
-					_, _ = conn.DB.Exec(fmt.Sprintf("CREATE DATABASE %s;", conn.Database))
-					_ = conn.DB.Close()
-					connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
-					conn.DB, _ = sql.Open("postgres", connString)
-					//----------
+					//----------------------------------------
+					_, err = DB.Exec(fmt.Sprintf("CREATE DATABASE %s;", conn.Database))
+					//----------------------------------------
 					if err == nil {
-						err = conn.DB.Ping()
+						//----------------------------------------
+						defer DB.Close()
+						//----------
+						connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
+						conn.DB, _ = sql.Open("postgres", connString)
+						//----------
+						if err == nil {
+							err = conn.DB.Ping()
+						}
+						//----------------------------------------
 					}
-					//----------
+					//----------------------------------------
 				}
-				//----------
+				//----------------------------------------
 			}
-			//----------
+			//----------------------------------------
 		}
-		//----------
+		//----------------------------------------
 	}
 	//------------------------------------------------------------
 	return err
