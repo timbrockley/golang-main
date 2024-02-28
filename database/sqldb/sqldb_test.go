@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -334,216 +335,6 @@ func TestQueryRow(t *testing.T) {
 
 //--------------------------------------------------------------------------------
 
-func TestGetSQLTableInfo(t *testing.T) {
-	//------------------------------------------------------------
-	// GetSQLTableInfo
-	//------------------------------------------------------------
-	var err error
-	//----------
-	var columInfoRows []struct {
-		Sequence int
-		Name     string
-		Type     string
-	}
-	//----------
-	var columnInfoMap map[string]string
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// mysql
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = mysql_conn.GetSQLTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:int name:varchar price:int]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:int name:varchar price:int]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// postgres
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = postgres_conn.GetSQLTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id integer}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id integer}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:integer name:character varying price:integer]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:integer name:character varying price:integer]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// sqlite
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = sqlite_conn.GetSQLTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestGetTableInfo(t *testing.T) {
-	//------------------------------------------------------------
-	// GetTableInfo
-	//------------------------------------------------------------
-	var err error
-	//----------
-	var columInfoRows []struct {
-		Sequence int
-		Name     string
-		Type     string
-	}
-	//----------
-	var columnInfoMap map[string]string
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// mysql
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = mysql_conn.GetTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// postgres
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = postgres_conn.GetTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
-		} else {
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INT4}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INT4}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:INT4 name:VARCHAR price:INT4]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT4 name:VARCHAR price:INT4]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	// sqlite
-	//------------------------------------------------------------
-	columInfoRows, columnInfoMap, err = sqlite_conn.GetTableInfo("cars")
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		length := 3
-		//----------
-		if len(columInfoRows) != length {
-			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-		} else {
-			//----------
-			//----------
-			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
-				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
-			}
-			//----------
-			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
-				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
-			}
-			//----------
-		}
-		//----------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-
 func TestQueryRecords(t *testing.T) {
 	//------------------------------------------------------------
 	// QueryRecords
@@ -665,11 +456,424 @@ func TestQueryRecords(t *testing.T) {
 }
 
 //--------------------------------------------------------------------------------
-// TableExists
+
+func TestGetSQLTableInfo(t *testing.T) {
+	//------------------------------------------------------------
+	// GetSQLTableInfo
+	//------------------------------------------------------------
+	var err error
+	//----------
+	var columInfoRows []struct {
+		Sequence int
+		Name     string
+		Type     string
+	}
+	//----------
+	var columnInfoMap map[string]string
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// mysql
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = mysql_conn.GetSQLTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:int name:varchar price:int]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:int name:varchar price:int]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = postgres_conn.GetSQLTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id integer}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id integer}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:integer name:character varying price:integer]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:integer name:character varying price:integer]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// sqlite
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = sqlite_conn.GetSQLTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TestGetTableInfo(t *testing.T) {
+	//------------------------------------------------------------
+	// GetTableInfo
+	//------------------------------------------------------------
+	var err error
+	//----------
+	var columInfoRows []struct {
+		Sequence int
+		Name     string
+		Type     string
+	}
+	//----------
+	var columnInfoMap map[string]string
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// mysql
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = mysql_conn.GetTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = postgres_conn.GetTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+			//----------
+		} else {
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INT4}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INT4}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:INT4 name:VARCHAR price:INT4]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT4 name:VARCHAR price:INT4]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// sqlite
+	//------------------------------------------------------------
+	columInfoRows, columnInfoMap, err = sqlite_conn.GetTableInfo("cars")
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		length := 3
+		//----------
+		if len(columInfoRows) != length {
+			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
+		} else {
+			//----------
+			//----------
+			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
+				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
+			}
+			//----------
+			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
+				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
+			}
+			//----------
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TestShowDatabases(t *testing.T) {
+	//------------------------------------------------------------
+	// ShowDatabases
+	//------------------------------------------------------------
+	var err error
+	var databases []string
+
+	//------------------------------------------------------------
+	// mysql
+	//------------------------------------------------------------
+	databases, err = mysql_conn.ShowDatabases()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		testExists := slices.Contains(databases, "test")
+		//----------
+		if !testExists {
+			t.Errorf(`testExists = %t but should = %t`, testExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	databases, err = postgres_conn.ShowDatabases()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		testExists := slices.Contains(databases, "test")
+		//----------
+		if !testExists {
+			t.Errorf(`testExists = %t but should = %t`, testExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// sqlite
+	//------------------------------------------------------------
+
+	//
+	// should return empty slice
+	//
+
+	databases, err = sqlite_conn.ShowDatabases()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		testExists := slices.Contains(databases, "test")
+		//----------
+		if testExists {
+			t.Errorf(`testExists = %t but should = %t`, testExists, false)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TestShowTables(t *testing.T) {
+	//------------------------------------------------------------
+	// ShowTables
+	//------------------------------------------------------------
+	var err error
+	var tables []string
+
+	//------------------------------------------------------------
+	// mysql
+	//------------------------------------------------------------
+	tables, err = mysql_conn.ShowTables()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		carsExists := slices.Contains(tables, "cars")
+		//----------
+		if !carsExists {
+			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	tables, err = postgres_conn.ShowTables()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		carsExists := slices.Contains(tables, "cars")
+		//----------
+		if !carsExists {
+			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// sqlite
+	//------------------------------------------------------------
+	tables, err = sqlite_conn.ShowTables()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		carsExists := slices.Contains(tables, "cars")
+		//----------
+		if !carsExists {
+			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TestShowTablesMap(t *testing.T) {
+	//------------------------------------------------------------
+	// ShowTablesMap
+	//------------------------------------------------------------
+	var err error
+	var tablesMap map[string]map[string]string
+
+	//------------------------------------------------------------
+	// mysql
+	//------------------------------------------------------------
+	tablesMap, err = mysql_conn.ShowTablesMap()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		tableInfoMap := tablesMap["cars"]
+		//----------
+		EXPECTED_result := "map[id:INT name:VARCHAR price:INT]"
+		//----------
+		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
+			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// postgres
+	//------------------------------------------------------------
+	tablesMap, err = postgres_conn.ShowTablesMap()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		tableInfoMap := tablesMap["cars"]
+		//----------
+		EXPECTED_result := "map[id:INT4 name:VARCHAR price:INT4]"
+		//----------
+		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
+			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// sqlite
+	//------------------------------------------------------------
+	tablesMap, err = sqlite_conn.ShowTablesMap()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		tableInfoMap := tablesMap["cars"]
+		//----------
+		EXPECTED_result := "map[id:INTEGER name:VARCHAR(255) price:INT]"
+		//----------
+		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
+			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
 //--------------------------------------------------------------------------------
 
 func TestTableExists(t *testing.T) {
 
+	//------------------------------------------------------------
+	// TableExists
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -766,7 +970,7 @@ func TestTableExists(t *testing.T) {
 	//------------------------------------------------------------
 }
 
-//------------------------------------------------------------
+//--------------------------------------------------------------------------------
 
 func TestCheckTableName(t *testing.T) {
 	//------------------------------------------------------------

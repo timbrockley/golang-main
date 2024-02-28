@@ -281,6 +281,28 @@ func (conn *SQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
 }
 
 //------------------------------------------------------------
+// QueryRecords method
+//------------------------------------------------------------
+
+func (conn *SQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+	//------------------------------------------------------------
+	if strings.ToLower(conn.DBType) == "mysql" {
+		//----------
+		return conn.connMySQL.QueryRecords(strings.TrimSpace(query), args...)
+		//----------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//----------
+		return conn.connPostgres.QueryRecords(strings.TrimSpace(query), args...)
+		//----------
+	} else {
+		//----------
+		return conn.connSQLite.QueryRecords(strings.TrimSpace(query), args...)
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // Close method
 //------------------------------------------------------------
 
@@ -413,23 +435,79 @@ func (conn *SQLdbStruct) GetTableInfo(tableName string) (
 }
 
 //------------------------------------------------------------
-// QueryRecords method
+// ShowDatabases method
 //------------------------------------------------------------
 
-func (conn *SQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+func (conn *SQLdbStruct) ShowDatabases() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return nil, errors.New("not connected")
+	}
 	//------------------------------------------------------------
 	if strings.ToLower(conn.DBType) == "mysql" {
-		//----------
-		return conn.connMySQL.QueryRecords(strings.TrimSpace(query), args...)
-		//----------
+		//------------------------------------------------------------
+		return conn.connMySQL.ShowDatabases()
+		//------------------------------------------------------------
 	} else if strings.ToLower(conn.DBType) == "postgres" {
-		//----------
-		return conn.connPostgres.QueryRecords(strings.TrimSpace(query), args...)
-		//----------
+		//------------------------------------------------------------
+		return conn.connPostgres.ShowDatabases()
+		//------------------------------------------------------------
 	} else {
-		//----------
-		return conn.connSQLite.QueryRecords(strings.TrimSpace(query), args...)
-		//----------
+		//------------------------------------------------------------
+		return []string{}, nil
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTables method
+//------------------------------------------------------------
+
+func (conn *SQLdbStruct) ShowTables() ([]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return nil, errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	if strings.ToLower(conn.DBType) == "mysql" {
+		//------------------------------------------------------------
+		return conn.connMySQL.ShowTables()
+		//------------------------------------------------------------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//------------------------------------------------------------
+		return conn.connPostgres.ShowTables()
+		//------------------------------------------------------------
+	} else {
+		//------------------------------------------------------------
+		return conn.connSQLite.ShowTables()
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ShowTablesMap method
+//------------------------------------------------------------
+
+func (conn *SQLdbStruct) ShowTablesMap() (map[string]map[string]string, error) {
+	//------------------------------------------------------------
+	if conn.DB == nil {
+		return nil, errors.New("not connected")
+	}
+	//------------------------------------------------------------
+	if strings.ToLower(conn.DBType) == "mysql" {
+		//------------------------------------------------------------
+		return conn.connMySQL.ShowTablesMap()
+		//------------------------------------------------------------
+	} else if strings.ToLower(conn.DBType) == "postgres" {
+		//------------------------------------------------------------
+		return conn.connPostgres.ShowTablesMap()
+		//------------------------------------------------------------
+	} else {
+		//------------------------------------------------------------
+		return conn.connSQLite.ShowTablesMap()
+		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
 }
