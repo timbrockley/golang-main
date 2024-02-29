@@ -898,8 +898,8 @@ func GetRemoteIPAddr(httpRequest *http.Request) string {
 // isNumber
 //--------------------------------------------------------------------------------
 
-func isNumber(val interface{}) bool {
-	switch val.(type) {
+func isNumber(value interface{}) bool {
+	switch value.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return true
 	case float32, float64, complex64, complex128:
@@ -912,24 +912,24 @@ func isNumber(val interface{}) bool {
 // isString
 //--------------------------------------------------------------------------------
 
-func isString(val interface{}) bool {
-	return fmt.Sprintf("%T", val) == "string"
+func isString(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "string"
 }
 
 //--------------------------------------------------------------------------------
 // isObject
 //--------------------------------------------------------------------------------
 
-func isObject(val interface{}) bool {
-	return fmt.Sprintf("%T", val) == "map[string]interface {}"
+func isObject(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "map[string]interface {}"
 }
 
 //--------------------------------------------------------------------------------
 // isArray
 //--------------------------------------------------------------------------------
 
-func isArray(val interface{}) bool {
-	return fmt.Sprintf("%T", val) == "[]interface {}"
+func isArray(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "[]interface {}"
 }
 
 //--------------------------------------------------------------------------------
