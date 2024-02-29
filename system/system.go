@@ -96,6 +96,10 @@ func ConvertToInt(value any) int {
 			//----------
 			return value.(int)
 			//----------
+		} else if fmt.Sprintf("%T", value) == "float32" {
+			//----------
+			return int(value.(float32))
+			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------
 			return int(value.(float64))
@@ -151,6 +155,10 @@ func ConvertToInt32(value any) int32 {
 			//----------
 			return value.(int32)
 			//----------
+		} else if fmt.Sprintf("%T", value) == "float32" {
+			//----------
+			return int32(value.(float32))
+			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------
 			return int32(value.(float64))
@@ -205,6 +213,10 @@ func ConvertToInt64(value any) int64 {
 		} else if fmt.Sprintf("%T", value) == "int64" {
 			//----------
 			return value.(int64)
+			//----------
+		} else if fmt.Sprintf("%T", value) == "float32" {
+			//----------
+			return int64(value.(float32))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------
@@ -275,6 +287,10 @@ func ConvertToFloat64(value any) float64 {
 		} else if fmt.Sprintf("%T", value) == "int64" {
 			//----------
 			return float64(value.(int64))
+			//----------
+		} else if fmt.Sprintf("%T", value) == "float32" {
+			//----------
+			return float64(value.(float32))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "float64" {
 			//----------

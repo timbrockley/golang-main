@@ -197,9 +197,11 @@ func TestExec(t *testing.T) {
 		// postgres
 		//------------------------------------------------------------
 		testData = []string{
+			"BEGIN;",
 			"DROP TABLE IF EXISTS cars;",
 			"CREATE TABLE cars(id SERIAL PRIMARY KEY, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);",
 			"INSERT INTO cars(name,price) VALUES('Mazda',9001);",
+			"COMMIT;",
 		}
 		//--------------------------------------------------
 		for _, stmt := range testData {
@@ -223,9 +225,11 @@ func TestExec(t *testing.T) {
 		// sqlite
 		//------------------------------------------------------------
 		testData = []string{
+			"BEGIN;",
 			"DROP TABLE IF EXISTS cars;",
 			"CREATE TABLE cars(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);",
 			"INSERT INTO cars(name, price) VALUES('Skoda',9000);",
+			"COMMIT;",
 		}
 		//--------------------------------------------------
 		for _, stmt := range testData {

@@ -59,44 +59,21 @@ func TestExec(t *testing.T) {
 	var err error
 	var result sql.Result
 	//------------------------------------------------------------
-	_, err = conn1.Exec(`
+	result, err = conn1.Exec(`
 		BEGIN;
 		DROP TABLE IF EXISTS cars;
 		CREATE TABLE cars(id SERIAL PRIMARY KEY, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);
+		INSERT INTO cars(name, price) VALUES('Skoda',9000);
+		INSERT INTO cars(name, price) VALUES('Audi',52642);
+		INSERT INTO cars(name, price) VALUES('Mercedes',57127);
+		INSERT INTO cars(name, price) VALUES('Volvo',29000);
+		INSERT INTO cars(name, price) VALUES('Bentley',350000);
+		INSERT INTO cars(name, price) VALUES('Citroen',21000);
+		INSERT INTO cars(name, price) VALUES('Hummer',41400);
+		INSERT INTO cars(name, price) VALUES('Volkswagen', 21600);
 		COMMIT;
 	`)
-	//----------
-	if err != nil {
-		t.Error(err)
-	}
-	//------------------------------------------------------------
-	testData := []string{
-		"BEGIN;",
-		"DROP TABLE IF EXISTS cars;",
-		"CREATE TABLE cars(id SERIAL PRIMARY KEY, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);",
-		"INSERT INTO cars(name, price) VALUES('Skoda',9000);",
-		"INSERT INTO cars(name, price) VALUES('Audi',52642);",
-		"INSERT INTO cars(name, price) VALUES('Mercedes',57127);",
-		"INSERT INTO cars(name, price) VALUES('Volvo',29000);",
-		"INSERT INTO cars(name, price) VALUES('Bentley',350000);",
-		"INSERT INTO cars(name, price) VALUES('Citroen',21000);",
-		"INSERT INTO cars(name, price) VALUES('Hummer',41400);",
-		"COMMIT;",
-	}
 	//--------------------------------------------------
-	for _, stmt := range testData {
-		//------------------------------------------------------------
-		_, err = conn1.Exec(stmt)
-		//------------------------------------------------------------
-		if err != nil {
-			t.Error(err)
-		}
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-	result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES($1, $2);", "Volkswagen", 21600)
-	// result, err = conn1.Exec("INSERT INTO cars(name, price) VALUES('Car Name', 10000);")
-	//------------------------------------------------------------
 	if result == nil {
 		t.Error("invalid result")
 	}
