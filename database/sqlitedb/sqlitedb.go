@@ -206,29 +206,35 @@ func (conn *SQLiteDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error
 			//----------
 			for index, value := range scans {
 				//------------------------------------------------------------
-				switch value.(type) {
+				switch typedValue := value.(type) {
+				case int:
+					value = typedValue
 				case int8:
-					value = int(value.(int8))
+					value = int(typedValue)
 				case int16:
-					value = int(value.(int16))
+					value = int(typedValue)
 				case int32:
-					value = int(value.(int32))
+					value = int(typedValue)
 				case int64:
-					value = int(value.(int64))
+					value = int(typedValue)
 				case uint:
-					value = int(value.(uint))
+					value = typedValue
 				case uint8:
-					value = int(value.(uint8))
+					value = uint(typedValue)
 				case uint16:
-					value = int(value.(uint16))
+					value = uint(typedValue)
 				case uint32:
-					value = int(value.(uint32))
+					value = uint(typedValue)
 				case uint64:
-					value = int(value.(uint64))
+					value = uint(typedValue)
 				case float32:
-					value = float64(value.(float32))
+					value = float64(typedValue)
 				case float64:
-					value = value.(float64)
+					value = typedValue
+				case bool:
+					value = typedValue
+				case string:
+					value = typedValue
 				}
 				//----------
 				record[columns[index]] = value

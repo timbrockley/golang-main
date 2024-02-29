@@ -101,7 +101,7 @@ func (conn *PostgresDBStruct) Connect(checkENV ...bool) error {
 						defer DB.Close()
 						//----------
 						connString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.User, conn.Password, conn.Database)
-						conn.DB, _ = sql.Open("postgres", connString)
+						conn.DB, err = sql.Open("postgres", connString)
 						//----------
 						if err == nil {
 							err = conn.DB.Ping()

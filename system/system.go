@@ -24,15 +24,15 @@ import (
 
 func ConvertToString(value any) string {
 	//------------------------------------------------------------
-	switch value.(type) {
+	switch typedValue := value.(type) {
 	case string:
-		return value.(string)
+		return typedValue
 	case []byte:
-		return string(value.([]byte))
+		return string(typedValue)
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
-		return fmt.Sprint(value)
+		return fmt.Sprint(typedValue)
 	case bool:
-		if value.(bool) {
+		if typedValue {
 			return "true"
 		} else {
 			return "false"
@@ -48,15 +48,11 @@ func ConvertToString(value any) string {
 
 func ConvertToBytes(value any) []byte {
 	//------------------------------------------------------------
-	switch value.(type) {
+	switch typedValue := value.(type) {
 	case string:
-		return []byte(value.(string))
+		return []byte(typedValue)
 	case []byte:
-		return value.([]byte)
-		// case int:
-		// 	return []byte{uint8(value.(int) & 255)}
-		// case int8, uint8: // byte = uint8
-		// 	return []byte{value.(byte)}
+		return typedValue
 	}
 	return []byte{}
 	//------------------------------------------------------------
@@ -319,13 +315,13 @@ func ConvertToFloat64(value any) float64 {
 
 func ConvertToBool(value any) bool {
 	//------------------------------------------------------------
-	switch value.(type) {
+	switch typedValue := value.(type) {
 	case string:
-		return value != "" && value != "0" && !strings.EqualFold(value.(string), "false")
+		return typedValue != "" && typedValue != "0" && !strings.EqualFold(typedValue, "false")
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
-		return value != 0
+		return typedValue != 0
 	case bool:
-		return value.(bool)
+		return typedValue
 	}
 	return false
 	//------------------------------------------------------------
