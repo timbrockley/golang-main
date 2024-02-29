@@ -142,71 +142,78 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 	} else {
 
 		//------------------------------------------------------------
+		// first check for :memory: database otherwise
 		// if file path is not passed then check environment variables
 		//------------------------------------------------------------
-		if conn.FilePath != "" {
-			//----------
-			conn.Database = ""
-			conn.DatabaseExt = ""
-			//----------
-
-		} else {
+		if conn.FilePath != ":memory:" && conn.Database != ":memory:" {
 
 			//------------------------------------------------------------
-			var filePath, dataPath, database string
-			//------------------------------------------------------------
-			if checkENV != nil && checkENV[0] {
+
+			if conn.FilePath != "" {
 				//----------
-				filePath = os.Getenv("SQLITE_FILEPATH")
-				dataPath = os.Getenv("SQLITE_DATA_PATH")
-				//----------
-				if conn.Database == "" {
-					database = os.Getenv("SQLITE_DATABASE")
-				}
-				//----------
-			}
-			//------------------------------------------------------------
-			if filePath != "" {
-				//----------
-				conn.FilePath = filePath
 				conn.Database = ""
 				conn.DatabaseExt = ""
 				//----------
+
 			} else {
-				//----------
-				if conn.Database == "" {
+
+				//------------------------------------------------------------
+				var filePath, dataPath, database string
+				//------------------------------------------------------------
+				if checkENV != nil && checkENV[0] {
 					//----------
-					if database != "" {
+					filePath = os.Getenv("SQLITE_FILEPATH")
+					dataPath = os.Getenv("SQLITE_DATA_PATH")
+					//----------
+					if conn.Database == "" {
+						database = os.Getenv("SQLITE_DATABASE")
+					}
+					//----------
+				}
+				//------------------------------------------------------------
+				if filePath != "" {
+					//----------
+					conn.FilePath = filePath
+					conn.Database = ""
+					conn.DatabaseExt = ""
+					//----------
+				} else {
+					//----------
+					if conn.Database == "" {
 						//----------
-						conn.Database = database
+						if database != "" {
+							//----------
+							conn.Database = database
+							conn.DatabaseExt = "db"
+							//----------
+						} else {
+							//----------
+							conn.Database = "_system"
+							conn.DatabaseExt = "db"
+							//----------
+						}
+						//----------
+					}
+					//----------
+					if conn.DatabaseExt == "" {
+						//----------
 						conn.DatabaseExt = "db"
 						//----------
-					} else {
+					}
+					//----------
+					if dataPath != "" {
 						//----------
-						conn.Database = "_system"
-						conn.DatabaseExt = "db"
+						conn.FilePath = file.FilePathJoin(dataPath, conn.Database+"."+conn.DatabaseExt)
+						//----------
+						conn.Database = ""
+						conn.DatabaseExt = ""
 						//----------
 					}
 					//----------
 				}
 				//----------
-				if conn.DatabaseExt == "" {
-					//----------
-					conn.DatabaseExt = "db"
-					//----------
-				}
-				//----------
-				if dataPath != "" {
-					//----------
-					conn.FilePath = file.FilePathJoin(dataPath, conn.Database+"."+conn.DatabaseExt)
-					//----------
-					conn.Database = ""
-					conn.DatabaseExt = ""
-					//----------
-				}
-				//----------
 			}
-			//----------
+			//------------------------------------------------------------
 		}
 		//------------------------------------------------------------
 		conn.connSQLite = sqlitedb.SQLiteDBStruct{FilePath: conn.FilePath, Database: conn.Database, DatabaseExt: conn.DatabaseExt, AutoCreate: conn.AutoCreate}
