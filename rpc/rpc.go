@@ -895,6 +895,14 @@ func GetRemoteIPAddr(httpRequest *http.Request) string {
 }
 
 //--------------------------------------------------------------------------------
+// isString
+//--------------------------------------------------------------------------------
+
+func isString(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "string"
+}
+
+//--------------------------------------------------------------------------------
 // isNumber
 //--------------------------------------------------------------------------------
 
@@ -909,11 +917,11 @@ func isNumber(value interface{}) bool {
 }
 
 //--------------------------------------------------------------------------------
-// isString
+// isArray
 //--------------------------------------------------------------------------------
 
-func isString(value interface{}) bool {
-	return fmt.Sprintf("%T", value) == "string"
+func isArray(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "[]interface {}"
 }
 
 //--------------------------------------------------------------------------------
@@ -922,14 +930,6 @@ func isString(value interface{}) bool {
 
 func isObject(value interface{}) bool {
 	return fmt.Sprintf("%T", value) == "map[string]interface {}"
-}
-
-//--------------------------------------------------------------------------------
-// isArray
-//--------------------------------------------------------------------------------
-
-func isArray(value interface{}) bool {
-	return fmt.Sprintf("%T", value) == "[]interface {}"
 }
 
 //--------------------------------------------------------------------------------
