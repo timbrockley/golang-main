@@ -48,47 +48,68 @@ func (conn *SQLiteDBStruct) Connect() error {
 	//------------------------------------------------------------
 	if database != "" {
 
-		//----------
-		if databaseExt == "" {
-			databaseExt = file.FilenameExt(database)
-		}
-		//----------
-		if databaseExt != "" {
-			database = file.FilenameBase(database)
+		if database == ":memory:" {
+
+			//----------
+			filePath = ":memory:"
+			databaseExt = ""
+			//----------
+
 		} else {
-			databaseExt = "db"
-		}
-		//----------
-		if filePath == "" {
-			filePath = file.Path()
-		}
-		//----------
-		filePath = file.FilePathJoin(filePath, database+"."+databaseExt)
-		//----------
 
-	} else {
-
-		//----------
-		if filePath == "" {
 			//----------
-			// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
-			_, filePath, _, _ = runtime.Caller(1)
-			//----------
-			filePath = file.FilePathBase(filePath) + ".db"
-			//----------
-		}
-		//----------
-		database = file.Filename(filePath)
-		//----------
-		if database != "" {
 			if databaseExt == "" {
 				databaseExt = file.FilenameExt(database)
 			}
+			//----------
 			if databaseExt != "" {
 				database = file.FilenameBase(database)
 			} else {
 				databaseExt = "db"
 			}
+			//----------
+			if filePath == "" {
+				filePath = file.Path()
+			}
+			//----------
+			filePath = file.FilePathJoin(filePath, database+"."+databaseExt)
+			//----------
+		}
+
+	} else {
+
+		if filePath == ":memory:" {
+
+			//----------
+			database = ":memory:"
+			databaseExt = ""
+			//----------
+
+		} else {
+
+			//----------
+			if filePath == "" {
+				//----------
+				// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
+				_, filePath, _, _ = runtime.Caller(1)
+				//----------
+				filePath = file.FilePathBase(filePath) + ".db"
+				//----------
+			}
+			//----------
+			database = file.Filename(filePath)
+			//----------
+			if database != "" {
+				if databaseExt == "" {
+					databaseExt = file.FilenameExt(database)
+				}
+				if databaseExt != "" {
+					database = file.FilenameBase(database)
+				} else {
+					databaseExt = "db"
+				}
+			}
+			//----------
 		}
 		//----------
 	}
@@ -97,7 +118,7 @@ func (conn *SQLiteDBStruct) Connect() error {
 	conn.Database = database
 	conn.DatabaseExt = databaseExt
 	//------------------------------------------------------------
-	if !conn.AutoCreate && !file.FilePathExists(filePath) {
+	if filePath != ":memory:" && !conn.AutoCreate && !file.FilePathExists(filePath) {
 
 		return fmt.Errorf("database file %q does not exists ", filePath)
 	}
