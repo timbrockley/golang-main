@@ -293,7 +293,7 @@ func TestTCPListenConn(t *testing.T) {
 		_, err = TCPConn.Write([]byte(requestString))
 		//----------
 		if err == nil {
-			responseBytes, _ := io.ReadAll(TCPConn)
+			responseBytes, err := io.ReadAll(TCPConn)
 			if err == nil {
 				responseString = string(responseBytes)
 			}
@@ -386,7 +386,7 @@ func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
 		_, err = TCPConn.Write([]byte(requestString))
 		//----------
 		if err == nil {
-			responseBytes, _ := io.ReadAll(TCPConn)
+			responseBytes, err := io.ReadAll(TCPConn)
 			if err == nil {
 				responseString = string(responseBytes)
 			}
