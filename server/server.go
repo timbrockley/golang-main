@@ -23,6 +23,8 @@ import (
 
 const host = ":3000" // may be overriden in StartServer function
 
+const hostGinBin = ":3001"
+
 const pathRoot = "/www/golang/main/html/"
 
 //------------------------------------------------------------
@@ -132,7 +134,7 @@ func StartServer() {
 	var HOST string
 	//----------
 	if file.Filename(executable) == "gin-bin" {
-		HOST = ":3001"
+		HOST = hostGinBin
 	} else {
 		HOST = host
 	}
