@@ -269,7 +269,7 @@ func TestTCPListenConn(t *testing.T) {
 			n, err := networkObject.TCPConn.Read(requestBytes)
 			//--------
 			if err == nil && n > 0 {
-				_, _ = networkObject.TCPConn.Write(requestBytes[0:n])
+				networkObject.TCPConn.Write(requestBytes[0:n])
 			}
 			//--------
 		}
@@ -360,7 +360,7 @@ func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
 				requestBytes, err = networkObject.TCPReadBytes()
 				//--------
 				if err == nil {
-					_ = networkObject.TCPWriteBytes(requestBytes)
+					networkObject.TCPWriteBytes(requestBytes)
 				}
 				//--------
 			}
@@ -404,10 +404,10 @@ func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
 
 //------------------------------------------------------------
 
-func TestTCPCient(t *testing.T) {
+func TestTCPClient(t *testing.T) {
 
 	//--------------------------------------------------
-	// TCPCient
+	// TCPClient
 	//--------------------------------------------------
 	serverIPAddr := "127.0.0.1"
 	//--------
@@ -439,7 +439,7 @@ func TestTCPCient(t *testing.T) {
 		n, err := TCPConn.Read(requestBytes)
 		//--------
 		if err == nil && n > 0 {
-			_, _ = TCPConn.Write(requestBytes[0:n])
+			TCPConn.Write(requestBytes[0:n])
 		}
 		//--------------------------------------------------
 	}()
@@ -631,7 +631,7 @@ func TestUDPReadBytes(t *testing.T) {
 			} else {
 
 				//----------
-				resultString := string(bytes[0:n])
+				resultString := string(bytes[0:])
 				length := len(resultString)
 				//----------
 				if length != n {
@@ -685,7 +685,7 @@ func TestUDPWriteBytes(t *testing.T) {
 		//--------------------------------------------------
 		networkObject := NetworkStruct{ServerAddr: serverAddr, UDPConn: UDPConn, RemoteAddr: addr}
 		//--------------------------------------------------
-		err = networkObject.UDPWriteBytes(messageBytes)
+		_, err = networkObject.UDPWriteBytes(messageBytes)
 		//--------------------------------------------------
 		if err != nil {
 			t.Error("error writing bytes:", err)
@@ -793,6 +793,321 @@ func TestUDPClient(t *testing.T) {
 		if responseString != requestString {
 			//----------
 			t.Errorf("response = %q but should = %q", responseString, requestString)
+			//----------
+		}
+		//----------
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+func TestSocketServerEcho(t *testing.T) {
+
+	//--------------------------------------------------
+	// SocketServerEcho
+	//--------------------------------------------------
+	socketAddr := "golang-socket-test.sock"
+	//--------
+	socketObject := SocketStruct{Addr: socketAddr}
+	//--------------------------------------------------
+	wg := sync.WaitGroup{}
+	//--------
+	wg.Add(1)
+	//--------------------------------------------------
+	go func() {
+		//--------------------------------------------------
+		wg.Done()
+		//--------
+		err := socketObject.SocketServerEcho()
+		//--------
+		if err != nil {
+			t.Error(err)
+		}
+		//--------------------------------------------------
+	}()
+	//--------------------------------------------------
+	wg.Wait()
+	//----------
+	time.Sleep(10 * time.Millisecond)
+	//--------------------------------------------------
+	requestString := "SocketServerEcho test"
+	//----------
+	conn, err := net.Dial("unix", socketAddr)
+	//--------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		defer conn.Close()
+		//----------
+		_, err := conn.Write([]byte(requestString))
+		//----------
+		responseBytes, _ := io.ReadAll(conn)
+		//----------
+		if err != nil {
+			t.Error(err)
+		} else {
+			//----------
+			responseString := string(responseBytes)
+			//----------
+			if responseString != requestString {
+				//----------
+				t.Errorf("response = %q but should = %q", responseString, requestString)
+				//----------
+			}
+			//----------
+		}
+		//----------
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestSocketListen(t *testing.T) {
+
+	//--------------------------------------------------
+	// SocketListen
+	//--------------------------------------------------
+	var err error
+	//--------------------------------------------------
+	socketAddr := "golang-socket-test.sock"
+	//--------------------------------------------------
+	socketObject := SocketStruct{Addr: socketAddr}
+	//--------------------------------------------------
+	err = socketObject.SocketListen()
+	//----------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		defer socketObject.Listener.Close()
+		//----------
+		listenerType := fmt.Sprintf("%T", socketObject.Listener)
+		//----------
+		if listenerType != "*net.UnixListener" {
+			//----------
+			t.Errorf("SocketListen should create listener type %q but it created type = %q", "*net.UnixListener", listenerType)
+			//----------
+		}
+		//----------
+	}
+	//--------------------------------------------------
+}
+
+func TestSocketListenConn(t *testing.T) {
+
+	//--------------------------------------------------
+	// SocketListenConn
+	//--------------------------------------------------
+	socketAddr := "golang-socket-test.sock"
+	//--------------------------------------------------
+	socketObject := SocketStruct{Addr: socketAddr}
+	//--------------------------------------------------
+	wg := sync.WaitGroup{}
+	//--------
+	wg.Add(1)
+	//--------------------------------------------------
+	go func() {
+		//--------
+		wg.Done()
+		//--------
+		err := socketObject.SocketListenConn()
+		//--------
+		if err != nil {
+			t.Error(err)
+		} else {
+			//--------
+			defer socketObject.Conn.Close()
+			//--------
+			requestBytes := make([]byte, BufferSize)
+			//--------
+			n, err := socketObject.Conn.Read(requestBytes)
+			//--------
+			if err == nil && n > 0 {
+				socketObject.Conn.Write(requestBytes[0:n])
+			}
+			//--------
+		}
+		//--------
+	}()
+	//--------------------------------------------------
+	wg.Wait()
+	//----------
+	time.Sleep(10 * time.Millisecond)
+	//--------------------------------------------------
+	requestString := "SocketListenConn test"
+	//----------
+	responseString := ""
+	//----------
+	conn, err := net.Dial("unix", socketAddr)
+	//--------------------------------------------------
+	if err == nil {
+		//----------
+		defer conn.Close()
+		//----------
+		_, err = conn.Write([]byte(requestString))
+		//----------
+		if err == nil {
+			responseBytes, err := io.ReadAll(conn)
+			if err == nil {
+				responseString = string(responseBytes)
+			}
+		}
+		//----------
+	}
+	//--------------------------------------------------
+	if err != nil {
+		t.Error("error connecting to server:", err)
+	} else {
+		//----------
+		if responseString != requestString {
+			//----------
+			t.Errorf("responseString should = %q but = %q", requestString, responseString)
+			//----------
+		}
+		//----------
+	}
+	//--------------------------------------------------
+}
+
+func TestSocketReadBytesSocketWriteBytes(t *testing.T) {
+
+	//--------------------------------------------------
+	// SocketReadBytes / SocketWriteBytes
+	//--------------------------------------------------
+	socketAddr := "golang-socket-test.sock"
+	//--------
+	socketObject := SocketStruct{Addr: socketAddr}
+	//--------------------------------------------------
+	wg := sync.WaitGroup{}
+	//--------
+	wg.Add(1)
+	//--------------------------------------------------
+	go func() {
+		//--------------------------------------------------
+		wg.Done()
+		//--------------------------------------------------
+		var err error
+		var requestBytes []byte
+		//--------------------------------------------------
+		socketObject.Listener, err = net.Listen("unix", socketAddr)
+		//--------
+		if err != nil {
+			t.Error(err)
+		} else {
+			//--------------------------------------------------
+			defer socketObject.Listener.Close()
+			//--------------------------------------------------
+			socketObject.Conn, err = socketObject.Listener.Accept()
+			//--------
+			if err != nil {
+				t.Error(err)
+			} else {
+				//--------
+				defer socketObject.Conn.Close()
+				//--------
+				requestBytes, err = socketObject.SocketReadBytes()
+				//--------
+				if err == nil {
+					socketObject.SocketWriteBytes(requestBytes)
+				}
+				//--------
+			}
+			//--------------------------------------------------
+		}
+		//--------------------------------------------------
+	}()
+	//--------------------------------------------------
+	wg.Wait()
+	//----------
+	time.Sleep(10 * time.Millisecond)
+	//--------------------------------------------------
+	requestString := "SocketReadBytes / SocketWriteBytes test"
+	//----------
+	responseString := ""
+	//----------
+	conn, err := net.Dial("unix", socketAddr)
+	//--------------------------------------------------
+	if err == nil {
+		//----------
+		defer conn.Close()
+		//----------
+		_, err = conn.Write([]byte(requestString))
+		//----------
+		if err == nil {
+			responseBytes, err := io.ReadAll(conn)
+			if err == nil {
+				responseString = string(responseBytes)
+			}
+		}
+		//----------
+		if responseString != requestString {
+			//----------
+			t.Errorf("responseString should = %q but = %q", requestString, responseString)
+			//----------
+		}
+		//----------
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestSocketClient(t *testing.T) {
+
+	//--------------------------------------------------
+	// SocketClient
+	//--------------------------------------------------
+	socketAddr := "golang-socket-test.sock"
+	//--------
+	socketObject := SocketStruct{Addr: socketAddr}
+	//--------------------------------------------------
+	wg := sync.WaitGroup{}
+	//--------
+	wg.Add(1)
+	//--------------------------------------------------
+	go func() {
+		//--------------------------------------------------
+		wg.Done()
+		//--------
+		socketListener, _ := net.Listen("unix", socketAddr)
+		//--------
+		conn, _ := socketListener.Accept()
+		//--------
+		defer socketListener.Close()
+		defer conn.Close()
+		//--------
+		requestBytes := make([]byte, BufferSize)
+		//--------
+		n, err := conn.Read(requestBytes)
+		//--------
+		if err == nil && n > 0 {
+			conn.Write(requestBytes[0:n])
+		}
+		//--------------------------------------------------
+	}()
+	//--------------------------------------------------
+	wg.Wait()
+	//----------
+	time.Sleep(10 * time.Millisecond)
+	//--------------------------------------------------
+	requestString := "SocketClient test"
+	//----------
+	responseBytes, err := socketObject.SocketClient([]byte(requestString))
+	//--------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	} else {
+		//----------
+		responseString := string(responseBytes)
+		//----------
+		if responseString != requestString {
+			//----------
+			t.Errorf("responseString should = %q but = %q", requestString, responseString)
 			//----------
 		}
 		//----------
