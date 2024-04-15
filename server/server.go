@@ -21,9 +21,7 @@ import (
 
 //------------------------------------------------------------
 
-const host = ":3000" // may be overriden in StartServer function
-
-const hostGinBin = ":3001"
+const host = ":3000"
 
 const pathRoot = "/www/golang/main/html/"
 
@@ -143,19 +141,9 @@ func StartServer() {
 	//--------------------------------------------------
 	http.HandleFunc("/jsonrpc", rpc.JSONRPC_Handler)
 	//--------------------------------------------------
-	fmt.Println("starting server")
+	log.Println("starting server")
 	//--------------------------------------------------
-	executable, _ := os.Executable()
-	//----------
-	var HOST string
-	//----------
-	if file.Filename(executable) == "gin-bin" {
-		HOST = hostGinBin
-	} else {
-		HOST = host
-	}
-	//--------------------------------------------------
-	log.Fatal(http.ListenAndServe(HOST, nil))
+	log.Fatal(http.ListenAndServe(host, nil))
 	//--------------------------------------------------
 }
 
@@ -193,7 +181,7 @@ func servePath(responseWriter http.ResponseWriter, httpRequest *http.Request) {
 			//----------
 		}
 		//----------
-		fmt.Println("path:", path)
+		// fmt.Println("path:", path)
 		//----------
 		http.ServeFile(responseWriter, httpRequest, path)
 		//----------
