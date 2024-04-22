@@ -32,7 +32,7 @@ const TCPServerPort = 4000
 const UDPServerPort = 4001
 const UDPClientPort = 4002
 
-const BufferSize = 8192
+const BufferSize = 1024
 
 //----------------------------------------
 
