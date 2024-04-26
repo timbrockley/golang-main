@@ -306,7 +306,7 @@ func TestRPC_send_json_request_method(t *testing.T) {
 				responseWriter.Write([]byte(`{"error":"error occurred while trying to json decode request"}`))
 			} else {
 				responseMap := map[string]any{"content_type": requestContentType, "request": requestMap}
-				responseBytes, err := conv.JSON_marshal(responseMap)
+				responseBytes, err := conv.JSON_Marshal(responseMap)
 				if err != nil {
 					responseWriter.Write([]byte(`{"error":"error occurred while trying to json encode response"}`))
 				} else {
@@ -854,7 +854,7 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 				responseWriter.Write([]byte(`{"error":"error occurred while trying to json decode request"}`))
 			} else {
 				serverResponseMap := map[string]any{"content_type": ServerRequestContentType, "request": ServerRequestMap}
-				responseBytes, err := conv.JSON_marshal(serverResponseMap)
+				responseBytes, err := conv.JSON_Marshal(serverResponseMap)
 				if err != nil {
 					responseWriter.Write([]byte(`{"error":"error occurred while trying to json encode response"}`))
 				} else {

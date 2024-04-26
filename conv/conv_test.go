@@ -346,6 +346,72 @@ func TestBase91_decode(t *testing.T) {
 //------------------------------------------------------------
 
 //------------------------------------------------------------
+// JSON_MarshalIndent
+//------------------------------------------------------------
+
+func TestJSON_MarshalIndent(t *testing.T) {
+
+	//------------------------------------------------------------
+	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
+	//----------
+	jsonString := "[\n\t{\n\t\t\"test_key1\": \"test_value1_<=>\"\n\t},\n\t{\n\t\t\"test_key2\": \"test_value2\"\n\t}\n]"
+	//------------------------------------------------------------
+
+	//--------------------------------------------------
+	resultBytes, err := JSON_MarshalIndent(jsonMap, "", "\t")
+	//--------------------------------------------------
+
+	//----------
+	if err != nil {
+
+		t.Error(err)
+
+	} else {
+
+		//----------
+		if string(resultBytes) != jsonString {
+
+			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// JSON_marshal
+//------------------------------------------------------------
+
+func TestJSON_marshal(t *testing.T) {
+
+	//------------------------------------------------------------
+	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
+	//----------
+	jsonString := "[{\"test_key1\":\"test_value1_<=>\"},{\"test_key2\":\"test_value2\"}]"
+	//------------------------------------------------------------
+
+	//--------------------------------------------------
+	resultBytes, err := JSON_Marshal(jsonMap)
+	//--------------------------------------------------
+
+	//----------
+	if err != nil {
+
+		t.Error(err)
+
+	} else {
+
+		//----------
+		if string(resultBytes) != jsonString {
+
+			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
 // JSON_encode
 //------------------------------------------------------------
 

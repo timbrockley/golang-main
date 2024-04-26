@@ -222,18 +222,39 @@ func Base91_decode(dataString string, unescapeBool bool) (string, error) {
 //------------------------------------------------------------
 
 //------------------------------------------------------------
-// JSON_marshal => json encodes "map" into "bytes" without escaping html characters
+// JSON_Marshal => json encodes input into "bytes" without escaping html characters
 //------------------------------------------------------------
 
-func JSON_marshal(i interface{}) ([]byte, error) {
+func JSON_Marshal(input interface{}) ([]byte, error) {
 	//------------------------------------------------------------
-	buffer := &bytes.Buffer{}
+	var buffer bytes.Buffer
 	//------------------------------------------------------------
-	encoder := json.NewEncoder(buffer)
+	encoder := json.NewEncoder(&buffer)
 	encoder.SetEscapeHTML(false)
-	err := encoder.Encode(i)
+	err := encoder.Encode(input)
 	//------------------------------------------------------------
 	return bytes.TrimRight(buffer.Bytes(), "\n"), err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// JSON_MarshalIndent => json encodes input into "bytes" without escaping html characters
+//------------------------------------------------------------
+
+func JSON_MarshalIndent(input interface{}, prefix string, indent string) ([]byte, error) {
+	//------------------------------------------------------------
+	var encodedBuffer bytes.Buffer
+	var indentedBuffer bytes.Buffer
+	//------------------------------------------------------------
+	encoder := json.NewEncoder(&encodedBuffer)
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(input)
+	//------------------------------------------------------------
+	if err == nil {
+		json.Indent(&indentedBuffer, bytes.TrimRight(encodedBuffer.Bytes(), "\n"), prefix, indent)
+	}
+	//------------------------------------------------------------
+	return indentedBuffer.Bytes(), err
 	//------------------------------------------------------------
 }
 
@@ -246,7 +267,7 @@ func JSON_encode(jsonInterface interface{}) (string, error) {
 	var err error
 	var jsonBytes []byte
 	//------------------------------------------------------------
-	jsonBytes, err = JSON_marshal(jsonInterface)
+	jsonBytes, err = JSON_Marshal(jsonInterface)
 	if err != nil {
 		jsonBytes = []byte{}
 	}

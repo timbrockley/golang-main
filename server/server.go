@@ -68,8 +68,6 @@ type SocketStruct struct {
 	//----------
 	KeepAlive bool
 	//----------
-	Unlink bool
-	//----------
 }
 
 //------------------------------------------------------------
@@ -679,65 +677,61 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 	var requestBytes []byte
 	var bytesRead int
 	//--------------------------------------------------
-	if socketObject.Unlink && file.FilePathExists(socketObject.Addr) {
-		err = file.FileRemove(socketObject.Addr)
+	if _, err = os.Stat(socketObject.Addr); err == nil {
+		os.Remove(socketObject.Addr)
 	}
+	//--------------------------------------------------
+	socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------------------------------------
-		socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
+		if flags["debug"] == true {
+			fmt.Printf("starting server: (%s) ...\n", socketObject.Addr)
+		}
 		//--------------------------------------------------
-		if err == nil {
+		defer socketObject.Listener.Close()
+		//--------------------------------------------------
+		for {
 			//--------------------------------------------------
-			if flags["debug"] == true {
-				fmt.Printf("starting server: (%s) ...\n", socketObject.Addr)
-			}
-			//--------------------------------------------------
-			defer socketObject.Listener.Close()
-			//--------------------------------------------------
-			for {
+			socketObject.Conn, err = socketObject.Listener.Accept()
+			//--------
+			if err != nil {
+
+				break
+
+			} else {
+
 				//--------------------------------------------------
-				socketObject.Conn, err = socketObject.Listener.Accept()
-				//--------
-				if err != nil {
-
-					break
-
-				} else {
-
+				go func(conn net.Conn) {
 					//--------------------------------------------------
-					go func(conn net.Conn) {
-						//--------------------------------------------------
-						defer conn.Close()
-						//--------------------------------------------------
-						// fixed buffer size used due to prevent hanging code (waiting)
-						//--------------------------------------------------
-						bufferSize := BufferSize
-						//--------
-						if socketObject.BufferSize > 0 {
-							bufferSize = socketObject.BufferSize
-						}
-						//--------------------------------------------------
-						requestBytes = make([]byte, bufferSize)
-						//--------------------------------------------------
-						bytesRead, err = conn.Read(requestBytes)
-						//--------
-						if flags["debug"] == true {
-							fmt.Printf("client request: %s\n", string(requestBytes[0:bytesRead]))
-						}
-						//--------
-						if err == nil && bytesRead > 0 {
-							//--------
-							conn.Write(requestBytes[0:bytesRead])
-							//--------
-						}
-						//--------------------------------------------------
-					}(socketObject.Conn)
+					defer conn.Close()
 					//--------------------------------------------------
-					if !socketObject.KeepAlive {
-						break
+					// fixed buffer size used due to prevent hanging code (waiting)
+					//--------------------------------------------------
+					bufferSize := BufferSize
+					//--------
+					if socketObject.BufferSize > 0 {
+						bufferSize = socketObject.BufferSize
 					}
 					//--------------------------------------------------
+					requestBytes = make([]byte, bufferSize)
+					//--------------------------------------------------
+					bytesRead, err = conn.Read(requestBytes)
+					//--------
+					if flags["debug"] == true {
+						fmt.Printf("client request: %s\n", string(requestBytes[0:bytesRead]))
+					}
+					//--------
+					if err == nil && bytesRead > 0 {
+						//--------
+						conn.Write(requestBytes[0:bytesRead])
+						//--------
+					}
+					//--------------------------------------------------
+				}(socketObject.Conn)
+				//--------------------------------------------------
+				if !socketObject.KeepAlive {
+					break
 				}
 				//--------------------------------------------------
 			}
