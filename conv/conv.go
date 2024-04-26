@@ -227,13 +227,13 @@ func Base91_decode(dataString string, unescapeBool bool) (string, error) {
 
 func JSON_Marshal(input interface{}) ([]byte, error) {
 	//------------------------------------------------------------
-	var buffer bytes.Buffer
+	var encodeBuffer bytes.Buffer
 	//------------------------------------------------------------
-	encoder := json.NewEncoder(&buffer)
+	encoder := json.NewEncoder(&encodeBuffer)
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(input)
 	//------------------------------------------------------------
-	return bytes.TrimRight(buffer.Bytes(), "\n"), err
+	return bytes.TrimRight(encodeBuffer.Bytes(), "\n"), err
 	//------------------------------------------------------------
 }
 
@@ -243,18 +243,18 @@ func JSON_Marshal(input interface{}) ([]byte, error) {
 
 func JSON_MarshalIndent(input interface{}, prefix string, indent string) ([]byte, error) {
 	//------------------------------------------------------------
-	var encodedBuffer bytes.Buffer
-	var indentedBuffer bytes.Buffer
+	var encodeBuffer bytes.Buffer
+	var indentBuffer bytes.Buffer
 	//------------------------------------------------------------
-	encoder := json.NewEncoder(&encodedBuffer)
+	encoder := json.NewEncoder(&encodeBuffer)
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(input)
 	//------------------------------------------------------------
 	if err == nil {
-		json.Indent(&indentedBuffer, bytes.TrimRight(encodedBuffer.Bytes(), "\n"), prefix, indent)
+		json.Indent(&indentBuffer, bytes.TrimRight(encodeBuffer.Bytes(), "\n"), prefix, indent)
 	}
 	//------------------------------------------------------------
-	return indentedBuffer.Bytes(), err
+	return indentBuffer.Bytes(), err
 	//------------------------------------------------------------
 }
 
