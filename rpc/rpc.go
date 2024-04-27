@@ -36,35 +36,21 @@ type RPCStruct struct {
 	//----------
 	RemoteIPAddr string
 	//----------
-	URL        string
-	HeadersMap map[string]string
+	ResponseURL        string
+	ResponseHeadersMap map[string]string
 	//----------
 	Encoding string
 	//----------
 }
 
+//--------------------------------------------------------------------------------
+// auto increment ID
+//--------------------------------------------------------------------------------
+
 type autoInc struct {
 	sync.Mutex
 	id int
 }
-
-var auto autoInc
-
-//--------------------------------------------------------------------------------
-//################################################################################
-//--------------------------------------------------------------------------------
-/*
-
-	Struct Methods
-
-*/
-//--------------------------------------------------------------------------------
-//################################################################################
-//--------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------
-// auto increment ID
-//--------------------------------------------------------------------------------
 
 func (a *autoInc) ID() int {
 	a.Lock()
@@ -73,8 +59,14 @@ func (a *autoInc) ID() int {
 	return a.id
 }
 
+var auto autoInc
+
 //--------------------------------------------------------------------------------
-// read request method
+//################################################################################
+//--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+// RPC_read_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_read_request() error {
@@ -101,7 +93,7 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 		rpcObject.HttpRequest.Body = io.NopCloser(bytes.NewBuffer(requestBytes))
 		//
 		//--------------------------------------------------
-		rpcObject.RequestURL = fmt.Sprint(rpcObject.HttpRequest.URL)
+		rpcObject.RequestURL = rpcObject.HttpRequest.URL.String()
 		//--------------------------------------------------
 		requestString = string(requestBytes)
 		//----------
@@ -116,7 +108,7 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 			//----------
 			rpcObject.RequestString = requestString
 			//----------
-			// if request looks like it might be json try decode but don't report any errors
+			// if request looks like it might be single json try decode but don't report any errors
 			match, _ := regexp.MatchString(`^\s*{.*}\s*$`, requestString)
 			if match {
 
@@ -143,7 +135,7 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 }
 
 //--------------------------------------------------------------------------------
-// send request method
+// RPC_send_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_request(requestString string) (string, error) {
@@ -163,17 +155,17 @@ func (rpcObject *RPCStruct) RPC_send_request(requestString string) (string, erro
 		requestString = conv.Base64url_encode(requestString)
 	}
 	//----------
-	httpRequest, err = http.NewRequest("POST", rpcObject.URL, bytes.NewBuffer([]byte(requestString)))
+	httpRequest, err = http.NewRequest("POST", rpcObject.ResponseURL, bytes.NewBuffer([]byte(requestString)))
 	//----------
 	if err == nil {
 
 		//----------
-		if rpcObject.HeadersMap["Content-Type"] == "" {
+		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
-			rpcObject.HeadersMap["Content-Type"] = ContentTypeText
+			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeText
 		}
 		//----------
-		for headerKey, headerValue := range rpcObject.HeadersMap {
+		for headerKey, headerValue := range rpcObject.ResponseHeadersMap {
 
 			httpRequest.Header.Add(headerKey, headerValue)
 		}
@@ -209,7 +201,7 @@ func (rpcObject *RPCStruct) RPC_send_request(requestString string) (string, erro
 }
 
 //--------------------------------------------------------------------------------
-// send json request method
+// RPC_send_json_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (any, error) {
@@ -227,9 +219,9 @@ func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (an
 	if err == nil {
 
 		//----------
-		if rpcObject.HeadersMap["Content-Type"] == "" {
+		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
-			rpcObject.HeadersMap["Content-Type"] = ContentTypeJSON
+			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 		}
 		//----------
 		responseString, err = rpcObject.RPC_send_request(requestString)
@@ -246,7 +238,7 @@ func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (an
 }
 
 //--------------------------------------------------------------------------------
-// read json request method
+// RPC_read_json_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_read_json_request() error {
@@ -260,6 +252,7 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 	if err == nil {
 
 		//----------
+		// match what looks like a single json request
 		match, _ := regexp.MatchString(`^\s*{.*}\s*$`, rpcObject.RequestString)
 		if !match {
 
@@ -291,7 +284,7 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 }
 
 //--------------------------------------------------------------------------------
-// read JSON-RPC request method
+// RPC_read_jsonrpc_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_read_jsonrpc_request() error {
@@ -326,7 +319,7 @@ func (rpcObject *RPCStruct) RPC_read_jsonrpc_request() error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC request method
+// RPC_send_jsonrpc_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) (any, error) {
@@ -362,9 +355,9 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) 
 	if err == nil {
 
 		//----------
-		if rpcObject.HeadersMap["Content-Type"] == "" {
+		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
-			rpcObject.HeadersMap["Content-Type"] = ContentTypeJSON
+			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 		}
 		//----------
 		responseString, err = rpcObject.RPC_send_request(requestString)
@@ -381,18 +374,18 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) 
 }
 
 //--------------------------------------------------------------------------------
-// send response method
+// RPC_send_response
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_response(responseString string) {
 
 	//--------------------------------------------------
-	if rpcObject.HeadersMap["Content-Type"] == "" {
+	if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
-		rpcObject.HeadersMap["Content-Type"] = ContentTypeText
+		rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeText
 	}
 	//----------
-	for headerKey, headerValue := range rpcObject.HeadersMap {
+	for headerKey, headerValue := range rpcObject.ResponseHeadersMap {
 
 		rpcObject.ResponseWriter.Header().Set(headerKey, headerValue)
 	}
@@ -408,7 +401,7 @@ func (rpcObject *RPCStruct) RPC_send_response(responseString string) {
 }
 
 //--------------------------------------------------------------------------------
-// send json response method
+// RPC_send_json_response
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_json_response(responseMap map[string]any) {
@@ -418,9 +411,9 @@ func (rpcObject *RPCStruct) RPC_send_json_response(responseMap map[string]any) {
 	//--------------------------------------------------
 	var responseString string
 	//--------------------------------------------------
-	if rpcObject.HeadersMap["Content-Type"] == "" {
+	if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
-		rpcObject.HeadersMap["Content-Type"] = ContentTypeJSON
+		rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 	}
 	//--------------------------------------------------
 	responseString, err = conv.JSON_encode(responseMap)
@@ -440,7 +433,7 @@ func (rpcObject *RPCStruct) RPC_send_json_response(responseMap map[string]any) {
 }
 
 //--------------------------------------------------------------------------------
-// send result response method
+// RPC_send_result_response
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_result_response(result any) {
@@ -453,7 +446,7 @@ func (rpcObject *RPCStruct) RPC_send_result_response(result any) {
 }
 
 //--------------------------------------------------------------------------------
-// send error response method
+// RPC_send_error_response
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_error_response(errorString string) {
@@ -466,7 +459,7 @@ func (rpcObject *RPCStruct) RPC_send_error_response(errorString string) {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC result response method
+// RPC_send_jsonrpc_result
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_result(result any) error {
@@ -495,7 +488,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_result(result any) error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC error response method
+// RPC_send_jsonrpc_error
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_error(error any) error {
@@ -524,7 +517,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_error(error any) error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC internal error response method
+// RPC_send_jsonrpc_internal_error
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_internal_error(Data ...any) error {
@@ -542,7 +535,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_internal_error(Data ...any) error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC invalid params error response method
+// RPC_send_jsonrpc_invalid_params
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_params(Data ...any) error {
@@ -560,7 +553,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_params(Data ...any) error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC invalid request error response method
+// RPC_send_jsonrpc_invalid_request
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_request(Data ...any) error {
@@ -578,7 +571,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_request(Data ...any) error 
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC method not found error response method
+// RPC_send_jsonrpc_method_not_found
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_method_not_found(Data ...any) error {
@@ -596,7 +589,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_method_not_found(Data ...any) error
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC parse error error response method
+// RPC_send_jsonrpc_parse_error
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
@@ -614,7 +607,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
 }
 
 //--------------------------------------------------------------------------------
-// send JSON-RPC server error response method
+// RPC_send_jsonrpc_server_error
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_send_jsonrpc_server_error(Data ...any) error {
@@ -636,7 +629,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_server_error(Data ...any) error {
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// RPC echo method
+// RPC_echo
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) RPC_echo() {
@@ -675,7 +668,7 @@ func (rpcObject *RPCStruct) RPC_echo() {
 }
 
 //--------------------------------------------------------------------------------
-// JSON-RPC echo method
+// JSONRPC_echo
 //--------------------------------------------------------------------------------
 
 func (rpcObject *RPCStruct) JSONRPC_echo() {
@@ -716,13 +709,6 @@ func (rpcObject *RPCStruct) JSONRPC_echo() {
 //--------------------------------------------------------------------------------
 //################################################################################
 //--------------------------------------------------------------------------------
-/*
-
-	Standard Functions
-
-*/
-//--------------------------------------------------------------------------------
-//################################################################################
 
 //--------------------------------------------------------------------------------
 // RPC_Handler
@@ -738,9 +724,9 @@ func RPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Request) 
 	rpcObject.ResponseWriter = responseWriter
 	rpcObject.HttpRequest = httpRequest
 	//----------
-	rpcObject.URL = rpcObject.HttpRequest.URL.String()
+	rpcObject.ResponseURL = rpcObject.HttpRequest.URL.String()
 	//----------
-	rpcObject.HeadersMap = map[string]string{"Content-Type": ContentTypeJSON}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": ContentTypeJSON}
 	//----------
 	err = rpcObject.RPC_read_json_request()
 	//--------------------------------------------------
@@ -792,14 +778,14 @@ func JSONRPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Reque
 	rpcObject.ResponseWriter = responseWriter
 	rpcObject.HttpRequest = httpRequest
 	//----------
-	rpcObject.URL = fmt.Sprint(rpcObject.HttpRequest.URL)
+	rpcObject.ResponseURL = rpcObject.HttpRequest.URL.String()
 	//----------
 	contentType := httpRequest.Header.Get("Content-Type")
 	if contentType == "" {
 		contentType = ContentTypeJSON
 	}
 	//----------
-	rpcObject.HeadersMap = map[string]string{"Content-Type": contentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": contentType}
 	//----------
 	err = rpcObject.RPC_read_jsonrpc_request()
 	//--------------------------------------------------

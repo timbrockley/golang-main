@@ -23,22 +23,12 @@ var rpcObject RPCStruct
 //--------------------------------------------------------------------------------
 //################################################################################
 //--------------------------------------------------------------------------------
-/*
-
-	Struct Methods
-
-*/
-//--------------------------------------------------------------------------------
-//################################################################################
-//--------------------------------------------------------------------------------
-// test struct object persists from function to function
-//--------------------------------------------------------------------------------
 
 func Test_create_rpc_object1(t *testing.T) {
 
 	//--------------------------------------------------
 	// load test value to check later in another function
-	rpcObject = RPCStruct{URL: "new_url"}
+	rpcObject = RPCStruct{ResponseURL: "new_url"}
 	//--------------------------------------------------
 }
 
@@ -47,9 +37,9 @@ func Test_create_rpc_object1(t *testing.T) {
 func Test_create_rpc_object2(t *testing.T) {
 
 	//--------------------------------------------------
-	if rpcObject.URL != "new_url" {
+	if rpcObject.ResponseURL != "new_url" {
 
-		t.Errorf("rpcObject.URL = %q but should = \"new_url\"", rpcObject.URL)
+		t.Errorf("rpcObject.ResponseURL = %q but should = \"new_url\"", rpcObject.ResponseURL)
 	}
 	//--------------------------------------------------
 }
@@ -106,8 +96,8 @@ func TestRPC_send_request_method(t *testing.T) {
 	//--------------------------------------------------
 
 	//--------------------------------------------------
-	rpcObject.HeadersMap = requestHeadersMap
-	rpcObject.URL = server.URL
+	rpcObject.ResponseHeadersMap = requestHeadersMap
+	rpcObject.ResponseURL = server.URL
 	//--------------------------------------------------
 	responseString, err := rpcObject.RPC_send_request(requestString)
 	//--------------------------------------------------
@@ -183,8 +173,8 @@ func TestRPC_send_request_method_base64(t *testing.T) {
 	//--------------------------------------------------
 
 	//--------------------------------------------------
-	rpcObject.HeadersMap = requestHeadersMap
-	rpcObject.URL = server.URL
+	rpcObject.ResponseHeadersMap = requestHeadersMap
+	rpcObject.ResponseURL = server.URL
 	//--------------------------------------------------
 	responseString, err := rpcObject.RPC_send_request(requestString)
 	//--------------------------------------------------
@@ -262,8 +252,8 @@ func TestRPC_send_request_method_base64url(t *testing.T) {
 	//--------------------------------------------------
 
 	//--------------------------------------------------
-	rpcObject.HeadersMap = requestHeadersMap
-	rpcObject.URL = server.URL
+	rpcObject.ResponseHeadersMap = requestHeadersMap
+	rpcObject.ResponseURL = server.URL
 	//--------------------------------------------------
 	responseString, err := rpcObject.RPC_send_request(requestString)
 	//--------------------------------------------------
@@ -326,8 +316,8 @@ func TestRPC_send_json_request_method(t *testing.T) {
 	//--------------------------------------------------
 
 	//--------------------------------------------------
-	rpcObject.URL = server.URL
-	rpcObject.HeadersMap = requestHeadersMap
+	rpcObject.ResponseURL = server.URL
+	rpcObject.ResponseHeadersMap = requestHeadersMap
 	//--------------------------------------------------
 	responseMap, err := rpcObject.RPC_send_json_request(requestMap)
 	//--------------------------------------------------
@@ -565,7 +555,7 @@ func TestRPC_send_response_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -622,7 +612,7 @@ func TestRPC_send_response_method_base64(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -686,7 +676,7 @@ func TestRPC_send_json_response_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -742,7 +732,7 @@ func TestRPC_send_result_response_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -798,7 +788,7 @@ func TestRPC_send_error_response_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -877,8 +867,8 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 	var err error
 	var responseMap any
 	//--------------------------------------------------
-	rpcObject.URL = server.URL
-	rpcObject.HeadersMap = requestHeadersMap
+	rpcObject.ResponseURL = server.URL
+	rpcObject.ResponseHeadersMap = requestHeadersMap
 	//--------------------------------------------------
 
 	//--------------------------------------------------
@@ -982,7 +972,7 @@ func TestRPC_send_jsonrpc_result_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1038,7 +1028,7 @@ func TestRPC_send_jsonrpc_error_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1095,7 +1085,7 @@ func TestRPC_send_jsonrpc_internal_error1_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1148,7 +1138,7 @@ func TestRPC_send_jsonrpc_internal_error2_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1203,7 +1193,7 @@ func TestRPC_send_jsonrpc_invalid_params_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1258,7 +1248,7 @@ func TestRPC_send_jsonrpc_invalid_request_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1313,7 +1303,7 @@ func TestRPC_send_jsonrpc_method_not_found_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1368,7 +1358,7 @@ func TestRPC_send_jsonrpc_parse_error(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1423,7 +1413,7 @@ func TestRPC_send_jsonrpc_server_error(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1482,7 +1472,7 @@ func TestRPC_echo_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------
@@ -1537,7 +1527,7 @@ func TestJSONRPC_echo_method(t *testing.T) {
 	//----------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
-	rpcObject.HeadersMap = map[string]string{"Content-Type": requestContentType}
+	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
 	//----------

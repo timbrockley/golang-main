@@ -678,7 +678,7 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 	var bytesRead int
 	//--------------------------------------------------
 	if _, err = os.Stat(socketObject.Addr); err == nil {
-		os.Remove(socketObject.Addr)
+		_ = os.Remove(socketObject.Addr)
 	}
 	//--------------------------------------------------
 	socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
