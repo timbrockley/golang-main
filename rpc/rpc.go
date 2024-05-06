@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/timbrockley/golang-main/conv"
 )
@@ -42,24 +41,6 @@ type RPCStruct struct {
 	Encoding string
 	//----------
 }
-
-//--------------------------------------------------------------------------------
-// auto increment ID
-//--------------------------------------------------------------------------------
-
-type autoInc struct {
-	sync.Mutex
-	id int
-}
-
-func (a *autoInc) ID() int {
-	a.Lock()
-	defer a.Unlock()
-	a.id++
-	return a.id
-}
-
-var auto autoInc
 
 //--------------------------------------------------------------------------------
 //################################################################################
@@ -113,7 +94,7 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 			if match {
 
 				//----------
-				jsonInterface, err = conv.JSON_decode(rpcObject.RequestString)
+				jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
 				//----------
 				if err == nil && isObject(jsonInterface) {
 
@@ -214,7 +195,7 @@ func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (an
 	var responseString string
 	var responseMap any
 	//--------------------------------------------------
-	requestString, err = conv.JSON_encode(requestMap)
+	requestString, err = RPC_encode_json(requestMap)
 	//----------
 	if err == nil {
 
@@ -228,7 +209,7 @@ func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (an
 		//----------
 		if err == nil {
 
-			responseMap, err = conv.JSON_decode(responseString)
+			responseMap, err = RPC_decode_json(responseString)
 		}
 		//----------
 	}
@@ -261,7 +242,7 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 		} else {
 
 			//----------
-			jsonInterface, err = conv.JSON_decode(rpcObject.RequestString)
+			jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
 			//----------
 			if err == nil {
 
@@ -298,7 +279,7 @@ func (rpcObject *RPCStruct) RPC_read_jsonrpc_request() error {
 	if err == nil {
 
 		//----------
-		jsonInterface, err = conv.JSON_decode(rpcObject.RequestString)
+		jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
 		//----------
 		if err == nil {
 
@@ -350,7 +331,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) 
 		requestMap["id"] = auto.ID()
 	}
 	//--------------------------------------------------
-	requestString, err = conv.JSON_encode(requestMap)
+	requestString, err = RPC_encode_json(requestMap)
 	//----------
 	if err == nil {
 
@@ -364,7 +345,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) 
 		//----------
 		if err == nil {
 
-			responseMap, err = conv.JSON_decode(responseString)
+			responseMap, err = RPC_decode_json(responseString)
 		}
 		//----------
 	}
@@ -416,7 +397,7 @@ func (rpcObject *RPCStruct) RPC_send_json_response(responseMap map[string]any) {
 		rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 	}
 	//--------------------------------------------------
-	responseString, err = conv.JSON_encode(responseMap)
+	responseString, err = RPC_encode_json(responseMap)
 	if err != nil {
 
 		//--------------------------------------------------
@@ -477,7 +458,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_result(result any) error {
 	//----------
 	responseMap["result"] = result
 	//--------------------------------------------------
-	responseString, err := conv.JSON_encode(responseMap)
+	responseString, err := RPC_encode_json(responseMap)
 	//--------------------------------------------------
 	if err == nil {
 		rpcObject.RPC_send_response(responseString)
@@ -506,7 +487,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_error(error any) error {
 	//----------
 	responseMap["error"] = error
 	//--------------------------------------------------
-	responseString, err := conv.JSON_encode(responseMap)
+	responseString, err := RPC_encode_json(responseMap)
 	//--------------------------------------------------
 	if err == nil {
 		rpcObject.RPC_send_response(responseString)
@@ -517,31 +498,13 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_error(error any) error {
 }
 
 //--------------------------------------------------------------------------------
-// RPC_send_jsonrpc_internal_error
+// RPC_send_jsonrpc_server_error
 //--------------------------------------------------------------------------------
 
-func (rpcObject *RPCStruct) RPC_send_jsonrpc_internal_error(Data ...any) error {
+func (rpcObject *RPCStruct) RPC_send_jsonrpc_server_error(Data ...any) error {
 
 	//--------------------------------------------------
-	errorMap := map[string]any{"code": -32603, "message": "internal error"}
-	//----------
-	if Data != nil && Data[0] != nil {
-
-		errorMap["data"] = Data[0]
-	}
-	//--------------------------------------------------
-	return rpcObject.RPC_send_jsonrpc_error(errorMap)
-	//--------------------------------------------------
-}
-
-//--------------------------------------------------------------------------------
-// RPC_send_jsonrpc_invalid_params
-//--------------------------------------------------------------------------------
-
-func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_params(Data ...any) error {
-
-	//--------------------------------------------------
-	errorMap := map[string]any{"code": -32602, "message": "invalid params"}
+	errorMap := map[string]any{"code": -32000, "message": "server error"}
 	//----------
 	if Data != nil && Data[0] != nil {
 
@@ -589,13 +552,13 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_method_not_found(Data ...any) error
 }
 
 //--------------------------------------------------------------------------------
-// RPC_send_jsonrpc_parse_error
+// RPC_send_jsonrpc_invalid_params
 //--------------------------------------------------------------------------------
 
-func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
+func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_params(Data ...any) error {
 
 	//--------------------------------------------------
-	errorMap := map[string]any{"code": -32700, "message": "parse error"}
+	errorMap := map[string]any{"code": -32602, "message": "invalid params"}
 	//----------
 	if Data != nil && Data[0] != nil {
 
@@ -607,13 +570,31 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
 }
 
 //--------------------------------------------------------------------------------
-// RPC_send_jsonrpc_server_error
+// RPC_send_jsonrpc_internal_error
 //--------------------------------------------------------------------------------
 
-func (rpcObject *RPCStruct) RPC_send_jsonrpc_server_error(Data ...any) error {
+func (rpcObject *RPCStruct) RPC_send_jsonrpc_internal_error(Data ...any) error {
 
 	//--------------------------------------------------
-	errorMap := map[string]any{"code": -32000, "message": "server error"}
+	errorMap := map[string]any{"code": -32603, "message": "internal error"}
+	//----------
+	if Data != nil && Data[0] != nil {
+
+		errorMap["data"] = Data[0]
+	}
+	//--------------------------------------------------
+	return rpcObject.RPC_send_jsonrpc_error(errorMap)
+	//--------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+// RPC_send_jsonrpc_parse_error
+//--------------------------------------------------------------------------------
+
+func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
+
+	//--------------------------------------------------
+	errorMap := map[string]any{"code": -32700, "message": "parse error"}
 	//----------
 	if Data != nil && Data[0] != nil {
 
@@ -878,44 +859,6 @@ func GetRemoteIPAddr(httpRequest *http.Request) string {
 	//----------
 	return ipAddr
 	//--------------------------------------------------
-}
-
-//--------------------------------------------------------------------------------
-// isString
-//--------------------------------------------------------------------------------
-
-func isString(value interface{}) bool {
-	return fmt.Sprintf("%T", value) == "string"
-}
-
-//--------------------------------------------------------------------------------
-// isNumber
-//--------------------------------------------------------------------------------
-
-func isNumber(value interface{}) bool {
-	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return true
-	case float32, float64, complex64, complex128:
-		return true
-	}
-	return false
-}
-
-//--------------------------------------------------------------------------------
-// isArray
-//--------------------------------------------------------------------------------
-
-func isArray(value interface{}) bool {
-	return fmt.Sprintf("%T", value) == "[]interface {}"
-}
-
-//--------------------------------------------------------------------------------
-// isObject
-//--------------------------------------------------------------------------------
-
-func isObject(value interface{}) bool {
-	return fmt.Sprintf("%T", value) == "map[string]interface {}"
 }
 
 //--------------------------------------------------------------------------------

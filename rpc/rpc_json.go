@@ -1,20 +1,11 @@
 //--------------------------------------------------------------------------------
 
-//
-//
-// error > request id ??????? (not all func ask for yet !!!)
-//
-// data ???
-//
-//
-//
-//
-
 package rpc
 
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/timbrockley/golang-main/conv"
 )
@@ -26,8 +17,23 @@ type RPC_jsonrpcStruct struct {
 	ResponseMap map[string]any
 }
 
-// methods
-// id?????????????????????
+//--------------------------------------------------------------------------------
+// auto increment ID
+//--------------------------------------------------------------------------------
+
+type autoInc struct {
+	sync.Mutex
+	id int
+}
+
+func (a *autoInc) ID() int {
+	a.Lock()
+	defer a.Unlock()
+	a.id++
+	return a.id
+}
+
+var auto autoInc
 
 //--------------------------------------------------------------------------------
 //################################################################################
@@ -294,10 +300,10 @@ func (jsonrpc *RPC_jsonrpcStruct) RPC_encode_jsonrpc_parse_error_response(Data .
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// RPC_json_decode
+// RPC_decode_json
 //--------------------------------------------------------------------------------
 
-func RPC_json_decode(jsonString string) (map[string]any, error) {
+func RPC_decode_json(jsonString string) (map[string]any, error) {
 	//--------------------------------------------------
 	var err error
 	var jsonInterface any
@@ -337,7 +343,7 @@ func RPC_decode_jsonrpc_request(requestString string) (map[string]any, error) {
 	//--------------------------------------------------
 	requestMap := map[string]any{}
 	//----------
-	jsonInterface, err = RPC_json_decode(requestString)
+	jsonInterface, err = RPC_decode_json(requestString)
 	//----------
 	if err == nil {
 
@@ -370,7 +376,7 @@ func RPC_decode_jsonrpc_response(responseString string) (map[string]any, error) 
 	//--------------------------------------------------
 	requestMap := map[string]any{}
 	//--------------------------------------------------
-	jsonInterface, err = RPC_json_decode(responseString)
+	jsonInterface, err = RPC_decode_json(responseString)
 	//--------------------------------------------------
 	if err == nil {
 
@@ -386,6 +392,48 @@ func RPC_decode_jsonrpc_response(responseString string) (map[string]any, error) 
 	//--------------------------------------------------
 	return requestMap, err
 	//--------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+//################################################################################
+//--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+// isString
+//--------------------------------------------------------------------------------
+
+func isString(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "string"
+}
+
+//--------------------------------------------------------------------------------
+// isNumber
+//--------------------------------------------------------------------------------
+
+func isNumber(value interface{}) bool {
+	switch value.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return true
+	case float32, float64, complex64, complex128:
+		return true
+	}
+	return false
+}
+
+//--------------------------------------------------------------------------------
+// isArray
+//--------------------------------------------------------------------------------
+
+func isArray(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "[]interface {}"
+}
+
+//--------------------------------------------------------------------------------
+// isObject
+//--------------------------------------------------------------------------------
+
+func isObject(value interface{}) bool {
+	return fmt.Sprintf("%T", value) == "map[string]interface {}"
 }
 
 //--------------------------------------------------------------------------------

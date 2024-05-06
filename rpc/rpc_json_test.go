@@ -493,15 +493,15 @@ func TestRPC_encode_jsonrpc_parse_error_response(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-// RPC_json_decode
+// RPC_decode_json
 //--------------------------------------------------------------------------------
 
-func TestRPC_json_decode(t *testing.T) {
+func TestRPC_decode_json(t *testing.T) {
 	//--------------------------------------------------
 	JSON_STRING := `{"result":true}`
 	EXPECTED_RESULT := map[string]any{"result": true}
 	//----------------------------------------
-	result, err := RPC_json_decode(JSON_STRING)
+	result, err := RPC_decode_json(JSON_STRING)
 	//----------------------------------------
 	resultString := fmt.Sprint(result)
 	exptectedResultString := fmt.Sprint(EXPECTED_RESULT)
