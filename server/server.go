@@ -188,7 +188,7 @@ func servePath(responseWriter http.ResponseWriter, httpRequest *http.Request) {
 		fmt.Fprint(responseWriter, `<html><body>404 Page not found</body></html>`)
 		//----------
 	}
-	// --------------------------------------------------
+	//--------------------------------------------------
 }
 
 //------------------------------------------------------------
