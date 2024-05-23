@@ -180,11 +180,13 @@ func TestTCPServerEcho(t *testing.T) {
 		//----------
 		_, err := TCPConn.Write([]byte(requestString))
 		//----------
-		responseBytes, _ := io.ReadAll(TCPConn)
+		_ = TCPConn.(*net.TCPConn).CloseWrite()
 		//----------
 		if err != nil {
 			t.Error(err)
 		} else {
+			//----------
+			responseBytes, _ := io.ReadAll(TCPConn)
 			//----------
 			responseString := string(responseBytes)
 			//----------
@@ -359,6 +361,8 @@ func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
 				//--------
 				requestBytes, err = networkObject.TCPReadBytes()
 				//--------
+
+				//--------
 				if err == nil {
 					networkObject.TCPWriteBytes(requestBytes)
 				}
@@ -384,6 +388,8 @@ func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
 		defer TCPConn.Close()
 		//----------
 		_, err = TCPConn.Write([]byte(requestString))
+		//----------
+		_ = TCPConn.(*net.TCPConn).CloseWrite()
 		//----------
 		if err == nil {
 			responseBytes, err := io.ReadAll(TCPConn)

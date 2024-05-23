@@ -307,7 +307,6 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 	//--------------------------------------------------
 	var err error
 	var requestBytes []byte
-	var bytesRead int
 	//--------------------------------------------------
 	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
 	//--------
@@ -342,27 +341,13 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 					//--------------------------------------------------
 					defer conn.Close()
 					//--------------------------------------------------
-					// fixed buffer size used due to prevent hanging code (waiting)
-					//--------------------------------------------------
-					bufferSize := BufferSize
-					//--------
-					if networkObject.BufferSize > 0 {
-						bufferSize = networkObject.BufferSize
-					}
-					//--------------------------------------------------
-					requestBytes = make([]byte, bufferSize)
-					//--------------------------------------------------
-					bytesRead, err = conn.Read(requestBytes)
+					requestBytes, err = io.ReadAll(conn)
 					//--------------------------------------------------
 					if flags["debug"] == true {
-						fmt.Printf("(%s): %s\n", conn.RemoteAddr(), string(requestBytes[0:bytesRead]))
+						fmt.Printf("(%s): %s\n", conn.RemoteAddr(), string(requestBytes))
 					}
 					//--------------------------------------------------
-					if err == nil && bytesRead > 0 {
-						//--------------------------------------------------
-						conn.Write(requestBytes[0:bytesRead])
-						//--------------------------------------------------
-					}
+					conn.Write(requestBytes)
 					//--------------------------------------------------
 				}(networkObject.TCPConn)
 				//--------------------------------------------------
@@ -428,26 +413,7 @@ func (networkObject *NetworkStruct) TCPListenConn() error {
 
 func (networkObject *NetworkStruct) TCPReadBytes() ([]byte, error) {
 	//--------------------------------------------------
-	var err error
-	var bytesRead int
-	//--------------------------------------------------
-	// fixed buffer size used due to prevent hanging code (waiting)
-	//--------------------------------------------------
-	bufferSize := BufferSize
-	//--------
-	if networkObject.BufferSize > 0 {
-		bufferSize = networkObject.BufferSize
-	}
-	//--------------------------------------------------
-	bytes := make([]byte, bufferSize)
-	//--------
-	bytesRead, err = networkObject.TCPConn.Read(bytes)
-	//--------
-	if err == nil && bytesRead > 0 {
-		bytes = bytes[0:bytesRead]
-	}
-	//--------------------------------------------------
-	return bytes, err
+	return io.ReadAll(networkObject.TCPConn)
 	//--------------------------------------------------
 }
 
@@ -481,7 +447,13 @@ func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, erro
 		_, err = networkObject.TCPConn.Write(requestBytes)
 		//----------
 		if err == nil {
-			responseBytes, _ = io.ReadAll(networkObject.TCPConn)
+			//----------
+			err = networkObject.TCPConn.(*net.TCPConn).CloseWrite()
+			//----------
+			if err == nil {
+				responseBytes, _ = io.ReadAll(networkObject.TCPConn)
+			}
+			//----------
 		}
 		//----------
 	}
@@ -538,7 +510,7 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 				fmt.Printf("(%s): %s\n", networkObject.RemoteAddr, string(requestBytes[0:bytesRead]))
 			}
 			//--------------------------------------------------
-			if err == nil && bytesRead > 0 {
+			if bytesRead > 0 {
 				//--------
 				_, err = networkObject.UDPConn.WriteTo(requestBytes[0:bytesRead], networkObject.RemoteAddr)
 				//--------
@@ -655,7 +627,7 @@ func (networkObject *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, erro
 			//--------------------------------------------------
 			bytesRead, _, err = networkObject.UDPConn.ReadFrom(responseBytes)
 			//--------------------------------------------------
-			if err == nil && bytesRead > 0 {
+			if bytesRead > 0 {
 				responseBytes = responseBytes[0:bytesRead]
 			}
 			//--------------------------------------------------
@@ -720,7 +692,7 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 						fmt.Printf("client request: %s\n", string(requestBytes[0:bytesRead]))
 					}
 					//--------
-					if err == nil && bytesRead > 0 {
+					if bytesRead > 0 {
 						//--------
 						conn.Write(requestBytes[0:bytesRead])
 						//--------
@@ -793,7 +765,7 @@ func (socketObject *SocketStruct) SocketReadBytes() ([]byte, error) {
 	//--------
 	bytesRead, err = socketObject.Conn.Read(bytes)
 	//--------
-	if err == nil && bytesRead > 0 {
+	if bytesRead > 0 {
 		bytes = bytes[0:bytesRead]
 	}
 	//--------------------------------------------------
