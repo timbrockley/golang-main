@@ -10,16 +10,19 @@ LICENSE file in the root directory of this source tree.
 package server
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/timbrockley/golang-main/file"
 	"github.com/timbrockley/golang-main/rpc"
@@ -31,6 +34,12 @@ import (
 const host = ":3000"
 
 const pathRoot = "/www/golang/main/html/"
+
+//------------------------------------------------------------
+
+var httpServer *http.Server
+
+var stopChan chan os.Signal
 
 //------------------------------------------------------------
 
@@ -148,7 +157,29 @@ func StartServer() {
 	//--------------------------------------------------
 	log.Println("starting server")
 	//--------------------------------------------------
-	log.Fatal(http.ListenAndServe(host, nil))
+	httpServer = &http.Server{Addr: host}
+	//--------------------------------------------------
+	// Create a channel to listen for OS signals
+	stopChan = make(chan os.Signal, 1)
+	// Notify the stopChan when an interrupt or terminate signal is received
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+	//--------------------------------------------------
+	go func() {
+		//----------------------------------------
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("ListenAndServe(): %s", err)
+		}
+		//----------------------------------------
+	}()
+	//--------------------------------------------------
+	// Wait until we get a stop signal or channel closes
+	<-stopChan
+	//--------------------------------------------------
+	if err := httpServer.Shutdown(context.Background()); err != nil {
+		log.Fatalf("HTTP shutdown error: %v", err)
+	}
+	//--------------------------------------------------
+	log.Println("Shutting down server")
 	//--------------------------------------------------
 }
 
