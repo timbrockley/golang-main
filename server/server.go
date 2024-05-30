@@ -159,9 +159,7 @@ func StartServer() {
 	//--------------------------------------------------
 	httpServer = &http.Server{Addr: host}
 	//--------------------------------------------------
-	// Create a channel to listen for OS signals
 	stopChan = make(chan os.Signal, 1)
-	// Notify the stopChan when an interrupt or terminate signal is received
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
 	//--------------------------------------------------
 	go func() {
