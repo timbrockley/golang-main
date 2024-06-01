@@ -732,11 +732,14 @@ func TestLogFilePath(t *testing.T) {
 func TestLog(t *testing.T) {
 
 	//------------------------------------------------------------
+	var err error
+	var len1, len2, len3 int
+	//------------------------------------------------------------
 	dataBytes1, _ := os.ReadFile(testLogFilename)
 	//----------
-	len1 := len(dataBytes1)
+	len1 = len(dataBytes1)
 	//------------------------------------------------------------
-	err := Log("<TEST_DATA>")
+	err = Log("<TEST_DATA>")
 	//------------------------------------------------------------
 	if err != nil {
 
@@ -747,9 +750,29 @@ func TestLog(t *testing.T) {
 		//----------
 		dataBytes2, _ := os.ReadFile(testLogFilename)
 		//----------
-		len2 := len(dataBytes2)
+		len2 = len(dataBytes2)
 		//----------
 		if len1 >= len2 || len2 == 0 {
+
+			t.Error("error occurred while trying to write to log file")
+		}
+		//----------
+	}
+	//------------------------------------------------------------
+	err = Log("<TEST_DATA>", testLogFilename)
+	//------------------------------------------------------------
+	if err != nil {
+
+		t.Error(err)
+
+	} else {
+
+		//----------
+		dataBytes3, _ := os.ReadFile(testLogFilename)
+		//----------
+		len3 = len(dataBytes3)
+		//----------
+		if len2 >= len3 || len3 == 0 {
 
 			t.Error("error occurred while trying to write to log file")
 		}

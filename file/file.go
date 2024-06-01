@@ -494,13 +494,11 @@ func LogFilePath() string {
 // Log
 //--------------------------------------------------------------------------------
 
-func Log(messageString string) error {
+func Log(messageString string, FilePath ...string) error {
 	//--------------------------------------------------------------------------------
 	FileMutex.lock()
 	//----------
 	defer FileMutex.unlock()
-	//--------------------------------------------------------------------------------
-	var err error
 	//--------------------------------------------------------------------------------
 	var logFilePath, logLineString string
 	//--------------------------------------------------------------------------------
@@ -509,7 +507,14 @@ func Log(messageString string) error {
 	var pc uintptr
 	var ok bool
 	//--------------------------------------------------------------------------------
-	logFilePath = "/tmp/golang.log"
+	if FilePath != nil && FilePath[0] != "" {
+
+		logFilePath = FilePath[0]
+
+	} else {
+
+		logFilePath = LogFilePath()
+	}
 	//--------------------------------------------------------------------------------
 	if !FilePathExists(logFilePath) {
 		logLineString = "utm\tcymd\thms\tpath\tfilename\tline\terror\n"
@@ -559,9 +564,7 @@ func Log(messageString string) error {
 		callingLineNumber,
 		escapedMessageString)
 	//--------------------------------------------------------------------------------
-	err = FileAppend(logFilePath, logLineString)
-	//--------------------------------------------------------------------------------
-	return err
+	return FileAppend(logFilePath, logLineString)
 	//--------------------------------------------------------------------------------
 }
 
