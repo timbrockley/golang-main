@@ -26,7 +26,10 @@ import (
 
 type FileMutexStruct struct {
 	SyncMutex sync.Mutex
-	LockValue int
+	LockLevel int
+	// StateMutex / IsLocked - used to prevent SyncMutex being unlocked multiple times
+	StateMutex sync.Mutex
+	IsLocked   bool
 }
 
 var FileMutex FileMutexStruct
@@ -45,22 +48,24 @@ var FileMutex FileMutexStruct
 
 func (fm *FileMutexStruct) lock() {
 	//----------
-	fm.LockValue++
+	fm.LockLevel++
 	//----------
-	if fm.LockValue == 1 {
-		fm.SyncMutex.Lock()
+	if fm.LockLevel == 1 {
+		fm.Lock()
 	}
 	//----------
 }
 
-func (fm *FileMutexStruct) unlock() {
+func (fm *FileMutexStruct) unlock() error {
 	//----------
-	fm.LockValue--
+	fm.LockLevel--
 	//----------
-	if fm.LockValue == 0 {
-		fm.SyncMutex.Unlock()
+	if fm.LockLevel == 0 {
+		return fm.Unlock()
 	}
-	//----------
+	//-----------
+	return nil
+	//-----------
 }
 
 //----------------------------------------
@@ -69,17 +74,30 @@ func (fm *FileMutexStruct) unlock() {
 
 func (fm *FileMutexStruct) Lock() {
 	//----------
-	fm.LockValue++
+	fm.StateMutex.Lock()
+	defer fm.StateMutex.Unlock()
+	//----------
+	fm.LockLevel++
 	//----------
 	fm.SyncMutex.Lock()
+	fm.IsLocked = true
 	//----------
 }
 
-func (fm *FileMutexStruct) Unlock() {
+func (fm *FileMutexStruct) Unlock() error {
 	//----------
-	fm.LockValue--
+	fm.StateMutex.Lock()
+	defer fm.StateMutex.Unlock()
 	//----------
-	fm.SyncMutex.Unlock()
+	fm.LockLevel--
+	//----------
+	if fm.IsLocked {
+		fm.SyncMutex.Unlock()
+		fm.IsLocked = false
+		return nil
+	} else {
+		return fmt.Errorf("already unlocked")
+	}
 	//----------
 }
 

@@ -67,7 +67,7 @@ func TestLockUnlock(t *testing.T) {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
-	resultInt = FileMutex.LockValue
+	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 0
 	//----------
 	if resultInt != EXPECTED_int {
@@ -85,7 +85,7 @@ func TestLockUnlock(t *testing.T) {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
-	resultInt = FileMutex.LockValue
+	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 3
 	//----------
 	if resultInt != EXPECTED_int {
@@ -103,11 +103,20 @@ func TestLockUnlock(t *testing.T) {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
-	resultInt = FileMutex.LockValue
+	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 0
 	//----------
 	if resultInt != EXPECTED_int {
 		t.Errorf("expected result = %d but should = %d", resultInt, EXPECTED_int)
+	}
+	//------------------------------------------------------------
+	err := FileMutex.Unlock()
+	errString := fmt.Sprint(err)
+	//----------
+	EXPECTED_errString := "already unlocked"
+	//----------
+	if errString != EXPECTED_errString {
+		t.Errorf("errString = %q but should = %q", errString, EXPECTED_errString)
 	}
 	//------------------------------------------------------------
 }
