@@ -25,11 +25,10 @@ import (
 //--------------------------------------------------------------------------------
 
 type FileMutexStruct struct {
-	SyncMutex sync.Mutex
-	LockLevel int
-	// StateMutex / IsLocked - used to prevent SyncMutex being unlocked multiple times
 	StateMutex sync.Mutex
 	IsLocked   bool
+	SyncMutex  sync.Mutex
+	LockLevel  int
 }
 
 var FileMutex FileMutexStruct
@@ -520,9 +519,9 @@ func Log(messageString string, FilePath ...string) error {
 		logLineString = "utm\tcymd\thms\tpath\tfilename\tline\terror\n"
 	}
 	//--------------------------------------------------------------------------------
-	utm := time.Now().UnixMicro()
-	//----------
-	t := time.Now().UTC()
+	timeNow := time.Now()
+	utm := timeNow.UnixMicro()
+	t := timeNow.UTC()
 	//----------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	pc, callingFilePath, callingLineNumber, ok = runtime.Caller(1)
