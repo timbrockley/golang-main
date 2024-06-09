@@ -456,7 +456,7 @@ func TempPath() (string, error) {
 	//------------------------------------------------------------
 	if !FilePathExists(tempPath) {
 
-		err = os.Mkdir(tempPath, 0700)
+		err = os.MkdirAll(tempPath, 0700)
 	}
 	//--------------------------------------------------------------------------------
 	return tempPath, err
