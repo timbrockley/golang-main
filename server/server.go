@@ -11,6 +11,7 @@ package server
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
@@ -79,8 +80,6 @@ type SocketStruct struct {
 	//----------
 	Listener net.Listener
 	Conn     net.Conn
-	//----------
-	BufferSize int
 	//----------
 	KeepAlive bool
 	//----------
@@ -345,7 +344,7 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 	var requestBytes []byte
 	//--------------------------------------------------
 	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
+	//----------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
 	}
@@ -365,7 +364,7 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 		for {
 			//--------------------------------------------------
 			networkObject.TCPConn, err = networkObject.TCPListener.Accept()
-			//--------
+			//----------
 			if err != nil {
 
 				break
@@ -403,73 +402,13 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 
 //------------------------------------------------------------
 
-func (networkObject *NetworkStruct) TCPListen() error {
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
-	if serverPort == 0 {
-		serverPort = TCPServerPort
-	}
-	//--------------------------------------------------
-	networkObject.TCPListener, err = net.Listen("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-	//--------------------------------------------------
-	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) TCPListenConn() error {
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
-	if serverPort == 0 {
-		serverPort = TCPServerPort
-	}
-	//--------------------------------------------------
-	networkObject.TCPListener, err = net.Listen("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-	//--------------------------------------------------
-	if err == nil {
-		//--------
-		defer networkObject.TCPListener.Close()
-		//--------
-		networkObject.TCPConn, err = networkObject.TCPListener.Accept()
-		//--------
-	}
-	//--------------------------------------------------
-	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) TCPReadBytes() ([]byte, error) {
-	//--------------------------------------------------
-	return io.ReadAll(networkObject.TCPConn)
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) TCPWriteBytes(bytes []byte) (int, error) {
-	//--------------------------------------------------
-	return networkObject.TCPConn.Write(bytes)
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
 func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, error) {
 	//--------------------------------------------------
 	var err error
 	var responseBytes []byte
 	//--------------------------------------------------
 	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
+	//----------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
 	}
@@ -533,23 +472,23 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 			// fixed buffer size used due to prevent hanging code (waiting)
 			//--------------------------------------------------
 			bufferSize := BufferSize
-			//--------
+			//----------
 			if networkObject.BufferSize > 0 {
 				bufferSize = networkObject.BufferSize
 			}
 			//--------------------------------------------------
 			requestBytes := make([]byte, bufferSize)
-			//--------
+			//----------
 			bytesRead, networkObject.RemoteAddr, err = networkObject.UDPConn.ReadFrom(requestBytes)
-			//--------
+			//----------
 			if flags["debug"] == true {
 				fmt.Printf("(%s): %s\n", networkObject.RemoteAddr, string(requestBytes[0:bytesRead]))
 			}
 			//--------------------------------------------------
 			if bytesRead > 0 {
-				//--------
+				//----------
 				_, err = networkObject.UDPConn.WriteTo(requestBytes[0:bytesRead], networkObject.RemoteAddr)
-				//--------
+				//----------
 			}
 			//--------------------------------------------------
 			networkObject.UDPConn.Close()
@@ -563,59 +502,6 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 	}
 	//--------------------------------------------------
 	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) UDPListen() error {
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//----------
-	if serverPort == 0 {
-		serverPort = UDPServerPort
-	}
-	//--------------------------------------------------
-	networkObject.UDPConn, err = net.ListenPacket("udp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-	//--------------------------------------------------
-	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) UDPReadBytes() ([]byte, error) {
-	//--------------------------------------------------
-	var err error
-	var bytesRead int
-	//--------------------------------------------------
-	// fixed buffer size used due to prevent hanging code (waiting)
-	//--------------------------------------------------
-	bufferSize := BufferSize
-	//--------
-	if networkObject.BufferSize > 0 {
-		bufferSize = networkObject.BufferSize
-	}
-	//--------------------------------------------------
-	bytes := make([]byte, bufferSize)
-	//--------
-	bytesRead, networkObject.RemoteAddr, err = networkObject.UDPConn.ReadFrom(bytes)
-	//--------------------------------------------------
-	if err == nil {
-		bytes = bytes[0:bytesRead]
-	}
-	//--------------------------------------------------
-	return bytes, err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (networkObject *NetworkStruct) UDPWriteBytes(bytes []byte) (int, error) {
-	//--------------------------------------------------
-	return networkObject.UDPConn.WriteTo(bytes, networkObject.RemoteAddr)
 	//--------------------------------------------------
 }
 
@@ -682,7 +568,9 @@ func (networkObject *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, erro
 func (socketObject *SocketStruct) SocketServerEcho() error {
 	//--------------------------------------------------
 	var err error
-	var requestBytes []byte
+	var baseHeaderBytes, extendedbaseHeaderBytes, requestBytes []byte
+	var baseHeaderLength, extendedHeaderLength, headerLength uint8
+	var bodyLength uint32
 	var bytesRead int
 	//--------------------------------------------------
 	_ = os.Remove(socketObject.Addr)
@@ -700,7 +588,7 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 		for {
 			//--------------------------------------------------
 			socketObject.Conn, err = socketObject.Listener.Accept()
-			//--------
+			//----------
 			if err != nil {
 
 				break
@@ -712,26 +600,40 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 					//--------------------------------------------------
 					defer conn.Close()
 					//--------------------------------------------------
-					// fixed buffer size used due to prevent hanging code (waiting)
-					//--------------------------------------------------
-					bufferSize := BufferSize
-					//--------
-					if socketObject.BufferSize > 0 {
-						bufferSize = socketObject.BufferSize
-					}
-					//--------------------------------------------------
-					requestBytes = make([]byte, bufferSize)
-					//--------------------------------------------------
-					bytesRead, err = conn.Read(requestBytes)
-					//--------
-					if flags["debug"] == true {
-						fmt.Printf("client request: %s\n", string(requestBytes[0:bytesRead]))
-					}
-					//--------
-					if bytesRead > 0 {
-						//--------
-						conn.Write(requestBytes[0:bytesRead])
-						//--------
+					// baseHeaderLength = header length (1 byte) + body length (4 bytes)
+					// extendedHeaderLength = optional extended header (headerLength - baseHeaderLength)
+					baseHeaderLength = 5
+					//----------
+					baseHeaderBytes = make([]byte, baseHeaderLength)
+					_, err = conn.Read(baseHeaderBytes)
+					if err == nil {
+						//----------
+						headerLength = uint8(baseHeaderBytes[0])
+						bodyLength = binary.BigEndian.Uint32(baseHeaderBytes[1:5])
+						//----------
+						extendedHeaderLength = headerLength - baseHeaderLength
+						if extendedHeaderLength > 0 {
+							extendedbaseHeaderBytes = make([]byte, extendedHeaderLength)
+							_, err = conn.Read(extendedbaseHeaderBytes)
+						}
+						//----------
+						if err == nil {
+							//----------
+							requestBytes = make([]byte, bodyLength)
+							bytesRead, err = conn.Read(requestBytes)
+							//----------
+							if bytesRead > 0 {
+								//----------
+								if flags["debug"] == true {
+									fmt.Printf("client request: %s\n", string(requestBytes))
+								}
+								//----------
+								conn.Write(requestBytes)
+								//----------
+							}
+							//----------
+						}
+						//----------
 					}
 					//--------------------------------------------------
 				}(socketObject.Conn)
@@ -752,77 +654,11 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 
 //------------------------------------------------------------
 
-func (socketObject *SocketStruct) SocketListen() error {
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
-	//--------------------------------------------------
-	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (socketObject *SocketStruct) SocketListenConn() error {
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
-	//--------------------------------------------------
-	if err == nil {
-		//--------
-		defer socketObject.Listener.Close()
-		//--------
-		socketObject.Conn, err = socketObject.Listener.Accept()
-		//--------
-	}
-	//--------------------------------------------------
-	return err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (socketObject *SocketStruct) SocketReadBytes() ([]byte, error) {
-	//--------------------------------------------------
-	var err error
-	var bytesRead int
-	//--------------------------------------------------
-	// fixed buffer size used due to prevent hanging code (waiting)
-	//--------------------------------------------------
-	bufferSize := BufferSize
-	//--------
-	if socketObject.BufferSize > 0 {
-		bufferSize = socketObject.BufferSize
-	}
-	//--------------------------------------------------
-	bytes := make([]byte, bufferSize)
-	//--------
-	bytesRead, err = socketObject.Conn.Read(bytes)
-	//--------
-	if bytesRead > 0 {
-		bytes = bytes[0:bytesRead]
-	}
-	//--------------------------------------------------
-	return bytes, err
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func (socketObject *SocketStruct) SocketWriteBytes(bytes []byte) (int, error) {
-	//--------------------------------------------------
-	return socketObject.Conn.Write(bytes)
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
 func (socketObject *SocketStruct) SocketClient(requestBytes []byte) ([]byte, error) {
 	//--------------------------------------------------
 	var err error
-	var responseBytes []byte
+	var combinedRequestBytes, responseBytes []byte
+	var headerLength uint8
 	//--------------------------------------------------
 	socketObject.Conn, err = net.Dial("unix", socketObject.Addr)
 	//--------------------------------------------------
@@ -830,7 +666,19 @@ func (socketObject *SocketStruct) SocketClient(requestBytes []byte) ([]byte, err
 		//----------
 		defer socketObject.Conn.Close()
 		//----------
-		_, err = socketObject.Conn.Write(requestBytes)
+		headerLength = 5 // (base header length + optional extended header length)
+		//----------
+		combinedRequestBytes = make([]byte, int(headerLength)+len(requestBytes))
+		combinedRequestBytes[0] = headerLength
+		binary.BigEndian.PutUint32(combinedRequestBytes[1:5], uint32(len(requestBytes)))
+		//----------
+		/*
+			create optional extended header here
+		*/
+		//----------
+		copy(combinedRequestBytes[headerLength:], requestBytes)
+		//----------
+		_, err = socketObject.Conn.Write(combinedRequestBytes)
 		//----------
 		if err == nil {
 			responseBytes, _ = io.ReadAll(socketObject.Conn)

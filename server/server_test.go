@@ -4,6 +4,7 @@ package server
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"net"
@@ -204,212 +205,6 @@ func TestTCPServerEcho(t *testing.T) {
 
 //------------------------------------------------------------
 
-func TestTCPListen(t *testing.T) {
-
-	//--------------------------------------------------
-	// TCPListen
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	serverIPAddr := "127.0.0.1"
-	//--------------------------------------------------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
-	//--------------------------------------------------
-	err = networkObject.TCPListen()
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		defer networkObject.TCPListener.Close()
-		//----------
-		listenerType := fmt.Sprintf("%T", networkObject.TCPListener)
-		//----------
-		if listenerType != "*net.TCPListener" {
-			//----------
-			t.Errorf("TCPListen should create listener type %q but it created type = %q", "*net.TCPListener", listenerType)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-func TestTCPListenConn(t *testing.T) {
-
-	//--------------------------------------------------
-	// TCPListenConn
-	//--------------------------------------------------
-	serverIPAddr := "127.0.0.1"
-	//--------------------------------------------------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
-	//--------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
-	if serverPort == 0 {
-		serverPort = TCPServerPort
-	}
-	//--------------------------------------------------
-	wg := sync.WaitGroup{}
-	//--------
-	wg.Add(1)
-	//--------------------------------------------------
-	go func() {
-		//--------
-		wg.Done()
-		//--------
-		err := networkObject.TCPListenConn()
-		//--------
-		if err != nil {
-			t.Error(err)
-		} else {
-			//--------
-			defer networkObject.TCPConn.Close()
-			//--------
-			requestBytes := make([]byte, BufferSize)
-			//--------
-			n, err := networkObject.TCPConn.Read(requestBytes)
-			//--------
-			if err == nil && n > 0 {
-				networkObject.TCPConn.Write(requestBytes[0:n])
-			}
-			//--------
-		}
-		//--------
-	}()
-	//--------------------------------------------------
-	wg.Wait()
-	//----------
-	time.Sleep(10 * time.Millisecond)
-	//--------------------------------------------------
-	requestString := "TCPListenConn test"
-	//----------
-	responseString := ""
-	//----------
-	TCPConn, err := net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-	//--------------------------------------------------
-	if err == nil {
-		//----------
-		defer TCPConn.Close()
-		//----------
-		_, err = TCPConn.Write([]byte(requestString))
-		//----------
-		if err == nil {
-			responseBytes, err := io.ReadAll(TCPConn)
-			if err == nil {
-				responseString = string(responseBytes)
-			}
-		}
-		//----------
-	}
-	//--------------------------------------------------
-	if err != nil {
-		t.Error("error connecting to server:", err)
-	} else {
-		//----------
-		if responseString != requestString {
-			//----------
-			t.Errorf("responseString should = %q but = %q", requestString, responseString)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-func TestTCPReadBytesTCPWriteBytes(t *testing.T) {
-
-	//--------------------------------------------------
-	// TCPReadBytes / TCPWriteBytes
-	//--------------------------------------------------
-	serverIPAddr := "127.0.0.1"
-	//--------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
-	//--------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
-	//--------
-	if serverPort == 0 {
-		serverPort = TCPServerPort
-	}
-	//--------------------------------------------------
-	wg := sync.WaitGroup{}
-	//--------
-	wg.Add(1)
-	//--------------------------------------------------
-	go func() {
-		//--------------------------------------------------
-		wg.Done()
-		//--------------------------------------------------
-		var err error
-		var requestBytes []byte
-		//--------------------------------------------------
-		networkObject.TCPListener, err = net.Listen("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-		//--------
-		if err != nil {
-			t.Error(err)
-		} else {
-			//--------------------------------------------------
-			defer networkObject.TCPListener.Close()
-			//--------------------------------------------------
-			networkObject.TCPConn, err = networkObject.TCPListener.Accept()
-			//--------
-			if err != nil {
-				t.Error(err)
-			} else {
-				//--------
-				defer networkObject.TCPConn.Close()
-				//--------
-				requestBytes, err = networkObject.TCPReadBytes()
-				//--------
-
-				//--------
-				if err == nil {
-					networkObject.TCPWriteBytes(requestBytes)
-				}
-				//--------
-			}
-			//--------------------------------------------------
-		}
-		//--------------------------------------------------
-	}()
-	//--------------------------------------------------
-	wg.Wait()
-	//----------
-	time.Sleep(10 * time.Millisecond)
-	//--------------------------------------------------
-	requestString := "TCPReadBytes / TCPWriteBytes test"
-	//----------
-	responseString := ""
-	//----------
-	TCPConn, err := net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
-	//--------------------------------------------------
-	if err == nil {
-		//----------
-		defer TCPConn.Close()
-		//----------
-		_, err = TCPConn.Write([]byte(requestString))
-		//----------
-		_ = TCPConn.(*net.TCPConn).CloseWrite()
-		//----------
-		if err == nil {
-			responseBytes, err := io.ReadAll(TCPConn)
-			if err == nil {
-				responseString = string(responseBytes)
-			}
-		}
-		//----------
-		if responseString != requestString {
-			//----------
-			t.Errorf("responseString should = %q but = %q", requestString, responseString)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
 func TestTCPClient(t *testing.T) {
 
 	//--------------------------------------------------
@@ -561,182 +356,6 @@ func TestUDPServerEcho(t *testing.T) {
 //############################################################
 //------------------------------------------------------------
 
-func TestUDPListen(t *testing.T) {
-
-	//--------------------------------------------------
-	// UDPListen
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	serverIPAddr := "127.0.0.1"
-	//--------------------------------------------------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
-	//--------------------------------------------------
-	err = networkObject.UDPListen()
-	//--------------------------------------------------
-	if err != nil {
-		t.Error("error creating packet connection:", err)
-	} else {
-		//----------
-		defer networkObject.UDPConn.Close()
-		//----------
-		connectionType := fmt.Sprintf("%T", networkObject.UDPConn)
-		//----------
-		if connectionType != "*net.UDPConn" {
-			//----------
-			t.Errorf("UDPListen should create connection type %q but it created type = %q", "*net.UDPConn", connectionType)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-//############################################################
-//------------------------------------------------------------
-
-func TestUDPReadBytes(t *testing.T) {
-
-	//--------------------------------------------------
-	// UDPReadBytes
-	//--------------------------------------------------
-	var err error
-	var UDPConn net.PacketConn
-	var n int
-	var bytes []byte
-	//--------------------------------------------------
-	serverAddr := fmt.Sprintf("127.0.0.1:%d", UDPServerPort)
-	message := "test message to read"
-	messageBytes := []byte(message)
-	//--------------------------------------------------
-	UDPConn, err = net.ListenPacket("udp4", serverAddr)
-	//--------------------------------------------------
-	if err != nil {
-		t.Error("error creating packet connection:", err)
-	} else {
-
-		//--------------------------------------------------
-		defer UDPConn.Close()
-		//--------------------------------------------------
-		addr, _ := net.ResolveUDPAddr("udp4", serverAddr)
-		//--------------------------------------------------
-		n, err = UDPConn.WriteTo(messageBytes, addr)
-		//--------------------------------------------------
-		if err != nil {
-			t.Error("error writing bytes for test:", err)
-		} else {
-
-			//--------------------------------------------------
-			networkObject := NetworkStruct{ServerAddr: serverAddr, UDPConn: UDPConn}
-			//--------------------------------------------------
-			bytes, err = networkObject.UDPReadBytes()
-			//--------------------------------------------------
-			if err != nil {
-				t.Error("error reading bytes:", err)
-			} else {
-
-				//----------
-				resultString := string(bytes[0:])
-				length := len(resultString)
-				//----------
-				if length != n {
-					//----------
-					t.Errorf("returned bytes length = %d but should = %d", length, n)
-					//----------
-				}
-				//----------
-				if fmt.Sprint(bytes) != fmt.Sprint(messageBytes) {
-					//----------
-					t.Errorf("returned bytes = %v but should = %v", bytes, messageBytes)
-					//----------
-				}
-				//----------
-			}
-		}
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-//############################################################
-//------------------------------------------------------------
-
-func TestUDPWriteBytes(t *testing.T) {
-
-	//--------------------------------------------------
-	// UDPWriteBytes
-	//--------------------------------------------------
-	var err error
-	var UDPConn net.PacketConn
-	var n int
-	var remoteAddr net.Addr
-	var bytes []byte
-	//--------------------------------------------------
-	serverAddr := fmt.Sprintf("127.0.0.1:%d", UDPServerPort)
-	message := "test message to write"
-	messageBytes := []byte(message)
-	bytesLength := len(messageBytes)
-	//--------------------------------------------------
-	UDPConn, err = net.ListenPacket("udp4", serverAddr)
-	//--------------------------------------------------
-	if err != nil {
-		t.Error("error creating packet connection:", err)
-	} else {
-
-		//--------------------------------------------------
-		defer UDPConn.Close()
-		//--------------------------------------------------
-		addr, _ := net.ResolveUDPAddr("udp4", serverAddr)
-		//--------------------------------------------------
-		networkObject := NetworkStruct{ServerAddr: serverAddr, UDPConn: UDPConn, RemoteAddr: addr}
-		//--------------------------------------------------
-		_, err = networkObject.UDPWriteBytes(messageBytes)
-		//--------------------------------------------------
-		if err != nil {
-			t.Error("error writing bytes:", err)
-		} else {
-
-			//--------------------------------------------------
-			bytes = make([]byte, BufferSize)
-			//----------
-			n, remoteAddr, err = UDPConn.ReadFrom(bytes)
-			//--------------------------------------------------
-			if err != nil {
-				t.Error("error reading written bytes:", err)
-			} else {
-
-				//----------
-				bytes = bytes[0:n]
-				//----------
-				if n != bytesLength {
-					//----------
-					t.Errorf("returned bytes length = %d but should = %d", n, bytesLength)
-					//----------
-				}
-				//----------
-				if fmt.Sprint(bytes) != fmt.Sprint(messageBytes) {
-					//----------
-					t.Errorf("returned bytes = %v but should = %v", bytes, messageBytes)
-					//----------
-				}
-				//----------
-				if fmt.Sprint(remoteAddr) != fmt.Sprint(addr) {
-					//----------
-					t.Errorf("returned remote address = %q but should = %q", remoteAddr, addr)
-					//----------
-				}
-				//----------
-			}
-		}
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-//############################################################
-//------------------------------------------------------------
-
 func TestUDPClient(t *testing.T) {
 
 	//--------------------------------------------------
@@ -840,6 +459,7 @@ func TestSocketServerEcho(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 	//--------------------------------------------------
 	requestString := "SocketServerEcho test"
+	requestBytes := []byte(requestString)
 	//----------
 	conn, err := net.Dial("unix", socketAddr)
 	//--------------------------------------------------
@@ -849,7 +469,19 @@ func TestSocketServerEcho(t *testing.T) {
 		//----------
 		defer conn.Close()
 		//----------
-		_, err := conn.Write([]byte(requestString))
+		headerLength := uint8(5) // (base header length + optional extended header length)
+		//----------
+		combinedRequestBytes := make([]byte, int(headerLength)+len(requestBytes))
+		combinedRequestBytes[0] = headerLength
+		binary.BigEndian.PutUint32(combinedRequestBytes[1:5], uint32(len(requestBytes)))
+		//----------
+		/*
+			create optional extended header here
+		*/
+		//----------
+		copy(combinedRequestBytes[headerLength:], requestBytes)
+		//----------
+		_, err = conn.Write(combinedRequestBytes)
 		//----------
 		responseBytes, _ := io.ReadAll(conn)
 		//----------
@@ -864,196 +496,6 @@ func TestSocketServerEcho(t *testing.T) {
 				t.Errorf("response = %q but should = %q", responseString, requestString)
 				//----------
 			}
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestSocketListen(t *testing.T) {
-
-	//--------------------------------------------------
-	// SocketListen
-	//--------------------------------------------------
-	var err error
-	//--------------------------------------------------
-	socketAddr := "golang-socket-test.sock"
-	//--------------------------------------------------
-	socketObject := SocketStruct{Addr: socketAddr}
-	//--------------------------------------------------
-	err = socketObject.SocketListen()
-	//----------
-	if err != nil {
-		t.Error(err)
-	} else {
-		//----------
-		defer socketObject.Listener.Close()
-		//----------
-		listenerType := fmt.Sprintf("%T", socketObject.Listener)
-		//----------
-		if listenerType != "*net.UnixListener" {
-			//----------
-			t.Errorf("SocketListen should create listener type %q but it created type = %q", "*net.UnixListener", listenerType)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-func TestSocketListenConn(t *testing.T) {
-
-	//--------------------------------------------------
-	// SocketListenConn
-	//--------------------------------------------------
-	socketAddr := "golang-socket-test.sock"
-	//--------------------------------------------------
-	socketObject := SocketStruct{Addr: socketAddr}
-	//--------------------------------------------------
-	wg := sync.WaitGroup{}
-	//--------
-	wg.Add(1)
-	//--------------------------------------------------
-	go func() {
-		//--------
-		wg.Done()
-		//--------
-		err := socketObject.SocketListenConn()
-		//--------
-		if err != nil {
-			t.Error(err)
-		} else {
-			//--------
-			defer socketObject.Conn.Close()
-			//--------
-			requestBytes := make([]byte, BufferSize)
-			//--------
-			n, err := socketObject.Conn.Read(requestBytes)
-			//--------
-			if err == nil && n > 0 {
-				socketObject.Conn.Write(requestBytes[0:n])
-			}
-			//--------
-		}
-		//--------
-	}()
-	//--------------------------------------------------
-	wg.Wait()
-	//----------
-	time.Sleep(10 * time.Millisecond)
-	//--------------------------------------------------
-	requestString := "SocketListenConn test"
-	//----------
-	responseString := ""
-	//----------
-	conn, err := net.Dial("unix", socketAddr)
-	//--------------------------------------------------
-	if err == nil {
-		//----------
-		defer conn.Close()
-		//----------
-		_, err = conn.Write([]byte(requestString))
-		//----------
-		if err == nil {
-			responseBytes, err := io.ReadAll(conn)
-			if err == nil {
-				responseString = string(responseBytes)
-			}
-		}
-		//----------
-	}
-	//--------------------------------------------------
-	if err != nil {
-		t.Error("error connecting to server:", err)
-	} else {
-		//----------
-		if responseString != requestString {
-			//----------
-			t.Errorf("responseString should = %q but = %q", requestString, responseString)
-			//----------
-		}
-		//----------
-	}
-	//--------------------------------------------------
-}
-
-func TestSocketReadBytesSocketWriteBytes(t *testing.T) {
-
-	//--------------------------------------------------
-	// SocketReadBytes / SocketWriteBytes
-	//--------------------------------------------------
-	socketAddr := "golang-socket-test.sock"
-	//--------
-	socketObject := SocketStruct{Addr: socketAddr}
-	//--------------------------------------------------
-	wg := sync.WaitGroup{}
-	//--------
-	wg.Add(1)
-	//--------------------------------------------------
-	go func() {
-		//--------------------------------------------------
-		wg.Done()
-		//--------------------------------------------------
-		var err error
-		var requestBytes []byte
-		//--------------------------------------------------
-		socketObject.Listener, err = net.Listen("unix", socketAddr)
-		//--------
-		if err != nil {
-			t.Error(err)
-		} else {
-			//--------------------------------------------------
-			defer socketObject.Listener.Close()
-			//--------------------------------------------------
-			socketObject.Conn, err = socketObject.Listener.Accept()
-			//--------
-			if err != nil {
-				t.Error(err)
-			} else {
-				//--------
-				defer socketObject.Conn.Close()
-				//--------
-				requestBytes, err = socketObject.SocketReadBytes()
-				//--------
-				if err == nil {
-					socketObject.SocketWriteBytes(requestBytes)
-				}
-				//--------
-			}
-			//--------------------------------------------------
-		}
-		//--------------------------------------------------
-	}()
-	//--------------------------------------------------
-	wg.Wait()
-	//----------
-	time.Sleep(10 * time.Millisecond)
-	//--------------------------------------------------
-	requestString := "SocketReadBytes / SocketWriteBytes test"
-	//----------
-	responseString := ""
-	//----------
-	conn, err := net.Dial("unix", socketAddr)
-	//--------------------------------------------------
-	if err == nil {
-		//----------
-		defer conn.Close()
-		//----------
-		_, err = conn.Write([]byte(requestString))
-		//----------
-		if err == nil {
-			responseBytes, err := io.ReadAll(conn)
-			if err == nil {
-				responseString = string(responseBytes)
-			}
-		}
-		//----------
-		if responseString != requestString {
-			//----------
-			t.Errorf("responseString should = %q but = %q", requestString, responseString)
 			//----------
 		}
 		//----------
@@ -1092,7 +534,7 @@ func TestSocketClient(t *testing.T) {
 		n, err := conn.Read(requestBytes)
 		//--------
 		if err == nil && n > 0 {
-			conn.Write(requestBytes[0:n])
+			conn.Write(requestBytes[5:n]) // ignore header
 		}
 		//--------------------------------------------------
 	}()
