@@ -235,12 +235,10 @@ func TestTCPClient(t *testing.T) {
 		defer TCPListener.Close()
 		defer TCPConn.Close()
 		//--------
-		requestBytes := make([]byte, BufferSize)
+		requestBytes, err := io.ReadAll(TCPConn)
 		//--------
-		n, err := TCPConn.Read(requestBytes)
-		//--------
-		if err == nil && n > 0 {
-			TCPConn.Write(requestBytes[0:n])
+		if err == nil {
+			TCPConn.Write(requestBytes)
 		}
 		//--------------------------------------------------
 	}()
@@ -351,10 +349,6 @@ func TestUDPServerEcho(t *testing.T) {
 	}
 	//--------------------------------------------------
 }
-
-//------------------------------------------------------------
-//############################################################
-//------------------------------------------------------------
 
 func TestUDPClient(t *testing.T) {
 
@@ -529,7 +523,7 @@ func TestSocketClient(t *testing.T) {
 		defer socketListener.Close()
 		defer conn.Close()
 		//--------
-		requestBytes := make([]byte, BufferSize)
+		requestBytes := make([]byte, 4096)
 		//--------
 		n, err := conn.Read(requestBytes)
 		//--------

@@ -443,6 +443,14 @@ func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, erro
 
 func (networkObject *NetworkStruct) UDPServerEcho() error {
 	//--------------------------------------------------
+	/*
+		does not use a go routine as this cause issues when trying to process connections
+		all testing without fixed buffer lengths failed with deadlock
+
+		TCP Sockets and Unix Domain Sockets both work with go routines
+		and don't required a fixed buffer length
+	*/
+	//--------------------------------------------------
 	var err error
 	var bytesRead int
 	//--------------------------------------------------
@@ -469,7 +477,7 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 		} else {
 
 			//--------------------------------------------------
-			// fixed buffer size used due to prevent hanging code (waiting)
+			// fixed buffer size used as can only read 1 udp packet per connection
 			//--------------------------------------------------
 			bufferSize := BufferSize
 			//----------
@@ -537,7 +545,7 @@ func (networkObject *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, erro
 			//----------
 			defer networkObject.UDPConn.Close()
 			//--------------------------------------------------
-			// fixed buffer size used due to prevent hanging code (waiting)
+			// fixed buffer size used as can only read 1 udp packet per connection
 			//--------------------------------------------------
 			bufferSize := BufferSize
 			//--------------------------------------------------
