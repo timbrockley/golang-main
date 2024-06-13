@@ -186,7 +186,7 @@ func FileSave(filePath string, data string) error {
 	//--------------------------------------------------------------------------------
 	file, err := os.Create(filePath)
 	//----------
-	if err == nil && data != "" {
+	if err == nil {
 		//----------
 		defer file.Close()
 		//----------
