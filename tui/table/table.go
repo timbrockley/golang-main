@@ -10,8 +10,10 @@ LICENSE file in the root directory of this source tree.
 package table
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+	"text/tabwriter"
 )
 
 //--------------------------------------------------------------------------------
@@ -30,9 +32,14 @@ const (
 	bottomMiddle = "\u2534"
 )
 
+type Options struct {
+	Header   bool
+	MaxWidth int
+}
+
 //--------------------------------------------------------------------------------
 
-func RenderTable(rows [][]string, header bool) string {
+func RenderTable(rows [][]string, options Options) string {
 	//----------------------------------------
 	var builder strings.Builder
 	//----------------------------------------
@@ -73,7 +80,7 @@ func RenderTable(rows [][]string, header bool) string {
 	for rowIndex, row := range rows {
 		//----------------------------------------
 		// inner table border (if header = true)
-		if rowIndex == 1 && header {
+		if rowIndex == 1 && options.Header {
 			//----------------------------------------
 			builder.WriteString(innerLeft)
 			for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
@@ -112,8 +119,72 @@ func RenderTable(rows [][]string, header bool) string {
 	}
 	builder.WriteString(bottomRight + "\n")
 	//----------------------------------------
-	return builder.String()
+	if options.MaxWidth > 0 {
+		//----------------------------------------
+		lines := strings.Split(builder.String(), "\n")
+		for lineIndex := range lines {
+			lines[lineIndex] = TruncateString(lines[lineIndex], options.MaxWidth)
+		}
+		return strings.Join(lines, "\n")
+		//----------------------------------------
+	} else {
+		//----------------------------------------
+		return builder.String()
+		//----------------------------------------
+	}
 	//----------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TabwriterTable(rows [][]string, options Options) string {
+	//----------------------------------------
+	var buffer bytes.Buffer
+	//----------------------------------------
+	writer := tabwriter.NewWriter(&buffer, 0, 0, 2, ' ', 0)
+	//----------------------------------------
+	for rowIndex, row := range rows {
+		//----------------------------------------
+		for columnIndex := range row {
+			row[columnIndex] = EscapeString(row[columnIndex])
+		}
+		fmt.Fprintln(writer, strings.Join(row, "\t"))
+		//----------------------------------------
+		if rowIndex == 0 && options.Header {
+			headerLines := make([]string, len(row))
+			for columnIndex, column := range row {
+				headerLines[columnIndex] = strings.Repeat("-", len(column))
+			}
+			fmt.Fprintln(writer, strings.Join(headerLines, "\t"))
+		}
+		//----------------------------------------
+	}
+	//----------------------------------------
+	writer.Flush()
+	//----------------------------------------
+	if options.MaxWidth > 0 {
+		//----------------------------------------
+		lines := strings.Split(buffer.String(), "\n")
+		for lineIndex := range lines {
+			lines[lineIndex] = TruncateString(lines[lineIndex], options.MaxWidth)
+		}
+		return strings.Join(lines, "\n")
+		//----------------------------------------
+	} else {
+		//----------------------------------------
+		return buffer.String()
+		//----------------------------------------
+	}
+	//----------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+func TruncateString(rowString string, maxWidth int) string {
+	if maxWidth > 0 && len([]rune(rowString)) > maxWidth {
+		return string([]rune(rowString)[:maxWidth])
+	}
+	return rowString
 }
 
 //--------------------------------------------------------------------------------
