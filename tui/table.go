@@ -7,7 +7,7 @@ LICENSE file in the root directory of this source tree.
 
 */
 
-package table
+package tui
 
 import (
 	"bytes"
