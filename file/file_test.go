@@ -54,7 +54,7 @@ func TestMain(t *testing.T) {
 // Lock method
 //------------------------------------------------------------
 
-func TestLockUnlock(t *testing.T) {
+func TestMutexLockUnlock(t *testing.T) {
 
 	//------------------------------------------------------------
 	var resultString, EXPECTED_string string
@@ -119,6 +119,30 @@ func TestLockUnlock(t *testing.T) {
 		t.Errorf("errString = %q but should = %q", errString, EXPECTED_errString)
 	}
 	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// Lock / Unlock
+//------------------------------------------------------------
+
+func TestLockUnlock(t *testing.T) {
+	//----------------------------------------
+	var err error
+	//----------------------------------------
+	fsl := Lock(testLogFilename)
+	//--------------------
+	lockFilePath := fmt.Sprintf("%s.lock", testLogFilename)
+	//--------------------
+	if _, err = os.Stat(lockFilePath); os.IsNotExist(err) {
+		t.Errorf("Expected lock file to exist, but it does not: %v", lockFilePath)
+	}
+	//--------------------
+	fsl.Unlock()
+	//--------------------
+	if _, err = os.Stat(lockFilePath); !os.IsNotExist(err) {
+		t.Errorf("Expected lock file not to exist, but it does: %v", lockFilePath)
+	}
+	//----------------------------------------
 }
 
 //------------------------------------------------------------

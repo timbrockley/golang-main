@@ -36,6 +36,11 @@ type FileMutexStruct struct {
 
 var FileMutex FileMutexStruct
 
+type fsLockStruct struct {
+	filePath string
+	fslock   *fslock.Lock
+}
+
 //------------------------------------------------------------
 //################################################################################
 //------------------------------------------------------------
@@ -44,67 +49,67 @@ var FileMutex FileMutexStruct
 // mutex methods !!! ONLY WORK IN CURRENT RUNNING PROCESS !!!
 //------------------------------------------------------------
 
-//----------------------------------------
+//------------------------------------------------------------
 // internal mutex (onlys performs lock once to prevent internal "lockup")
-//----------------------------------------
+//------------------------------------------------------------
 
 func (fm *FileMutexStruct) lock() {
-	//----------
+	//--------------------
 	fm.LockLevelStateMutex.Lock()
 	fm.LockLevel++
-	//----------
+	//--------------------
 	if fm.LockLevel == 1 {
 		fm.LockLevelStateMutex.Unlock()
 		fm.Lock()
 		return
 	}
-	//----------
+	//--------------------
 	fm.LockLevelStateMutex.Unlock()
-	//----------
+	//--------------------
 }
 
 func (fm *FileMutexStruct) unlock() error {
-	//----------
+	//--------------------
 	fm.LockLevelStateMutex.Lock()
 	fm.LockLevel--
-	//----------
+	//--------------------
 	if fm.LockLevel == 0 {
 		fm.LockLevelStateMutex.Unlock()
 		return fm.Unlock()
 	}
-	//-----------
+	//---------------------
 	fm.LockLevelStateMutex.Unlock()
 	return nil
-	//-----------
+	//---------------------
 }
 
-//----------------------------------------
+//------------------------------------------------------------
 // main mutex (locks every time)
-//----------------------------------------
+//------------------------------------------------------------
 
 func (fm *FileMutexStruct) Lock() {
-	//----------
+	//---------------------
 	fm.StateMutex.Lock()
 	defer fm.StateMutex.Unlock()
-	//----------
+	//---------------------
 	fm.LockLevelStateMutex.Lock()
 	fm.LockLevel++
 	fm.LockLevelStateMutex.Unlock()
-	//----------
+	//---------------------
 	fm.SyncMutex.Lock()
 	fm.IsLocked = true
-	//----------
+	//---------------------
 }
 
 func (fm *FileMutexStruct) Unlock() error {
-	//----------
+	//---------------------
 	fm.StateMutex.Lock()
 	defer fm.StateMutex.Unlock()
-	//----------
+	//---------------------
 	fm.LockLevelStateMutex.Lock()
 	fm.LockLevel--
 	fm.LockLevelStateMutex.Unlock()
-	//----------
+	//---------------------
 	if !fm.IsLocked {
 		return fmt.Errorf("already unlocked")
 	} else {
@@ -112,7 +117,41 @@ func (fm *FileMutexStruct) Unlock() error {
 		fm.IsLocked = false
 		return nil
 	}
-	//----------
+	//---------------------
+}
+
+//------------------------------------------------------------
+// Lock
+//------------------------------------------------------------
+
+func Lock(filePath string) fsLockStruct {
+	//------------------------------------------------------------
+	fsl := fsLockStruct{filePath: filePath, fslock: fslock.New(fmt.Sprintf(`%s.lock`, filePath))}
+	//---------------------
+	if fsl.fslock != nil {
+		fsl.fslock.Lock()
+	}
+	//---------------------
+	return fsl
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// Unlock Method
+//------------------------------------------------------------
+
+func (fsl *fsLockStruct) Unlock() error {
+	//------------------------------------------------------------
+	if fsl.fslock != nil {
+		fsl.fslock.Unlock()
+	}
+	//---------------------
+	if fsl.filePath != "" {
+		return os.Remove(fmt.Sprintf(`%s.lock`, fsl.filePath))
+	}
+	//---------------------
+	return nil
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -202,6 +241,7 @@ func FileSave(filePath string, data string) error {
 	fslock.Lock()
 	//--------------------
 	defer fslock.Unlock()
+	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	file, err := os.Create(filePath)
 	//----------
@@ -232,6 +272,7 @@ func FileAppend(filePath string, data string) error {
 	fslock.Lock()
 	//--------------------
 	defer fslock.Unlock()
+	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	//----------
@@ -262,6 +303,7 @@ func FileRemove(filePath string) error {
 	fslock.Lock()
 	//--------------------
 	defer fslock.Unlock()
+	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	return os.Remove(filePath)
 	//------------------------------------------------------------
@@ -545,6 +587,7 @@ func Log(messageString string, FilePath ...string) error {
 	fslock.Lock()
 	//--------------------
 	defer fslock.Unlock()
+	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	if !FilePathExists(logFilePath) {
 		logLineString = "utm\tcymd\thms\tpath\tfilename\tline\terror\n"
