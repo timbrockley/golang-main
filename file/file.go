@@ -36,9 +36,9 @@ type FileMutexStruct struct {
 
 var FileMutex FileMutexStruct
 
-type fsLockStruct struct {
+type FileLock struct {
 	filePath string
-	fslock   *fslock.Lock
+	fsLock   *fslock.Lock
 }
 
 //------------------------------------------------------------
@@ -124,15 +124,15 @@ func (fm *FileMutexStruct) Unlock() error {
 // Lock
 //------------------------------------------------------------
 
-func Lock(filePath string) fsLockStruct {
+func Lock(filePath string) FileLock {
 	//------------------------------------------------------------
-	fsl := fsLockStruct{filePath: filePath, fslock: fslock.New(fmt.Sprintf(`%s.lock`, filePath))}
+	lock := FileLock{filePath: filePath, fsLock: fslock.New(fmt.Sprintf(`%s.lock`, filePath))}
 	//---------------------
-	if fsl.fslock != nil {
-		fsl.fslock.Lock()
+	if lock.fsLock != nil {
+		lock.fsLock.Lock()
 	}
 	//---------------------
-	return fsl
+	return lock
 	//------------------------------------------------------------
 }
 
@@ -140,14 +140,14 @@ func Lock(filePath string) fsLockStruct {
 // Unlock Method
 //------------------------------------------------------------
 
-func (fsl *fsLockStruct) Unlock() error {
+func (lock *FileLock) Unlock() error {
 	//------------------------------------------------------------
-	if fsl.fslock != nil {
-		fsl.fslock.Unlock()
+	if lock.fsLock != nil {
+		lock.fsLock.Unlock()
 	}
 	//---------------------
-	if fsl.filePath != "" {
-		return os.Remove(fmt.Sprintf(`%s.lock`, fsl.filePath))
+	if lock.filePath != "" {
+		return os.Remove(fmt.Sprintf(`%s.lock`, lock.filePath))
 	}
 	//---------------------
 	return nil
