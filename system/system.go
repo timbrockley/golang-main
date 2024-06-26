@@ -93,11 +93,11 @@ func ConvertToInt(value any) int {
 			//----------
 		} else if fmt.Sprintf("%T", value) == "int32" {
 			//----------
-			return value.(int)
+			return int(value.(int32))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "int64" {
 			//----------
-			return value.(int)
+			return int(value.(int64))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "float32" {
 			//----------
@@ -156,7 +156,7 @@ func ConvertToInt32(value any) int32 {
 			//----------
 		} else if fmt.Sprintf("%T", value) == "int64" {
 			//----------
-			return value.(int32)
+			return int32(value.(int64))
 			//----------
 		} else if fmt.Sprintf("%T", value) == "float32" {
 			//----------

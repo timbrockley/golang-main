@@ -2,11 +2,6 @@ module github.com/timbrockley/golang-main
 
 go 1.22
 
-replace (
-	github.com/joho/godotenv => ./vendor/github.com/joho/godotenv
-	github.com/juju/fslock => ./vendor/github.com/juju/fslock
-)
-
 require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/joho/godotenv v1.5.1

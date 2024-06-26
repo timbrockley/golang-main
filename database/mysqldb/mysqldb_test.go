@@ -243,9 +243,9 @@ func TestQueryRecords(t *testing.T) {
 	//------------------------------------------------------------
 	var err error
 	var records []map[string]any
-	//------------------------------------------------------------
+	// //------------------------------------------------------------
 	records, err = conn1.QueryRecords("SELECT * FROM test.cars")
-	//----------
+	// //----------
 	if err != nil {
 		t.Error(err)
 	} else {

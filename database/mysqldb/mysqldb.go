@@ -522,10 +522,12 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 			//----------
 			for index, value := range scans {
 				//----------
-				value = string(value.([]byte))
-				//----------
 				Name := columns[index]
 				Type := strings.ToUpper(columnTypes[Name])
+				//----------
+				if fmt.Sprintf("%T", value) == "[]uint8" {
+					value = string(value.([]uint8))
+				}
 				//----------
 				switch Type {
 				case "BIGINT", "BIT", "BIT VARYING", "INT", "INTEGER", "MEDIUMINT", "SERIAL", "SMALLINT", "SMALLSERIAL", "TINYINT":
