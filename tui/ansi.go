@@ -30,64 +30,64 @@ func CRLF(optionFuncs ...OptionFunc) string {
 //--------------------------------------------------------------------------------
 
 func CursorUp(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dA", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dA", n), optionFuncs...)
 }
 
 func CursorDown(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dB", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dB", n), optionFuncs...)
 }
 
 func CursorRight(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dC", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dC", n), optionFuncs...)
 }
 
 func CursorLeft(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dD", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dD", n), optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
 
 func CursorHome(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("0x1B[H", optionFuncs...)
+	return ReturnOutput("\x1B[H", optionFuncs...)
 }
 
 func CursorMove(row int, col int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%d;%dH", row, col), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%d;%dH", row, col), optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
 
 func ScrollUp(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dS", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dS", n), optionFuncs...)
 }
 
 func ScrollDown(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("0x1B[%dT", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\x1B[%dT", n), optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
 
 func ClearScreen(clearScrollbackBuffer bool, optionFuncs ...OptionFunc) string {
 	if clearScrollbackBuffer {
-		return ReturnOutput("0x1B[3J", optionFuncs...)
+		return ReturnOutput("\x1B[3J", optionFuncs...)
 	} else {
-		return ReturnOutput("0x1B[2J", optionFuncs...)
+		return ReturnOutput("\x1B[2J", optionFuncs...)
 	}
 
 }
 
 func ClearLine(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("0x1B[2K", optionFuncs...)
+	return ReturnOutput("\x1B[2K", optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
 
 func CursorShow(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("0x1B[?25h", optionFuncs...)
+	return ReturnOutput("\x1B[?25h", optionFuncs...)
 }
 
 func CursorHide(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("0x1B[?25l", optionFuncs...)
+	return ReturnOutput("\x1B[?25l", optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------

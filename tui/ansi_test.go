@@ -121,7 +121,7 @@ func TestCursorUp(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0A"
+	expectedString = "\x1B[0A"
 	//----------------------------------------
 	resultString = CursorUp(0)
 	//----------------------------------------
@@ -155,7 +155,7 @@ func TestCursorDown(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0B"
+	expectedString = "\x1B[0B"
 	//----------------------------------------
 	resultString = CursorDown(0)
 	//----------------------------------------
@@ -189,7 +189,7 @@ func TestCursorRight(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0C"
+	expectedString = "\x1B[0C"
 	//----------------------------------------
 	resultString = CursorRight(0)
 	//----------------------------------------
@@ -223,7 +223,7 @@ func TestCursorLeft(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0D"
+	expectedString = "\x1B[0D"
 	//----------------------------------------
 	resultString = CursorLeft(0)
 	//----------------------------------------
@@ -257,7 +257,7 @@ func TestCursorHome(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[H"
+	expectedString = "\x1B[H"
 	//----------------------------------------
 	resultString = CursorHome()
 	//----------------------------------------
@@ -291,7 +291,7 @@ func TestCursorMove(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0;0H"
+	expectedString = "\x1B[0;0H"
 	//----------------------------------------
 	resultString = CursorMove(0, 0)
 	//----------------------------------------
@@ -325,7 +325,7 @@ func TestScrollUp(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0S"
+	expectedString = "\x1B[0S"
 	//----------------------------------------
 	resultString = ScrollUp(0)
 	//----------------------------------------
@@ -359,7 +359,7 @@ func TestScrollDown(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[0T"
+	expectedString = "\x1B[0T"
 	//----------------------------------------
 	resultString = ScrollDown(0)
 	//----------------------------------------
@@ -393,7 +393,7 @@ func TestClearScreen(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[2J"
+	expectedString = "\x1B[2J"
 	//----------------------------------------
 	resultString = ClearScreen(false)
 	//----------------------------------------
@@ -401,7 +401,7 @@ func TestClearScreen(t *testing.T) {
 		t.Errorf("expected: %s but got: %s", expectedString, resultString)
 	}
 	//----------------------------------------
-	expectedString = "0x1B[3J"
+	expectedString = "\x1B[3J"
 	//----------------------------------------
 	resultString = ClearScreen(true, Stdout)
 	//----------------------------------------
@@ -430,7 +430,7 @@ func TestClearLine(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[2K"
+	expectedString = "\x1B[2K"
 	//----------------------------------------
 	resultString = ClearLine()
 	//----------------------------------------
@@ -465,7 +465,7 @@ func TestCursorShow(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[?25h"
+	expectedString = "\x1B[?25h"
 	//----------------------------------------
 	resultString = CursorShow()
 	//----------------------------------------
@@ -499,7 +499,7 @@ func TestCursorHide(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "0x1B[?25l"
+	expectedString = "\x1B[?25l"
 	//----------------------------------------
 	resultString = CursorHide()
 	//----------------------------------------
