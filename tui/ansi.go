@@ -29,28 +29,55 @@ func CRLF(optionFuncs ...OptionFunc) string {
 
 //--------------------------------------------------------------------------------
 
-func ClearLine(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\033[2K", optionFuncs...)
-}
-
-//--------------------------------------------------------------------------------
-
 func CursorUp(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\033[%dA", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("0x1B[%dA", n), optionFuncs...)
 }
 
 func CursorDown(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\033[%dB", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("0x1B[%dB", n), optionFuncs...)
+}
+
+func CursorRight(n int, optionFuncs ...OptionFunc) string {
+	return ReturnOutput(fmt.Sprintf("0x1B[%dC", n), optionFuncs...)
+}
+
+func CursorLeft(n int, optionFuncs ...OptionFunc) string {
+	return ReturnOutput(fmt.Sprintf("0x1B[%dD", n), optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
 
-func CursorHide(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\033[?25l", optionFuncs...)
+func ScrollUp(n int, optionFuncs ...OptionFunc) string {
+	return ReturnOutput(fmt.Sprintf("0x1B[%dS", n), optionFuncs...)
 }
 
+func ScrollDown(n int, optionFuncs ...OptionFunc) string {
+	return ReturnOutput(fmt.Sprintf("0x1B[%dT", n), optionFuncs...)
+}
+
+//--------------------------------------------------------------------------------
+
+func ClearScreen(clearScrollbackBuffer bool, optionFuncs ...OptionFunc) string {
+	if clearScrollbackBuffer {
+		return ReturnOutput("0x1B[3J", optionFuncs...)
+	} else {
+		return ReturnOutput("0x1B[2J", optionFuncs...)
+	}
+
+}
+
+func ClearLine(optionFuncs ...OptionFunc) string {
+	return ReturnOutput("0x1B[2K", optionFuncs...)
+}
+
+//--------------------------------------------------------------------------------
+
 func CursorShow(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\033[?25h", optionFuncs...)
+	return ReturnOutput("0x1B[?25h", optionFuncs...)
+}
+
+func CursorHide(optionFuncs ...OptionFunc) string {
+	return ReturnOutput("0x1B[?25l", optionFuncs...)
 }
 
 //--------------------------------------------------------------------------------
