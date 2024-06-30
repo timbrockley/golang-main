@@ -113,6 +113,41 @@ func TestCRLF(t *testing.T) {
 
 //------------------------------------------------------------
 
+func TestClearLine(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
+	//----------------------------------------
+	oldStdout := os.Stdout
+	reader, writer, _ := os.Pipe()
+	os.Stdout = writer
+	//----------------------------------------
+	expectedString = "\033[2K"
+	//----------------------------------------
+	resultString = ClearLine()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+	resultString = ClearLine(Stdout)
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+	writer.Close()
+	capturedStdout, _ := io.ReadAll(reader)
+	resultString = string(capturedStdout)
+	os.Stdout = oldStdout
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
 func TestCursorUp(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
