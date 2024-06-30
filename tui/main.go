@@ -59,7 +59,6 @@ func ParseOptions(optionFuncs ...OptionFunc) Options {
 	for _, fn := range optionFuncs {
 		fn(&options)
 	}
-	//----------------------------------------
 	return options
 	//----------------------------------------
 }
