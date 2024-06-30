@@ -32,16 +32,18 @@ const (
 	bottomMiddle = "\u2534"
 )
 
-type Options struct {
+type TableOptions struct {
 	Header   bool
 	MaxWidth int
 }
 
 //--------------------------------------------------------------------------------
 
-func RenderTable(rows [][]string, options Options) string {
+func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	//----------------------------------------
 	var builder strings.Builder
+	//----------------------------------------
+	options := ParseOptions(optionFuncs...)
 	//----------------------------------------
 	if len(rows) == 0 {
 		return topLeft + topRight + "\n" + bottomLeft + bottomRight + "\n"
@@ -129,6 +131,10 @@ func RenderTable(rows [][]string, options Options) string {
 		//----------------------------------------
 	} else {
 		//----------------------------------------
+		if options.UseStdOut {
+			fmt.Print(builder.String())
+		}
+		//----------------------------------------
 		return builder.String()
 		//----------------------------------------
 	}
@@ -137,9 +143,11 @@ func RenderTable(rows [][]string, options Options) string {
 
 //--------------------------------------------------------------------------------
 
-func TabwriterTable(rows [][]string, options Options) string {
+func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	//----------------------------------------
 	var buffer bytes.Buffer
+	//----------------------------------------
+	options := ParseOptions(optionFuncs...)
 	//----------------------------------------
 	writer := tabwriter.NewWriter(&buffer, 0, 0, 2, ' ', 0)
 	//----------------------------------------
@@ -171,6 +179,10 @@ func TabwriterTable(rows [][]string, options Options) string {
 		return strings.Join(lines, "\n")
 		//----------------------------------------
 	} else {
+		//----------------------------------------
+		if options.UseStdOut {
+			fmt.Print(buffer.String())
+		}
 		//----------------------------------------
 		return buffer.String()
 		//----------------------------------------
