@@ -47,6 +47,16 @@ func CursorLeft(n int, optionFuncs ...OptionFunc) string {
 
 //--------------------------------------------------------------------------------
 
+func CursorHome(optionFuncs ...OptionFunc) string {
+	return ReturnOutput("0x1B[H", optionFuncs...)
+}
+
+func CursorMove(row int, col int, optionFuncs ...OptionFunc) string {
+	return ReturnOutput(fmt.Sprintf("0x1B[%d;%dH", row, col), optionFuncs...)
+}
+
+//--------------------------------------------------------------------------------
+
 func ScrollUp(n int, optionFuncs ...OptionFunc) string {
 	return ReturnOutput(fmt.Sprintf("0x1B[%dS", n), optionFuncs...)
 }
