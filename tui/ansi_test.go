@@ -8,7 +8,7 @@ import (
 
 //------------------------------------------------------------
 
-func TestCR(t *testing.T) {
+func TestCR_LF_CRLF(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
 	//----------------------------------------
@@ -16,34 +16,33 @@ func TestCR(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\r"
+	expectedString = "\r\n\r\n"
 	//----------------------------------------
-	resultString = CR()
+	resultString = CR() + LF() + CRLF()
 	//----------------------------------------
 	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = CR(Stdout)
+	resultString = CR(Stdout) + LF(Stdout) + CRLF(Stdout)
 	//----------------------------------------
 	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
 	writer.Close()
 	capturedStdout, _ := io.ReadAll(reader)
-	resultString = string(capturedStdout)
 	os.Stdout = oldStdout
 	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	if string(capturedStdout) != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
 	}
 	//----------------------------------------
 }
 
 //------------------------------------------------------------
 
-func TestLF(t *testing.T) {
+func TestCursorFunctions(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
 	//----------------------------------------
@@ -51,85 +50,42 @@ func TestLF(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\n"
-	//----------------------------------------
-	resultString = LF()
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	resultString = LF(Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	resultString = string(capturedStdout)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCRLF(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\r\n"
-	//----------------------------------------
-	resultString = CRLF()
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	resultString = CRLF(Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	resultString = string(capturedStdout)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorUp(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[0A"
+	expectedString = "\033[0A"    // CursorUp
+	expectedString += "\033[0B"   // CursorDown
+	expectedString += "\033[0C"   // CursorRight
+	expectedString += "\033[0D"   // CursorLeft
+	expectedString += "\033[H"    // CursorHome
+	expectedString += "\033[0;0H" // CursorMove
+	expectedString += "\033[s"    // CursorSave
+	expectedString += "\033[u"    // CursorRestore
+	expectedString += "\033[?25h" // CursorShow
+	expectedString += "\033[?25l" // CursorHide
 	//----------------------------------------
 	resultString = CursorUp(0)
+	resultString += CursorDown(0)
+	resultString += CursorRight(0)
+	resultString += CursorLeft(0)
+	resultString += CursorHome()
+	resultString += CursorMove(0, 0)
+	resultString += CursorSave()
+	resultString += CursorRestore()
+	resultString += CursorShow()
+	resultString += CursorHide()
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
 	resultString = CursorUp(0, Stdout)
+	resultString += CursorDown(0, Stdout)
+	resultString += CursorRight(0, Stdout)
+	resultString += CursorLeft(0, Stdout)
+	resultString += CursorHome(Stdout)
+	resultString += CursorMove(0, 0, Stdout)
+	resultString += CursorSave(Stdout)
+	resultString += CursorRestore(Stdout)
+	resultString += CursorShow(Stdout)
+	resultString += CursorHide(Stdout)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -147,7 +103,7 @@ func TestCursorUp(t *testing.T) {
 
 //------------------------------------------------------------
 
-func TestCursorDown(t *testing.T) {
+func TestScrollbackFunctions(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
 	//----------------------------------------
@@ -155,185 +111,18 @@ func TestCursorDown(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\x1B[0B"
-	//----------------------------------------
-	resultString = CursorDown(0)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorDown(0, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorRight(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[0C"
-	//----------------------------------------
-	resultString = CursorRight(0)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorRight(0, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorLeft(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[0D"
-	//----------------------------------------
-	resultString = CursorLeft(0)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorLeft(0, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorHome(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[H"
-	//----------------------------------------
-	resultString = CursorHome()
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorHome(Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorMove(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[0;0H"
-	//----------------------------------------
-	resultString = CursorMove(0, 0)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorMove(0, 0, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestScrollUp(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[0S"
+	expectedString = "\033[0S"  // ScrollUp
+	expectedString += "\033[0T" // ScrollDown
 	//----------------------------------------
 	resultString = ScrollUp(0)
+	resultString += ScrollDown(0)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
 	resultString = ScrollUp(0, Stdout)
+	resultString += ScrollDown(0, Stdout)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -351,7 +140,7 @@ func TestScrollUp(t *testing.T) {
 
 //------------------------------------------------------------
 
-func TestScrollDown(t *testing.T) {
+func TestClearFunctions(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
 	//----------------------------------------
@@ -359,155 +148,24 @@ func TestScrollDown(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\x1B[0T"
+	expectedString = "\033[3J"         // ClearScrollbackBuffer
+	expectedString += "\033[2J"        // ClearWindow
+	expectedString += "\033[2J\033[3J" // ClearScreen
+	expectedString += "\033[2K"        // ClearLine
 	//----------------------------------------
-	resultString = ScrollDown(0)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = ScrollDown(0, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestClearScreen(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[2J"
-	//----------------------------------------
-	resultString = ClearScreen(false)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	expectedString = "\x1B[3J"
-	//----------------------------------------
-	resultString = ClearScreen(true, Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	resultString = string(capturedStdout)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestClearLine(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[2K"
-	//----------------------------------------
-	resultString = ClearLine()
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	resultString = ClearLine(Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	resultString = string(capturedStdout)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %s but got: %s", expectedString, resultString)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorShow(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[?25h"
-	//----------------------------------------
-	resultString = CursorShow()
+	resultString = ClearScrollbackBuffer()
+	resultString += ClearWindow()
+	resultString += ClearScreen()
+	resultString += ClearLine()
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = CursorShow(Stdout)
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
-	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
-	}
-	//----------------------------------------
-}
-
-//------------------------------------------------------------
-
-func TestCursorHide(t *testing.T) {
-	//----------------------------------------
-	var resultString, expectedString string
-	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
-	//----------------------------------------
-	expectedString = "\x1B[?25l"
-	//----------------------------------------
-	resultString = CursorHide()
-	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
-	}
-	//----------------------------------------
-	resultString = CursorHide(Stdout)
+	resultString = ClearScrollbackBuffer(Stdout)
+	resultString += ClearWindow(Stdout)
+	resultString += ClearScreen(Stdout)
+	resultString += ClearLine(Stdout)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
