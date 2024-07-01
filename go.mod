@@ -10,5 +10,8 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mtraver/base91 v1.0.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/term v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require golang.org/x/sys v0.21.0 // indirect
