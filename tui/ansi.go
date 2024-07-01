@@ -36,46 +36,46 @@ func CRLF(optionFuncs ...OptionFunc) string {
 //------------------------------------------------------------
 
 func CursorUp(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dA", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dA", n), optionFuncs...)
 }
 
 func CursorDown(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dB", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dB", n), optionFuncs...)
 }
 
 func CursorRight(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dC", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dC", n), optionFuncs...)
 }
 
 func CursorLeft(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dD", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dD", n), optionFuncs...)
 }
 
 //------------------------------------------------------------
 
 func CursorHome(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[H", optionFuncs...)
+	return ReturnOutput("\033[H", optionFuncs...)
 }
 
 func CursorMove(row int, col int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%d;%dH", row, col), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%d;%dH", row, col), optionFuncs...)
 }
 func CursorSave(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[s", optionFuncs...)
+	return ReturnOutput("\033[s", optionFuncs...)
 }
 
 func CursorRestore(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[u", optionFuncs...)
+	return ReturnOutput("\033[u", optionFuncs...)
 }
 
 //------------------------------------------------------------
 
 func CursorShow(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[?25h", optionFuncs...)
+	return ReturnOutput("\033[?25h", optionFuncs...)
 }
 
 func CursorHide(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[?25l", optionFuncs...)
+	return ReturnOutput("\033[?25l", optionFuncs...)
 }
 
 //------------------------------------------------------------
@@ -101,13 +101,13 @@ func CursorRowCol() (int, int, error) {
 	}
 	//----------------------------------------
 	// escape sequence to request row and col
-	_, err = fmt.Print("\x1B[6n")
+	_, err = fmt.Print("\033[6n")
 	if err != nil {
 		return row, col, err
 	}
 	//----------------------------------------
 	// read row and col from stdin
-	_, err = fmt.Scanf("\x1B[%d;%dR", &row, &col)
+	_, err = fmt.Scanf("\033[%d;%dR", &row, &col)
 	if err != nil {
 		return row, col, err
 	}
@@ -125,31 +125,31 @@ func CursorRowCol() (int, int, error) {
 //------------------------------------------------------------
 
 func ScrollUp(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dS", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dS", n), optionFuncs...)
 }
 
 func ScrollDown(n int, optionFuncs ...OptionFunc) string {
-	return ReturnOutput(fmt.Sprintf("\x1B[%dT", n), optionFuncs...)
+	return ReturnOutput(fmt.Sprintf("\033[%dT", n), optionFuncs...)
 }
 
 //------------------------------------------------------------
 
 func ClearScrollbackBuffer(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[3J", optionFuncs...)
+	return ReturnOutput("\033[3J", optionFuncs...)
 }
 
 // clear visible screen only (not scrollback buffer)
 func ClearWindow(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[2J\x1B[H", optionFuncs...)
+	return ReturnOutput("\033[2J\033[H", optionFuncs...)
 }
 
 // Clear screen and scrollback buffer
 func ClearScreen(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[2J\x1B[3J\x1B[H", optionFuncs...)
+	return ReturnOutput("\033[2J\033[3J\033[H", optionFuncs...)
 }
 
 func ClearLine(optionFuncs ...OptionFunc) string {
-	return ReturnOutput("\x1B[2K\r", optionFuncs...)
+	return ReturnOutput("\033[2K\r", optionFuncs...)
 }
 
 //------------------------------------------------------------

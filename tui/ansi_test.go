@@ -50,16 +50,16 @@ func TestCursorFunctions(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\x1B[0A"    // CursorUp
-	expectedString += "\x1B[0B"   // CursorDown
-	expectedString += "\x1B[0C"   // CursorRight
-	expectedString += "\x1B[0D"   // CursorLeft
-	expectedString += "\x1B[H"    // CursorHome
-	expectedString += "\x1B[0;0H" // CursorMove
-	expectedString += "\x1B[s"    // CursorSave
-	expectedString += "\x1B[u"    // CursorRestore
-	expectedString += "\x1B[?25h" // CursorShow
-	expectedString += "\x1B[?25l" // CursorHide
+	expectedString = "\033[0A"    // CursorUp
+	expectedString += "\033[0B"   // CursorDown
+	expectedString += "\033[0C"   // CursorRight
+	expectedString += "\033[0D"   // CursorLeft
+	expectedString += "\033[H"    // CursorHome
+	expectedString += "\033[0;0H" // CursorMove
+	expectedString += "\033[s"    // CursorSave
+	expectedString += "\033[u"    // CursorRestore
+	expectedString += "\033[?25h" // CursorShow
+	expectedString += "\033[?25l" // CursorHide
 	//----------------------------------------
 	resultString = CursorUp(0)
 	resultString += CursorDown(0)
@@ -128,8 +128,8 @@ func TestScrollbackFunctions(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\x1B[0S"  // ScrollUp
-	expectedString += "\x1B[0T" // ScrollDown
+	expectedString = "\033[0S"  // ScrollUp
+	expectedString += "\033[0T" // ScrollDown
 	//----------------------------------------
 	resultString = ScrollUp(0)
 	resultString += ScrollDown(0)
@@ -165,10 +165,10 @@ func TestClearFunctions(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\x1B[3J"               // ClearScrollbackBuffer
-	expectedString += "\x1B[2J\x1B[H"        // ClearWindow
-	expectedString += "\x1B[2J\x1B[3J\x1B[H" // ClearScreen
-	expectedString += "\x1B[2K\r"            // ClearLine
+	expectedString = "\033[3J"               // ClearScrollbackBuffer
+	expectedString += "\033[2J\033[H"        // ClearWindow
+	expectedString += "\033[2J\033[3J\033[H" // ClearScreen
+	expectedString += "\033[2K\r"            // ClearLine
 	//----------------------------------------
 	resultString = ClearScrollbackBuffer()
 	resultString += ClearWindow()
