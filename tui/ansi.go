@@ -29,16 +29,6 @@ const (
 	White   = 37
 	Default = 39
 
-	BlackBackground   = 40
-	RedBackground     = 41
-	GreenBackground   = 42
-	YellowBackground  = 43
-	BlueBackground    = 44
-	MagentaBackground = 45
-	CyanBackground    = 46
-	WhiteBackground   = 47
-	DefaultBackground = 49
-
 	BrightBlack   = 90
 	BrightRed     = 91
 	BrightGreen   = 92
@@ -49,18 +39,6 @@ const (
 	BrightWhite   = 97
 	BrightDefault = 99
 
-	BrightBlackBackground   = 100
-	BrightRedBackground     = 101
-	BrightGreenBackground   = 102
-	BrightYellowBackground  = 103
-	BrightBlueBackground    = 104
-	BrightMagentaBackground = 105
-	BrightCyanBackground    = 106
-	BrightWhiteBackground   = 107
-	BrightDefaultBackground = 109
-)
-
-const (
 	Bold      = 1
 	Dim       = 2
 	Underline = 4
@@ -215,11 +193,34 @@ func ClearLine(optionFuncs ...OptionFunc) string {
 
 //------------------------------------------------------------
 
-func Effect(effectValue int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dm", effectValue), optionFuncs...)
+func Colour(effectValue byte, Background ...bool) string {
+	if len(Background) > 0 && Background[0] {
+		effectValue += 10
+	}
+	return Render(fmt.Sprintf("\033[%dm", effectValue))
 }
 
-func ResetEffect(optionFuncs ...OptionFunc) string {
+func Colour256(colourValue byte, Background ...bool) string {
+	effectValue := 38
+	if len(Background) > 0 && Background[0] {
+		effectValue = 48
+	}
+	return Render(fmt.Sprintf("\033[%d;5;%dm", effectValue, colourValue))
+}
+
+func ColourRGB(R, G, B byte, Background ...bool) string {
+	effectValue := 38
+	if len(Background) > 0 && Background[0] {
+		effectValue = 48
+	}
+	return Render(fmt.Sprintf("\033[%d;2;%d;%d;%dm", effectValue, R, G, B))
+}
+
+func Effect(effectValue byte) string {
+	return Render(fmt.Sprintf("\033[%dm", effectValue))
+}
+
+func Reset(optionFuncs ...OptionFunc) string {
 	return Render("\033[0m", optionFuncs...)
 }
 

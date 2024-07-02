@@ -200,49 +200,169 @@ func TestClearFunctions(t *testing.T) {
 
 //------------------------------------------------------------
 
-func TestEffects(t *testing.T) {
+func TestColour(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string
 	//----------------------------------------
-	expectedString = "\033[30m"  // Effect(Black)
-	expectedString += "\033[31m" // Effect(Red)
-	expectedString += "\033[32m" // Effect(Green)
-	expectedString += "\033[33m" // Effect(Yellow)
-	expectedString += "\033[34m" // Effect(Blue)
-	expectedString += "\033[35m" // Effect(Magenta)
-	expectedString += "\033[36m" // Effect(Cyan)
-	expectedString += "\033[37m" // Effect(White)
-	expectedString += "\033[39m" // Effect(Default)
+	expectedString = "\033[30m"  // Colour(Black)
+	expectedString += "\033[31m" // Colour(Red)
+	expectedString += "\033[32m" // Colour(Green)
+	expectedString += "\033[33m" // Colour(Yellow)
+	expectedString += "\033[34m" // Colour(Blue)
+	expectedString += "\033[35m" // Colour(Magenta)
+	expectedString += "\033[36m" // Colour(Cyan)
+	expectedString += "\033[37m" // Colour(White)
+	expectedString += "\033[39m" // Colour(Default)
 	//----------------------------------------
-	expectedString += "\033[40m" // Effect(BlackBackground)
-	expectedString += "\033[41m" // Effect(RedBackground)
-	expectedString += "\033[42m" // Effect(GreenBackground)
-	expectedString += "\033[43m" // Effect(YellowBackground)
-	expectedString += "\033[44m" // Effect(BlueBackground)
-	expectedString += "\033[45m" // Effect(MagentaBackground)
-	expectedString += "\033[46m" // Effect(CyanBackground)
-	expectedString += "\033[47m" // Effect(WhiteBackground)
-	expectedString += "\033[49m" // Effect(DefaultBackground)
-	//---------------------------------------
-	expectedString += "\033[90m" // Effect(BrightBlack)
-	expectedString += "\033[91m" // Effect(BrightRed)
-	expectedString += "\033[92m" // Effect(BrightGreen)
-	expectedString += "\033[93m" // Effect(BrightYellow)
-	expectedString += "\033[94m" // Effect(BrightBlue)
-	expectedString += "\033[95m" // Effect(BrightMagenta)
-	expectedString += "\033[96m" // Effect(BrightCyan)
-	expectedString += "\033[97m" // Effect(BrightWhite)
-	expectedString += "\033[99m" // Effect(BrightDefault)
+	expectedString += "\033[90m" // Colour(BrightBlack)
+	expectedString += "\033[91m" // Colour(BrightRed)
+	expectedString += "\033[92m" // Colour(BrightGreen)
+	expectedString += "\033[93m" // Colour(BrightYellow)
+	expectedString += "\033[94m" // Colour(BrightBlue)
+	expectedString += "\033[95m" // Colour(BrightMagenta)
+	expectedString += "\033[96m" // Colour(BrightCyan)
+	expectedString += "\033[97m" // Colour(BrightWhite)
+	expectedString += "\033[99m" // Colour(BrightDefault)
 	//----------------------------------------
-	expectedString += "\033[100m" // Effect(BrightBlackBackground)
-	expectedString += "\033[101m" // Effect(BrightRedBackground)
-	expectedString += "\033[102m" // Effect(BrightGreenBackground)
-	expectedString += "\033[103m" // Effect(BrightYellowBackground)
-	expectedString += "\033[104m" // Effect(BrightBlueBackground)
-	expectedString += "\033[105m" // Effect(BrightMagentaBackground)
-	expectedString += "\033[106m" // Effect(BrightCyanBackground)
-	expectedString += "\033[107m" // Effect(BrightWhiteBackground)
-	expectedString += "\033[109m" // Effect(BrightDefaultBackground)
+	expectedString += "\033[0m" // Reset()
+	//----------------------------------------
+	resultString = Colour(Black)
+	resultString += Colour(Red)
+	resultString += Colour(Green)
+	resultString += Colour(Yellow)
+	resultString += Colour(Blue)
+	resultString += Colour(Magenta)
+	resultString += Colour(Cyan)
+	resultString += Colour(White)
+	resultString += Colour(Default)
+	//----------------------------------------
+	resultString += Colour(BrightBlack)
+	resultString += Colour(BrightRed)
+	resultString += Colour(BrightGreen)
+	resultString += Colour(BrightYellow)
+	resultString += Colour(BrightBlue)
+	resultString += Colour(BrightMagenta)
+	resultString += Colour(BrightCyan)
+	resultString += Colour(BrightWhite)
+	resultString += Colour(BrightDefault)
+	//----------------------------------------
+	resultString += Reset()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestBackgroundColour(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
+	//----------------------------------------
+	expectedString = "\033[40m"  // Colour(Black, true)
+	expectedString += "\033[41m" // Colour(Red, true)
+	expectedString += "\033[42m" // Colour(Green, true)
+	expectedString += "\033[43m" // Colour(Yellow, true)
+	expectedString += "\033[44m" // Colour(Blue, true)
+	expectedString += "\033[45m" // Colour(Magenta, true)
+	expectedString += "\033[46m" // Colour(Cyan, true)
+	expectedString += "\033[47m" // Colour(White, true)
+	expectedString += "\033[49m" // Colour(Default, true)
+	//----------------------------------------
+	expectedString += "\033[100m" // Colour(BrightBlack, true)
+	expectedString += "\033[101m" // Colour(BrightRed, true)
+	expectedString += "\033[102m" // Colour(BrightGreen, true)
+	expectedString += "\033[103m" // Colour(BrightYellow, true)
+	expectedString += "\033[104m" // Colour(BrightBlue, true)
+	expectedString += "\033[105m" // Colour(BrightMagenta, true)
+	expectedString += "\033[106m" // Colour(BrightCyan, true)
+	expectedString += "\033[107m" // Colour(BrightWhite, true)
+	expectedString += "\033[109m" // Colour(BrightDefault, true)
+	//----------------------------------------
+	expectedString += "\033[0m" // Reset()
+	//----------------------------------------
+	resultString = Colour(Black, true)
+	resultString += Colour(Red, true)
+	resultString += Colour(Green, true)
+	resultString += Colour(Yellow, true)
+	resultString += Colour(Blue, true)
+	resultString += Colour(Magenta, true)
+	resultString += Colour(Cyan, true)
+	resultString += Colour(White, true)
+	resultString += Colour(Default, true)
+	//----------------------------------------
+	resultString += Colour(BrightBlack, true)
+	resultString += Colour(BrightRed, true)
+	resultString += Colour(BrightGreen, true)
+	resultString += Colour(BrightYellow, true)
+	resultString += Colour(BrightBlue, true)
+	resultString += Colour(BrightMagenta, true)
+	resultString += Colour(BrightCyan, true)
+	resultString += Colour(BrightWhite, true)
+	resultString += Colour(BrightDefault, true)
+	//----------------------------------------
+	resultString += Reset()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestColour256(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
+	//----------------------------------------
+	expectedString = "\033[38;5;0m" // Colour256(0)
+	//----------------------------------------
+	expectedString += "\033[48;5;0m" // Colour256(0, true)
+	//----------------------------------------
+	expectedString += "\033[0m" // Reset()
+	//----------------------------------------
+	resultString = Colour256(0)
+	//----------------------------------------
+	resultString += Colour256(0, true)
+	//----------------------------------------
+	resultString += Reset()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestColourRGB(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
+	//----------------------------------------
+	expectedString = "\033[38;2;255;255;255m" // ColourRGB(0xFF, 0xFF, 0xFF)
+	//----------------------------------------
+	expectedString += "\033[48;2;255;255;255m" // ColourRGB(0xFF, 0xFF, 0xFF, true)
+	//----------------------------------------
+	expectedString += "\033[0m" // Reset()
+	//----------------------------------------
+	resultString = ColourRGB(0xFF, 0xFF, 0xFF)
+	//----------------------------------------
+	resultString += ColourRGB(0xFF, 0xFF, 0xFF, true)
+	//----------------------------------------
+	resultString += Reset()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestEffect(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
 	//----------------------------------------
 	expectedString += "\033[1m" // Effect(Bold)
 	expectedString += "\033[2m" // Effect(Dim)
@@ -258,49 +378,9 @@ func TestEffects(t *testing.T) {
 	expectedString += "\033[27m" // Effect(ReverseOff)
 	expectedString += "\033[28m" // Effect(HideOff)
 	//----------------------------------------
-	expectedString += "\033[0m" // ResetEffect()
+	expectedString += "\033[0m" // Reset()
 	//----------------------------------------
-	resultString = Effect(Black)
-	resultString += Effect(Red)
-	resultString += Effect(Green)
-	resultString += Effect(Yellow)
-	resultString += Effect(Blue)
-	resultString += Effect(Magenta)
-	resultString += Effect(Cyan)
-	resultString += Effect(White)
-	resultString += Effect(Default)
-	//----------------------------------------
-	resultString += Effect(BlackBackground)
-	resultString += Effect(RedBackground)
-	resultString += Effect(GreenBackground)
-	resultString += Effect(YellowBackground)
-	resultString += Effect(BlueBackground)
-	resultString += Effect(MagentaBackground)
-	resultString += Effect(CyanBackground)
-	resultString += Effect(WhiteBackground)
-	resultString += Effect(DefaultBackground)
-	//----------------------------------------
-	resultString += Effect(BrightBlack)
-	resultString += Effect(BrightRed)
-	resultString += Effect(BrightGreen)
-	resultString += Effect(BrightYellow)
-	resultString += Effect(BrightBlue)
-	resultString += Effect(BrightMagenta)
-	resultString += Effect(BrightCyan)
-	resultString += Effect(BrightWhite)
-	resultString += Effect(BrightDefault)
-	//----------------------------------------
-	resultString += Effect(BrightBlackBackground)
-	resultString += Effect(BrightRedBackground)
-	resultString += Effect(BrightGreenBackground)
-	resultString += Effect(BrightYellowBackground)
-	resultString += Effect(BrightBlueBackground)
-	resultString += Effect(BrightMagentaBackground)
-	resultString += Effect(BrightCyanBackground)
-	resultString += Effect(BrightWhiteBackground)
-	resultString += Effect(BrightDefaultBackground)
-	//----------------------------------------
-	resultString += Effect(Bold)
+	resultString = Effect(Bold)
 	resultString += Effect(Dim)
 	resultString += Effect(Underline)
 	resultString += Effect(Blink)
@@ -314,7 +394,7 @@ func TestEffects(t *testing.T) {
 	resultString += Effect(ReverseOff)
 	resultString += Effect(HideOff)
 	//----------------------------------------
-	resultString += ResetEffect()
+	resultString += Reset()
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
