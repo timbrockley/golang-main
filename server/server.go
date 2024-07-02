@@ -444,7 +444,7 @@ func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, erro
 func (networkObject *NetworkStruct) UDPServerEcho() error {
 	//--------------------------------------------------
 	/*
-		does not use a go routine as this cause issues when trying to process connections
+		does not use a go routine as this causes issues when trying to process connections
 		all testing without fixed buffer lengths failed with deadlock
 
 		TCP Sockets and Unix Domain Sockets both work with go routines
