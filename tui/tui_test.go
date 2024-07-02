@@ -8,36 +8,55 @@ import (
 
 //------------------------------------------------------------
 
-func TestReturnOutput(t *testing.T) {
+func TestRender(t *testing.T) {
 	//----------------------------------------
-	var resultString, expectedString string
+	var resultString1, expectedString1 string
 	//----------------------------------------
-	oldStdout := os.Stdout
-	reader, writer, _ := os.Pipe()
-	os.Stdout = writer
+	oldStdout1 := os.Stdout
+	reader1, writer1, _ := os.Pipe()
+	os.Stdout = writer1
 	//----------------------------------------
-	expectedString = "XXXXXXXXXX"
+	expectedString1 = "XXXXXXXXXX"
 	//----------------------------------------
-	resultString = ReturnOutput("XXXXXXXXXX")
+	resultString1 = Render("XXXXXXXXXX")
 	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	if resultString1 != expectedString1 {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString1), []byte(resultString1))
 	}
 	//----------------------------------------
-	expectedString = "XXXXX"
+	expectedString1 = "XXXXX"
 	//----------------------------------------
-	resultString = ReturnOutput("XXXXXXXXXX", Stdout, MaxWidth(5))
+	resultString1 = Render("XXXXXXXXXX", WithStdout, WithMaxWidth(5))
 	//----------------------------------------
-	if resultString != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	if resultString1 != expectedString1 {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString1), []byte(resultString1))
 	}
 	//----------------------------------------
-	writer.Close()
-	capturedStdout, _ := io.ReadAll(reader)
-	os.Stdout = oldStdout
+	writer1.Close()
+	capturedStdout1, _ := io.ReadAll(reader1)
+	os.Stdout = oldStdout1
 	//----------------------------------------
-	if string(capturedStdout) != expectedString {
-		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
+	if string(capturedStdout1) != expectedString1 {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString1), capturedStdout1)
+	}
+	//----------------------------------------
+	var resultString2, expectedString2 string
+	//----------------------------------------
+	reader2, writer2, _ := os.Pipe()
+	//----------------------------------------
+	expectedString2 = "XXXXXXXXXX"
+	//----------------------------------------
+	resultString2 = Render("XXXXXXXXXX", WithOutput(writer2))
+	//----------------------------------------
+	if resultString2 != expectedString2 {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString2), []byte(resultString2))
+	}
+	//----------------------------------------
+	writer2.Close()
+	capturedStdout2, _ := io.ReadAll(reader2)
+	//----------------------------------------
+	if string(capturedStdout2) != expectedString2 {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString2), capturedStdout2)
 	}
 	//----------------------------------------
 }

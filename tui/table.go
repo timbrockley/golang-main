@@ -129,15 +129,13 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 		}
 		return strings.Join(lines, "\n")
 		//----------------------------------------
-	} else {
-		//----------------------------------------
-		if options.UseStdOut {
-			fmt.Print(builder.String())
-		}
-		//----------------------------------------
-		return builder.String()
-		//----------------------------------------
 	}
+	//----------------------------------------
+	if options.Writer != nil {
+		fmt.Fprint(options.Writer, builder.String())
+	}
+	//----------------------------------------
+	return builder.String()
 	//----------------------------------------
 }
 
@@ -178,54 +176,13 @@ func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 		}
 		return strings.Join(lines, "\n")
 		//----------------------------------------
-	} else {
-		//----------------------------------------
-		if options.UseStdOut {
-			fmt.Print(buffer.String())
-		}
-		//----------------------------------------
-		return buffer.String()
-		//----------------------------------------
 	}
 	//----------------------------------------
-}
-
-//--------------------------------------------------------------------------------
-
-func TruncateString(rowString string, maxWidth int) string {
-	if maxWidth > 0 && len([]rune(rowString)) > maxWidth {
-		return string([]rune(rowString)[:maxWidth])
-	}
-	return rowString
-}
-
-//--------------------------------------------------------------------------------
-
-func EscapeString(stringValue string) string {
-	//----------------------------------------
-	replacer := strings.NewReplacer(
-		"\x5C", "\\\\", // \x5C = backslash
-		"\x09", "\\t", // \x09 = tab
-		"\x0A", "\\n", // \x0A = newline
-		"\x0D", "\\r", // \x0D = carriage return
-	// 	"\x22", "\\q", // \x22 = double quotes
-	// 	"\x27", "\\a", // \x27 = apostrophe
-	// 	"\x60", "\\g", // \x60 = grave accent
-	)
-	stringValue = replacer.Replace(stringValue)
-	// --------------------------------------------------------------------------------
-	escapedStringValue := ""
-	// ----------
-	for i := 0; i < len(stringValue); i++ {
-		charByte := stringValue[i]
-		if charByte >= 0x20 && charByte < 0x7F {
-			escapedStringValue += string(charByte)
-		} else {
-			escapedStringValue += fmt.Sprintf("\\x%02X", charByte)
-		}
+	if options.Writer != nil {
+		fmt.Fprint(options.Writer, buffer.String())
 	}
 	//----------------------------------------
-	return escapedStringValue
+	return buffer.String()
 	//----------------------------------------
 }
 

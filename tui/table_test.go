@@ -23,7 +23,7 @@ func TestRenderTable1(t *testing.T) {
 
 func TestRenderTable2(t *testing.T) {
 	//----------------------------------------
-	resultString := RenderTable([][]string{}, Header)
+	resultString := RenderTable([][]string{}, WithHeader)
 	//----------------------------------------
 	expectedString := topLeft + topRight + "\n" + bottomLeft + bottomRight + "\n"
 	//----------------------------------------
@@ -61,7 +61,7 @@ func TestRenderTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, Header)
+	}, WithHeader)
 	//----------------------------------------
 	expectedString := topLeft + strings.Repeat(horizontal, 10) + topMiddle + strings.Repeat(horizontal, 3) + topMiddle + strings.Repeat(horizontal, 7) + topRight + "\n"
 	expectedString += vertical + "Name      " + vertical + "Age" + vertical + "Country" + vertical + "\n"
@@ -84,7 +84,7 @@ func TestRenderTable5(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, Header, MaxWidth(10))
+	}, WithHeader, WithMaxWidth(10))
 	//----------------------------------------
 	expectedString := topLeft + strings.Repeat(horizontal, 9) + "\n"
 	expectedString += vertical + "Name     " + "\n"
@@ -139,7 +139,7 @@ func TestTabwriterTable3(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, Header)
+	}, WithHeader)
 	//----------------------------------------
 	expectedString := "Name        Age  Country\n"
 	expectedString += "----        ---  -------\n"
@@ -160,7 +160,7 @@ func TestTabwriterTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, Header, MaxWidth(10))
+	}, WithHeader, WithMaxWidth(10))
 	//----------------------------------------
 	expectedString := "Name      \n"
 	expectedString += "----      \n"
