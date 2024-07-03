@@ -50,23 +50,23 @@ func TestCursorFunctions(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\033[0A"    // CursorUp
-	expectedString += "\033[0B"   // CursorDown
-	expectedString += "\033[0C"   // CursorRight
-	expectedString += "\033[0D"   // CursorLeft
+	expectedString = "\033[1A"    // CursorUp
+	expectedString += "\033[1B"   // CursorDown
+	expectedString += "\033[1C"   // CursorRight
+	expectedString += "\033[1D"   // CursorLeft
 	expectedString += "\033[H"    // CursorHome
-	expectedString += "\033[0;0H" // CursorMove
+	expectedString += "\033[1;1H" // CursorMove
 	expectedString += "\033[s"    // CursorSave
 	expectedString += "\033[u"    // CursorRestore
 	expectedString += "\033[?25h" // CursorShow
 	expectedString += "\033[?25l" // CursorHide
 	//----------------------------------------
-	resultString = CursorUp(0)
-	resultString += CursorDown(0)
-	resultString += CursorRight(0)
-	resultString += CursorLeft(0)
+	resultString = CursorUp(1)
+	resultString += CursorDown(1)
+	resultString += CursorRight(1)
+	resultString += CursorLeft(1)
 	resultString += CursorHome()
-	resultString += CursorMove(0, 0)
+	resultString += CursorMove(1, 1)
 	resultString += CursorSave()
 	resultString += CursorRestore()
 	resultString += CursorShow()
@@ -76,12 +76,12 @@ func TestCursorFunctions(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = CursorUp(0, WithStdout)
-	resultString += CursorDown(0, WithStdout)
-	resultString += CursorRight(0, WithStdout)
-	resultString += CursorLeft(0, WithStdout)
+	resultString = CursorUp(1, WithStdout)
+	resultString += CursorDown(1, WithStdout)
+	resultString += CursorRight(1, WithStdout)
+	resultString += CursorLeft(1, WithStdout)
 	resultString += CursorHome(WithStdout)
-	resultString += CursorMove(0, 0, WithStdout)
+	resultString += CursorMove(1, 1, WithStdout)
 	resultString += CursorSave(WithStdout)
 	resultString += CursorRestore(WithStdout)
 	resultString += CursorShow(WithStdout)
@@ -128,18 +128,18 @@ func TestScrollbackFunctions(t *testing.T) {
 	reader, writer, _ := os.Pipe()
 	os.Stdout = writer
 	//----------------------------------------
-	expectedString = "\033[0S"  // ScrollUp
-	expectedString += "\033[0T" // ScrollDown
+	expectedString = "\033[1S"  // ScrollUp
+	expectedString += "\033[1T" // ScrollDown
 	//----------------------------------------
-	resultString = ScrollUp(0)
-	resultString += ScrollDown(0)
+	resultString = ScrollUp(1)
+	resultString += ScrollDown(1)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = ScrollUp(0, WithStdout)
-	resultString += ScrollDown(0, WithStdout)
+	resultString = ScrollUp(1, WithStdout)
+	resultString += ScrollDown(1, WithStdout)
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
