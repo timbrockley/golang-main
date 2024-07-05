@@ -36,11 +36,6 @@ type FileMutexStruct struct {
 
 var FileMutex FileMutexStruct
 
-type FileLock struct {
-	filePath string
-	fsLock   *fslock.Lock
-}
-
 //------------------------------------------------------------
 //################################################################################
 //------------------------------------------------------------
@@ -121,40 +116,6 @@ func (fm *FileMutexStruct) Unlock() error {
 }
 
 //------------------------------------------------------------
-// Lock
-//------------------------------------------------------------
-
-func Lock(filePath string) FileLock {
-	//------------------------------------------------------------
-	lock := FileLock{filePath: filePath, fsLock: fslock.New(fmt.Sprintf(`%s.lock`, filePath))}
-	//---------------------
-	if lock.fsLock != nil {
-		lock.fsLock.Lock()
-	}
-	//---------------------
-	return lock
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// Unlock Method
-//------------------------------------------------------------
-
-func (lock *FileLock) Unlock() error {
-	//------------------------------------------------------------
-	if lock.fsLock != nil {
-		lock.fsLock.Unlock()
-	}
-	//---------------------
-	if lock.filePath != "" {
-		return os.Remove(fmt.Sprintf(`%s.lock`, lock.filePath))
-	}
-	//---------------------
-	return nil
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
 // FilePathExists
 //------------------------------------------------------------
 
@@ -214,6 +175,10 @@ func FileLoad(filePath string) (string, error) {
 	var dataBytes []byte
 	var dataString string
 	//------------------------------------------------------------
+	fslock := fslock.New(filePath)
+	fslock.Lock()
+	defer fslock.Unlock()
+	//------------------------------------------------------------
 	dataBytes, err = os.ReadFile(filePath)
 	//----------
 	if err == nil {
@@ -234,14 +199,9 @@ func FileSave(filePath string, data string) error {
 	//------------------------------------------------------------
 	filePath = filepath.FromSlash(filePath)
 	//------------------------------------------------------------
-	lockFilePath := fmt.Sprintf(`%s.lock`, filePath)
-	//--------------------
-	fslock := fslock.New(lockFilePath)
-	//--------------------
+	fslock := fslock.New(filePath)
 	fslock.Lock()
-	//--------------------
 	defer fslock.Unlock()
-	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	file, err := os.Create(filePath)
 	//----------
@@ -265,14 +225,9 @@ func FileAppend(filePath string, data string) error {
 	//------------------------------------------------------------
 	filePath = filepath.FromSlash(filePath)
 	//------------------------------------------------------------
-	lockFilePath := fmt.Sprintf(`%s.lock`, filePath)
-	//--------------------
-	fslock := fslock.New(lockFilePath)
-	//--------------------
+	fslock := fslock.New(filePath)
 	fslock.Lock()
-	//--------------------
 	defer fslock.Unlock()
-	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	//----------
@@ -296,14 +251,9 @@ func FileRemove(filePath string) error {
 	//------------------------------------------------------------
 	filePath = filepath.FromSlash(filePath)
 	//------------------------------------------------------------
-	lockFilePath := fmt.Sprintf(`%s.lock`, filePath)
-	//--------------------
-	fslock := fslock.New(lockFilePath)
-	//--------------------
+	fslock := fslock.New(filePath)
 	fslock.Lock()
-	//--------------------
 	defer fslock.Unlock()
-	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	return os.Remove(filePath)
 	//------------------------------------------------------------
@@ -580,14 +530,9 @@ func Log(messageString string, FilePath ...string) error {
 		logFilePath = LogFilePath()
 	}
 	//------------------------------------------------------------
-	lockFilePath := fmt.Sprintf(`%s.lock`, logFilePath)
-	//--------------------
-	fslock := fslock.New(lockFilePath)
-	//--------------------
+	fslock := fslock.New(logFilePath)
 	fslock.Lock()
-	//--------------------
 	defer fslock.Unlock()
-	defer os.Remove(lockFilePath)
 	//------------------------------------------------------------
 	if !FilePathExists(logFilePath) {
 		logLineString = "utm\tcymd\thms\tpath\tfilename\tline\terror\n"
