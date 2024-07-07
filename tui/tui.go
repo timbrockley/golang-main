@@ -21,9 +21,11 @@ import (
 type OptionFunc func(*Options)
 
 type Options struct {
-	Writer   io.Writer
-	Header   bool
-	MaxWidth int
+	Writer          io.Writer
+	Header          bool
+	MaxWidth        int
+	MaxColumnWidth  int
+	MaxColumnWidths []int
 }
 
 //--------------------------------------------------------------------------------
@@ -42,9 +44,21 @@ func WithStdout(options *Options) { options.Writer = os.Stdout }
 
 func WithHeader(options *Options) { options.Header = true }
 
-func WithMaxWidth(maxWidth int) OptionFunc {
+func WithMaxTableWidth(maxWidth int) OptionFunc {
 	return func(options *Options) {
 		options.MaxWidth = maxWidth
+	}
+}
+
+func WithMaxColumnWidth(maxColumnWidth int) OptionFunc {
+	return func(options *Options) {
+		options.MaxColumnWidth = maxColumnWidth
+	}
+}
+
+func WithMaxColumnWidths(maxColumnWidths []int) OptionFunc {
+	return func(options *Options) {
+		options.MaxColumnWidths = maxColumnWidths
 	}
 }
 

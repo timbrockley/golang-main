@@ -98,6 +98,7 @@ func CursorHome(optionFuncs ...OptionFunc) string {
 func CursorMove(row int, col int, optionFuncs ...OptionFunc) string {
 	return Render(fmt.Sprintf("\033[%d;%dH", row, col), optionFuncs...)
 }
+
 func CursorSave(optionFuncs ...OptionFunc) string {
 	return Render("\033[s", optionFuncs...)
 }

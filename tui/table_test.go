@@ -84,7 +84,7 @@ func TestRenderTable5(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxWidth(10))
+	}, WithHeader, WithMaxTableWidth(10))
 	//----------------------------------------
 	expectedString := topLeft + strings.Repeat(horizontal, 9) + "\n"
 	expectedString += vertical + "Name     " + "\n"
@@ -92,6 +92,52 @@ func TestRenderTable5(t *testing.T) {
 	expectedString += vertical + "John Doe " + "\n"
 	expectedString += vertical + "Jane Smit" + "\n"
 	expectedString += bottomLeft + strings.Repeat(horizontal, 9) + "\n"
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestRenderTable6(t *testing.T) {
+	//----------------------------------------
+	resultString := RenderTable([][]string{
+		{"Name", "Age", "Country"},
+		{"John Doe", "30", "USA"},
+		{"Jane Smith", "25", "Canada"},
+	}, WithHeader, WithMaxColumnWidth(1))
+	//----------------------------------------
+	expectedString := topLeft + strings.Repeat(horizontal, 1) + topMiddle + strings.Repeat(horizontal, 1) + topMiddle + strings.Repeat(horizontal, 1) + topRight + "\n"
+	expectedString += vertical + "N" + vertical + "A" + vertical + "C" + vertical + "\n"
+	expectedString += innerLeft + strings.Repeat(horizontal, 1) + innerMiddle + strings.Repeat(horizontal, 1) + innerMiddle + strings.Repeat(horizontal, 1) + innerRight + "\n"
+	expectedString += vertical + "J" + vertical + "3" + vertical + "U" + vertical + "\n"
+	expectedString += vertical + "J" + vertical + "2" + vertical + "C" + vertical + "\n"
+	expectedString += bottomLeft + strings.Repeat(horizontal, 1) + bottomMiddle + strings.Repeat(horizontal, 1) + bottomMiddle + strings.Repeat(horizontal, 1) + bottomRight + "\n"
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestRenderTable7(t *testing.T) {
+	//----------------------------------------
+	resultString := RenderTable([][]string{
+		{"Name", "Age", "Country"},
+		{"John Doe", "30", "USA"},
+		{"Jane Smith", "25", "Canada"},
+	}, WithHeader, WithMaxColumnWidths([]int{1, 2, 3}))
+	//----------------------------------------
+	expectedString := topLeft + strings.Repeat(horizontal, 1) + topMiddle + strings.Repeat(horizontal, 2) + topMiddle + strings.Repeat(horizontal, 3) + topRight + "\n"
+	expectedString += vertical + "N" + vertical + "Ag" + vertical + "Cou" + vertical + "\n"
+	expectedString += innerLeft + strings.Repeat(horizontal, 1) + innerMiddle + strings.Repeat(horizontal, 2) + innerMiddle + strings.Repeat(horizontal, 3) + innerRight + "\n"
+	expectedString += vertical + "J" + vertical + "30" + vertical + "USA" + vertical + "\n"
+	expectedString += vertical + "J" + vertical + "25" + vertical + "Can" + vertical + "\n"
+	expectedString += bottomLeft + strings.Repeat(horizontal, 1) + bottomMiddle + strings.Repeat(horizontal, 2) + bottomMiddle + strings.Repeat(horizontal, 3) + bottomRight + "\n"
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %s but got: %s", expectedString, resultString)
@@ -160,12 +206,54 @@ func TestTabwriterTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxWidth(10))
+	}, WithHeader, WithMaxTableWidth(10))
 	//----------------------------------------
 	expectedString := "Name      \n"
 	expectedString += "----      \n"
 	expectedString += "John Doe  \n"
 	expectedString += "Jane Smith\n"
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestTabwriterTable5(t *testing.T) {
+	//----------------------------------------
+	resultString := TabwriterTable([][]string{
+		{"Name", "Age", "Country"},
+		{"John Doe", "30", "USA"},
+		{"Jane Smith", "25", "Canada"},
+	}, WithHeader, WithMaxColumnWidth(1))
+	//----------------------------------------
+	expectedString := "N  A  C\n"
+	expectedString += "-  -  -\n"
+	expectedString += "J  3  U\n"
+	expectedString += "J  2  C\n"
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %s but got: %s", expectedString, resultString)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
+func TestTabwriterTable6(t *testing.T) {
+	//----------------------------------------
+	resultString := TabwriterTable([][]string{
+		{"Name", "Age", "Country"},
+		{"John Doe", "30", "USA"},
+		{"Jane Smith", "25", "Canada"},
+	}, WithHeader, WithMaxColumnWidths([]int{1, 2, 3}))
+	//----------------------------------------
+	expectedString := "N  Ag  Cou\n"
+	expectedString += "-  --  ---\n"
+	expectedString += "J  30  USA\n"
+	expectedString += "J  25  Can\n"
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %s but got: %s", expectedString, resultString)

@@ -26,7 +26,7 @@ func TestRender(t *testing.T) {
 	//----------------------------------------
 	expectedString1 = "XXXXX"
 	//----------------------------------------
-	resultString1 = Render("XXXXXXXXXX", WithStdout, WithMaxWidth(5))
+	resultString1 = Render("XXXXXXXXXX", WithStdout, WithMaxTableWidth(5))
 	//----------------------------------------
 	if resultString1 != expectedString1 {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString1), []byte(resultString1))
