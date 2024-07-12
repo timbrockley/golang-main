@@ -130,10 +130,10 @@ func FilePathExists(filePath string) bool {
 }
 
 //------------------------------------------------------------
-// IsDir
+// IsDirectory
 //------------------------------------------------------------
 
-func IsDir(filePath string) (bool, error) {
+func IsDirectory(filePath string) (bool, error) {
 	//------------------------------------------------------------
 	var err error
 	var fileInfo fs.FileInfo

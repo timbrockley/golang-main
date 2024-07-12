@@ -414,7 +414,7 @@ func LoadENVs(FilePath ...string) error {
 		//----------
 		filePath = FilePath[0]
 		//----------
-		if isDir, _ := file.IsDir(filePath); isDir {
+		if IsDirectory, _ := file.IsDirectory(filePath); IsDirectory {
 			filename = FindENVFilename(filePath)
 			filePath = file.FilePathJoin(filePath, filename)
 		}

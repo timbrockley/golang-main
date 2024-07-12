@@ -18,27 +18,6 @@ import (
 
 //--------------------------------------------------------------------------------
 
-const (
-	horizontal   = "\u2500"
-	vertical     = "\u2502"
-	topLeft      = "\u250C"
-	topRight     = "\u2510"
-	bottomLeft   = "\u2514"
-	bottomRight  = "\u2518"
-	innerLeft    = "\u251C"
-	innerRight   = "\u2524"
-	topMiddle    = "\u252C"
-	innerMiddle  = "\u253C"
-	bottomMiddle = "\u2534"
-)
-
-type TableOptions struct {
-	Header   bool
-	MaxWidth int
-}
-
-//--------------------------------------------------------------------------------
-
 func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	//----------------------------------------
 	var builder strings.Builder
@@ -46,7 +25,7 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	options := ParseOptions(optionFuncs...)
 	//----------------------------------------
 	if len(rows) == 0 {
-		return topLeft + topRight + "\n" + bottomLeft + bottomRight + "\n"
+		return options.TableStyle.TopLeft + options.TableStyle.TopRight + "\n" + options.TableStyle.BottomLeft + options.TableStyle.BottomRight + "\n"
 	}
 	//----------------------------------------
 	columnWidths := make(map[int]int) // map used because max row length not know yet
@@ -89,47 +68,47 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	}
 	//----------------------------------------
 	if maxColumns == 0 {
-		return topLeft + topRight + "\n" + bottomLeft + bottomRight + "\n"
+		return options.TableStyle.TopLeft + options.TableStyle.TopRight + "\n" + options.TableStyle.BottomLeft + options.TableStyle.BottomRight + "\n"
 	}
 	//----------------------------------------
 	// table top border
-	builder.WriteString(topLeft)
+	builder.WriteString(options.TableStyle.TopLeft)
 	//----------------------------------------
 	for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 		//----------------------------------------
-		builder.WriteString(strings.Repeat(horizontal, columnWidths[columnIndex]))
+		builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 		//----------------------------------------
 		if columnIndex < maxColumns-1 {
-			builder.WriteString(topMiddle)
+			builder.WriteString(options.TableStyle.TopMiddle)
 		}
 		//----------------------------------------
 	}
 	//----------------------------------------
-	builder.WriteString(topRight + "\n")
+	builder.WriteString(options.TableStyle.TopRight + "\n")
 	//----------------------------------------
 	for rowIndex, row := range rows {
 		//----------------------------------------
 		// inner table border (if header = true)
 		if rowIndex == 1 && options.Header {
 			//----------------------------------------
-			builder.WriteString(innerLeft)
+			builder.WriteString(options.TableStyle.InnerLeft)
 			//----------------------------------------
 			for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 				//----------------------------------------
-				builder.WriteString(strings.Repeat(horizontal, columnWidths[columnIndex]))
+				builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 				//----------------------------------------
 				if columnIndex < maxColumns-1 {
-					builder.WriteString(innerMiddle)
+					builder.WriteString(options.TableStyle.InnerMiddle)
 				}
 				//----------------------------------------
 			}
 			//----------------------------------------
-			builder.WriteString(innerRight + "\n")
+			builder.WriteString(options.TableStyle.InnerRight + "\n")
 			//----------------------------------------
 		}
 		//----------------------------------------
 		// column values
-		builder.WriteString(vertical)
+		builder.WriteString(options.TableStyle.Vertical)
 		//----------------------------------------
 		for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 			//----------------------------------------
@@ -143,7 +122,10 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 				columnString = fmt.Sprintf("%s%s", columnString, strings.Repeat(" ", columnWidths[columnIndex]-len(columnString)))
 			}
 			//----------------------------------------
-			builder.WriteString(columnString + vertical)
+			builder.WriteString(strings.Repeat(" ", options.Padding))
+			builder.WriteString(columnString)
+			builder.WriteString(strings.Repeat(" ", options.Padding))
+			builder.WriteString(options.TableStyle.Vertical)
 			//----------------------------------------
 		}
 		//----------------------------------------
@@ -152,19 +134,19 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	}
 	//----------------------------------------
 	// table bottom border
-	builder.WriteString(bottomLeft)
+	builder.WriteString(options.TableStyle.BottomLeft)
 	//----------------------------------------
 	for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 		//----------------------------------------
-		builder.WriteString(strings.Repeat(horizontal, columnWidths[columnIndex]))
+		builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 		//----------------------------------------
 		if columnIndex < maxColumns-1 {
-			builder.WriteString(bottomMiddle)
+			builder.WriteString(options.TableStyle.BottomMiddle)
 		}
 		//----------------------------------------
 	}
 	//----------------------------------------
-	builder.WriteString(bottomRight + "\n")
+	builder.WriteString(options.TableStyle.BottomRight + "\n")
 	//----------------------------------------
 	if options.MaxWidth > 0 {
 		//----------------------------------------
@@ -194,7 +176,7 @@ func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	//----------------------------------------
 	options := ParseOptions(optionFuncs...)
 	//----------------------------------------
-	writer := tabwriter.NewWriter(&buffer, 0, 0, 2, ' ', 0)
+	writer := tabwriter.NewWriter(&buffer, 0, 0, options.TabWidth, ' ', 0)
 	//----------------------------------------
 	for rowIndex, row := range rows {
 		//----------------------------------------

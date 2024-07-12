@@ -18,31 +18,86 @@ import (
 
 //--------------------------------------------------------------------------------
 
+type TableStyle struct {
+	Horizontal   string
+	Vertical     string
+	TopLeft      string
+	TopRight     string
+	BottomLeft   string
+	BottomRight  string
+	InnerLeft    string
+	InnerRight   string
+	TopMiddle    string
+	InnerMiddle  string
+	BottomMiddle string
+}
+
+var AsciiTableStyle = TableStyle{
+	Horizontal:   "-",
+	Vertical:     "|",
+	TopLeft:      "+",
+	TopRight:     "+",
+	BottomLeft:   "+",
+	BottomRight:  "+",
+	InnerLeft:    "+",
+	InnerRight:   "+",
+	TopMiddle:    "+",
+	InnerMiddle:  "+",
+	BottomMiddle: "+",
+}
+
+var UnicodeTableStyle = TableStyle{
+	Horizontal:   "\u2500",
+	Vertical:     "\u2502",
+	TopLeft:      "\u250C",
+	TopRight:     "\u2510",
+	BottomLeft:   "\u2514",
+	BottomRight:  "\u2518",
+	InnerLeft:    "\u251C",
+	InnerRight:   "\u2524",
+	TopMiddle:    "\u252C",
+	InnerMiddle:  "\u253C",
+	BottomMiddle: "\u2534",
+}
+
+//--------------------------------------------------------------------------------
+
 type OptionFunc func(*Options)
 
 type Options struct {
 	Writer          io.Writer
+	TableStyle      TableStyle
 	Header          bool
+	Padding         int
+	TabWidth        int
 	MaxWidth        int
 	MaxColumnWidth  int
 	MaxColumnWidths []int
 }
 
+var DefaultOptions = Options{TableStyle: UnicodeTableStyle, Padding: 1, TabWidth: 2}
+
 //--------------------------------------------------------------------------------
 
-func WithOutput(writer io.Writer) OptionFunc {
+func WithHeader(options *Options) { options.Header = true }
+
+func WithTableStyle(tableStyle TableStyle) OptionFunc {
 	return func(options *Options) {
-		if writer == nil {
-			options.Writer = os.Stdout
-		} else {
-			options.Writer = writer
-		}
+		options.TableStyle = tableStyle
 	}
 }
 
-func WithStdout(options *Options) { options.Writer = os.Stdout }
+func WithPadding(padding int) OptionFunc {
+	return func(options *Options) {
+		options.Padding = padding
+	}
+}
 
-func WithHeader(options *Options) { options.Header = true }
+func WithTabWidth(tabWidth int) OptionFunc {
+	return func(options *Options) {
+		options.TabWidth = tabWidth
+	}
+}
 
 func WithMaxTableWidth(maxWidth int) OptionFunc {
 	return func(options *Options) {
@@ -62,11 +117,23 @@ func WithMaxColumnWidths(maxColumnWidths []int) OptionFunc {
 	}
 }
 
+func WithOutput(writer io.Writer) OptionFunc {
+	return func(options *Options) {
+		if writer == nil {
+			options.Writer = os.Stdout
+		} else {
+			options.Writer = writer
+		}
+	}
+}
+
+func WithStdout(options *Options) { options.Writer = os.Stdout }
+
 //--------------------------------------------------------------------------------
 
 func ParseOptions(optionFuncs ...OptionFunc) Options {
 	//----------------------------------------
-	options := Options{}
+	options := DefaultOptions
 	for _, fn := range optionFuncs {
 		fn(&options)
 	}

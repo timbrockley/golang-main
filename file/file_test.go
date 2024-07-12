@@ -156,7 +156,7 @@ func TestIsDir(t *testing.T) {
 	var err error
 	var result bool
 	//------------------------------------------------------------
-	result, err = IsDir(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
+	result, err = IsDirectory(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
 	//------------------------------------------------------------
 	if err == nil || result {
 
@@ -164,7 +164,7 @@ func TestIsDir(t *testing.T) {
 		t.Errorf("result = %v but should = %v", result, false)
 	}
 	//------------------------------------------------------------
-	result, err = IsDir(`/`)
+	result, err = IsDirectory(`/`)
 	//------------------------------------------------------------
 	if err != nil || !result {
 
