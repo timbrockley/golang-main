@@ -13,12 +13,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+
+	"github.com/mattn/go-runewidth"
 )
 
 //--------------------------------------------------------------------------------
 
-type TableStyle struct {
+type BorderStyle struct {
 	Horizontal   string
 	Vertical     string
 	TopLeft      string
@@ -32,7 +33,7 @@ type TableStyle struct {
 	BottomMiddle string
 }
 
-var AsciiTableStyle = TableStyle{
+var AsciiBorderStyle = BorderStyle{
 	Horizontal:   "-",
 	Vertical:     "|",
 	TopLeft:      "+",
@@ -46,7 +47,7 @@ var AsciiTableStyle = TableStyle{
 	BottomMiddle: "+",
 }
 
-var UnicodeTableStyle = TableStyle{
+var UnicodeBorderStyle = BorderStyle{
 	Horizontal:   "\u2500",
 	Vertical:     "\u2502",
 	TopLeft:      "\u250C",
@@ -66,24 +67,27 @@ type OptionFunc func(*Options)
 
 type Options struct {
 	Writer          io.Writer
-	TableStyle      TableStyle
+	BorderStyle     BorderStyle
 	Header          bool
 	Padding         int
 	TabWidth        int
-	MaxWidth        int
 	MaxColumnWidth  int
 	MaxColumnWidths []int
+	MaxWidth        int
+	MaxHeight       int
+	Row             int
+	Column          int
 }
 
-var DefaultOptions = Options{TableStyle: UnicodeTableStyle, Padding: 1, TabWidth: 2}
+var DefaultOptions = Options{BorderStyle: UnicodeBorderStyle, Padding: 1, TabWidth: 2}
 
 //--------------------------------------------------------------------------------
 
 func WithHeader(options *Options) { options.Header = true }
 
-func WithTableStyle(tableStyle TableStyle) OptionFunc {
+func WithBorderStyle(BorderStyle BorderStyle) OptionFunc {
 	return func(options *Options) {
-		options.TableStyle = tableStyle
+		options.BorderStyle = BorderStyle
 	}
 }
 
@@ -99,21 +103,29 @@ func WithTabWidth(tabWidth int) OptionFunc {
 	}
 }
 
-func WithMaxTableWidth(maxWidth int) OptionFunc {
-	return func(options *Options) {
-		options.MaxWidth = maxWidth
-	}
-}
-
+// max global column width
 func WithMaxColumnWidth(maxColumnWidth int) OptionFunc {
 	return func(options *Options) {
 		options.MaxColumnWidth = maxColumnWidth
 	}
 }
 
+// max individual column widths
 func WithMaxColumnWidths(maxColumnWidths []int) OptionFunc {
 	return func(options *Options) {
 		options.MaxColumnWidths = maxColumnWidths
+	}
+}
+
+func WithMaxWidth(maxWidth int) OptionFunc {
+	return func(options *Options) {
+		options.MaxWidth = maxWidth
+	}
+}
+
+func WithMaxHeight(maxHeight int) OptionFunc {
+	return func(options *Options) {
+		options.MaxHeight = maxHeight
 	}
 }
 
@@ -161,40 +173,62 @@ func Render(outputString string, optionFuncs ...OptionFunc) string {
 
 //--------------------------------------------------------------------------------
 
+func RuneCount(outputString string) int { return len([]rune(outputString)) }
+
+//--------------------------------------------------------------------------------
+
 func TruncateString(outputString string, maxWidth int) string {
-	if maxWidth > 0 && len([]rune(outputString)) > maxWidth {
-		return string([]rune(outputString)[:maxWidth])
+	//----------------------------------------
+	if maxWidth == 0 {
+		//----------------------------------------
+		return ""
+		//----------------------------------------
+	} else if runewidth.StringWidth(outputString) <= maxWidth {
+		//----------------------------------------
+		return outputString
+		//----------------------------------------
+	} else {
+		//----------------------------------------
+		outputRunes := []rune(outputString)
+		outputRunesCount := 0
+		outputWidth := 0
+		//----------------------------------------
+		for _, rune := range outputRunes {
+
+			// if  runewidth.RuneWidth(rune)>1{outputRunes[outputRunesCount] = 0x20}
+
+			if outputWidth+runewidth.RuneWidth(rune) > maxWidth {
+				break
+			}
+			outputWidth += runewidth.RuneWidth(rune)
+			outputRunesCount += 1
+		}
+		//----------------------------------------
+		if maxWidth > runewidth.StringWidth(string(outputRunes[:outputRunesCount])) {
+			outputRunes[outputRunesCount] = 0x20
+			outputRunesCount += 1
+		}
+		//----------------------------------------
+		return string(outputRunes[:outputRunesCount])
+		//----------------------------------------
 	}
-	return outputString
+	//----------------------------------------
 }
 
 //--------------------------------------------------------------------------------
 
 func EscapeString(outputString string) string {
 	//----------------------------------------
-	replacer := strings.NewReplacer(
-		"\x5C", "\\\\", // \x5C = backslash
-		"\x09", "\\t", // \x09 = tab
-		"\x0A", "\\n", // \x0A = newline
-		"\x0D", "\\r", // \x0D = carriage return
-	// 	"\x22", "\\q", // \x22 = double quotes
-	// 	"\x27", "\\a", // \x27 = apostrophe
-	// 	"\x60", "\\g", // \x60 = grave accent
-	)
-	outputString = replacer.Replace(outputString)
-	// --------------------------------------------------------------------------------
-	escapedOutputString := ""
-	// ----------
-	for i := 0; i < len(outputString); i++ {
-		charByte := outputString[i]
-		if charByte >= 0x20 && charByte < 0x7F {
-			escapedOutputString += string(charByte)
-		} else {
-			escapedOutputString += fmt.Sprintf("\\x%02X", charByte)
+	outputRunes := []rune(outputString)
+	//----------------------------------------
+	for i := 0; i < len(outputRunes); i++ {
+		rune := outputRunes[i]
+		if rune < 0x20 || rune == 0x7F {
+			outputRunes[i] = 0x20
 		}
 	}
 	//----------------------------------------
-	return escapedOutputString
+	return string(outputRunes)
 	//----------------------------------------
 }
 

@@ -194,6 +194,18 @@ func ClearLine(optionFuncs ...OptionFunc) string {
 
 //------------------------------------------------------------
 
+// Enable Alternative Screen
+func AlternativeScreenEnable(optionFuncs ...OptionFunc) string {
+	return Render("\033[?1049h", optionFuncs...)
+}
+
+// Disable Alternative Screen
+func AlternativeScreenDisable(optionFuncs ...OptionFunc) string {
+	return Render("\033[?1049l", optionFuncs...)
+}
+
+//------------------------------------------------------------
+
 func Colour(effectValue byte, Background ...bool) string {
 	if len(Background) > 0 && Background[0] {
 		effectValue += 10

@@ -200,6 +200,43 @@ func TestClearFunctions(t *testing.T) {
 
 //------------------------------------------------------------
 
+func TestAlternativeScreenFunctions(t *testing.T) {
+	//----------------------------------------
+	var resultString, expectedString string
+	//----------------------------------------
+	oldStdout := os.Stdout
+	reader, writer, _ := os.Pipe()
+	os.Stdout = writer
+	//----------------------------------------
+	expectedString = "\033[?1049h"  // AlternativeScreenEnable
+	expectedString += "\033[?1049l" // AlternativeScreenDisable
+	//----------------------------------------
+	resultString = AlternativeScreenEnable()
+	resultString += AlternativeScreenDisable()
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+	resultString = AlternativeScreenEnable(WithStdout)
+	resultString += AlternativeScreenDisable(WithStdout)
+	//----------------------------------------
+	if resultString != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
+	}
+	//----------------------------------------
+	writer.Close()
+	capturedStdout, _ := io.ReadAll(reader)
+	os.Stdout = oldStdout
+	//----------------------------------------
+	if string(capturedStdout) != expectedString {
+		t.Errorf("expected: %v but got: %v", []byte(expectedString), capturedStdout)
+	}
+	//----------------------------------------
+}
+
+//------------------------------------------------------------
+
 func TestColour(t *testing.T) {
 	//----------------------------------------
 	var resultString, expectedString string

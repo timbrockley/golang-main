@@ -14,6 +14,8 @@ import (
 	"fmt"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/mattn/go-runewidth"
 )
 
 //--------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	options := ParseOptions(optionFuncs...)
 	//----------------------------------------
 	if len(rows) == 0 {
-		return options.TableStyle.TopLeft + options.TableStyle.TopRight + "\n" + options.TableStyle.BottomLeft + options.TableStyle.BottomRight + "\n"
+		return options.BorderStyle.TopLeft + options.BorderStyle.TopRight + "\n" + options.BorderStyle.BottomLeft + options.BorderStyle.BottomRight + "\n"
 	}
 	//----------------------------------------
 	columnWidths := make(map[int]int) // map used because max row length not know yet
@@ -55,12 +57,12 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 				}
 			}
 			//--------------------
-			if maxColumnWidth > 0 && len(rows[rowIndex][columnIndex]) > maxColumnWidth {
+			if maxColumnWidth > 0 && runewidth.StringWidth(rows[rowIndex][columnIndex]) > maxColumnWidth {
 				rows[rowIndex][columnIndex] = TruncateString(rows[rowIndex][columnIndex], maxColumnWidth)
 			}
 			//----------------------------------------
-			if len(rows[rowIndex][columnIndex]) > columnWidths[columnIndex] {
-				columnWidths[columnIndex] = len(rows[rowIndex][columnIndex])
+			if runewidth.StringWidth(rows[rowIndex][columnIndex]) > columnWidths[columnIndex] {
+				columnWidths[columnIndex] = runewidth.StringWidth(rows[rowIndex][columnIndex])
 			}
 			//----------------------------------------
 		}
@@ -68,47 +70,47 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	}
 	//----------------------------------------
 	if maxColumns == 0 {
-		return options.TableStyle.TopLeft + options.TableStyle.TopRight + "\n" + options.TableStyle.BottomLeft + options.TableStyle.BottomRight + "\n"
+		return options.BorderStyle.TopLeft + options.BorderStyle.TopRight + "\n" + options.BorderStyle.BottomLeft + options.BorderStyle.BottomRight + "\n"
 	}
 	//----------------------------------------
 	// table top border
-	builder.WriteString(options.TableStyle.TopLeft)
+	builder.WriteString(options.BorderStyle.TopLeft)
 	//----------------------------------------
 	for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 		//----------------------------------------
-		builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
+		builder.WriteString(strings.Repeat(options.BorderStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 		//----------------------------------------
 		if columnIndex < maxColumns-1 {
-			builder.WriteString(options.TableStyle.TopMiddle)
+			builder.WriteString(options.BorderStyle.TopMiddle)
 		}
 		//----------------------------------------
 	}
 	//----------------------------------------
-	builder.WriteString(options.TableStyle.TopRight + "\n")
+	builder.WriteString(options.BorderStyle.TopRight + "\n")
 	//----------------------------------------
 	for rowIndex, row := range rows {
 		//----------------------------------------
 		// inner table border (if header = true)
 		if rowIndex == 1 && options.Header {
 			//----------------------------------------
-			builder.WriteString(options.TableStyle.InnerLeft)
+			builder.WriteString(options.BorderStyle.InnerLeft)
 			//----------------------------------------
 			for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 				//----------------------------------------
-				builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
+				builder.WriteString(strings.Repeat(options.BorderStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 				//----------------------------------------
 				if columnIndex < maxColumns-1 {
-					builder.WriteString(options.TableStyle.InnerMiddle)
+					builder.WriteString(options.BorderStyle.InnerMiddle)
 				}
 				//----------------------------------------
 			}
 			//----------------------------------------
-			builder.WriteString(options.TableStyle.InnerRight + "\n")
+			builder.WriteString(options.BorderStyle.InnerRight + "\n")
 			//----------------------------------------
 		}
 		//----------------------------------------
 		// column values
-		builder.WriteString(options.TableStyle.Vertical)
+		builder.WriteString(options.BorderStyle.Vertical)
 		//----------------------------------------
 		for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 			//----------------------------------------
@@ -118,14 +120,14 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 				columnString = row[columnIndex]
 			}
 			//----------------------------------------
-			if len(columnString) < columnWidths[columnIndex] {
-				columnString = fmt.Sprintf("%s%s", columnString, strings.Repeat(" ", columnWidths[columnIndex]-len(columnString)))
+			if runewidth.StringWidth(columnString) < columnWidths[columnIndex] {
+				columnString = fmt.Sprintf("%s%s", columnString, strings.Repeat(" ", columnWidths[columnIndex]-runewidth.StringWidth(columnString)))
 			}
 			//----------------------------------------
 			builder.WriteString(strings.Repeat(" ", options.Padding))
 			builder.WriteString(columnString)
 			builder.WriteString(strings.Repeat(" ", options.Padding))
-			builder.WriteString(options.TableStyle.Vertical)
+			builder.WriteString(options.BorderStyle.Vertical)
 			//----------------------------------------
 		}
 		//----------------------------------------
@@ -134,37 +136,57 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	}
 	//----------------------------------------
 	// table bottom border
-	builder.WriteString(options.TableStyle.BottomLeft)
+	builder.WriteString(options.BorderStyle.BottomLeft)
 	//----------------------------------------
 	for columnIndex := 0; columnIndex < maxColumns; columnIndex++ {
 		//----------------------------------------
-		builder.WriteString(strings.Repeat(options.TableStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
+		builder.WriteString(strings.Repeat(options.BorderStyle.Horizontal, columnWidths[columnIndex]+options.Padding*2))
 		//----------------------------------------
 		if columnIndex < maxColumns-1 {
-			builder.WriteString(options.TableStyle.BottomMiddle)
+			builder.WriteString(options.BorderStyle.BottomMiddle)
 		}
 		//----------------------------------------
 	}
 	//----------------------------------------
-	builder.WriteString(options.TableStyle.BottomRight + "\n")
+	builder.WriteString(options.BorderStyle.BottomRight + "\n")
+	//----------------------------------------
+	outputString := builder.String()
 	//----------------------------------------
 	if options.MaxWidth > 0 {
 		//----------------------------------------
-		lines := strings.Split(builder.String(), "\n")
+		lines := strings.Split(outputString, "\n")
 		//----------------------------------------
 		for lineIndex := range lines {
-			lines[lineIndex] = TruncateString(lines[lineIndex], options.MaxWidth)
+			//--------------------
+			stringWidth := runewidth.StringWidth(lines[lineIndex])
+			//--------------------
+			if stringWidth > options.MaxWidth {
+				//--------------------
+				runes := []rune(lines[lineIndex])
+				//--------------------
+				eol := ""
+				eolLength := 1
+				if options.MaxWidth >= 2 && len(runes) >= 2 && options.Padding > 0 {
+					eol += string([]rune(runes)[len(runes)-2])
+					eolLength += 1
+				}
+				eol += string([]rune(runes)[len(runes)-1])
+				//--------------------
+				lines[lineIndex] = TruncateString(lines[lineIndex], options.MaxWidth-eolLength) + eol
+				//--------------------
+			}
+			//--------------------
 		}
 		//----------------------------------------
-		return strings.Join(lines, "\n")
+		outputString = strings.Join(lines, "\n")
 		//----------------------------------------
 	}
 	//----------------------------------------
 	if options.Writer != nil {
-		fmt.Fprint(options.Writer, builder.String())
+		fmt.Fprint(options.Writer, outputString)
 	}
 	//----------------------------------------
-	return builder.String()
+	return outputString
 	//----------------------------------------
 }
 
@@ -196,7 +218,7 @@ func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 				}
 			}
 			//--------------------
-			if maxColumnWidth > 0 && len(row[columnIndex]) > maxColumnWidth {
+			if maxColumnWidth > 0 && runewidth.StringWidth(row[columnIndex]) > maxColumnWidth {
 				row[columnIndex] = TruncateString(row[columnIndex], maxColumnWidth)
 			}
 			//----------------------------------------
@@ -209,7 +231,7 @@ func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 			headerLines := make([]string, len(row))
 			//----------------------------------------
 			for columnIndex, column := range row {
-				headerLines[columnIndex] = strings.Repeat("-", len(column))
+				headerLines[columnIndex] = strings.Repeat("-", runewidth.StringWidth(column))
 			}
 			//----------------------------------------
 			fmt.Fprintln(writer, strings.Join(headerLines, "\t"))
@@ -220,23 +242,25 @@ func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
 	//----------------------------------------
 	writer.Flush()
 	//----------------------------------------
+	outputString := buffer.String()
+	//----------------------------------------
 	if options.MaxWidth > 0 {
 		//----------------------------------------
-		lines := strings.Split(buffer.String(), "\n")
+		lines := strings.Split(outputString, "\n")
 		//----------------------------------------
 		for lineIndex := range lines {
 			lines[lineIndex] = TruncateString(lines[lineIndex], options.MaxWidth)
 		}
 		//----------------------------------------
-		return strings.Join(lines, "\n")
+		outputString = strings.Join(lines, "\n")
 		//----------------------------------------
 	}
 	//----------------------------------------
 	if options.Writer != nil {
-		fmt.Fprint(options.Writer, buffer.String())
+		fmt.Fprint(options.Writer, outputString)
 	}
 	//----------------------------------------
-	return buffer.String()
+	return outputString
 	//----------------------------------------
 }
 
