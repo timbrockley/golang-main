@@ -79,7 +79,7 @@ type Options struct {
 	Column          int
 }
 
-var DefaultOptions = Options{BorderStyle: UnicodeBorderStyle, Padding: 1, TabWidth: 2}
+var DefaultOptions = Options{BorderStyle: UnicodeBorderStyle, TabWidth: 2}
 
 //--------------------------------------------------------------------------------
 

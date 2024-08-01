@@ -42,10 +42,10 @@ func TestRenderTable3(t *testing.T) {
 		{"Jane Smith", "25", "Canada"},
 	})
 	//----------------------------------------
-	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 12) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 4) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 8) + UnicodeBorderStyle.TopRight + "\n"
-	expectedString += UnicodeBorderStyle.Vertical + " John Doe   " + UnicodeBorderStyle.Vertical + " 30 " + UnicodeBorderStyle.Vertical + " USA    " + UnicodeBorderStyle.Vertical + "\n"
-	expectedString += UnicodeBorderStyle.Vertical + " Jane Smith " + UnicodeBorderStyle.Vertical + " 25 " + UnicodeBorderStyle.Vertical + " Canada " + UnicodeBorderStyle.Vertical + "\n"
-	expectedString += UnicodeBorderStyle.BottomLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 12) + UnicodeBorderStyle.BottomMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 4) + UnicodeBorderStyle.BottomMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 8) + UnicodeBorderStyle.BottomRight + "\n"
+	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 10) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 2) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 6) + UnicodeBorderStyle.TopRight + "\n"
+	expectedString += UnicodeBorderStyle.Vertical + "John Doe  " + UnicodeBorderStyle.Vertical + "30" + UnicodeBorderStyle.Vertical + "USA   " + UnicodeBorderStyle.Vertical + "\n"
+	expectedString += UnicodeBorderStyle.Vertical + "Jane Smith" + UnicodeBorderStyle.Vertical + "25" + UnicodeBorderStyle.Vertical + "Canada" + UnicodeBorderStyle.Vertical + "\n"
+	expectedString += UnicodeBorderStyle.BottomLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 10) + UnicodeBorderStyle.BottomMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 2) + UnicodeBorderStyle.BottomMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 6) + UnicodeBorderStyle.BottomRight + "\n"
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %s but got: %s", expectedString, resultString)
@@ -61,7 +61,7 @@ func TestRenderTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader)
+	}, WithHeader, WithPadding(1))
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 12) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 5) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 9) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + " Name       " + UnicodeBorderStyle.Vertical + " Age " + UnicodeBorderStyle.Vertical + " Country " + UnicodeBorderStyle.Vertical + "\n"
@@ -84,7 +84,7 @@ func TestRenderTable5(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxWidth(10))
+	}, WithHeader, WithPadding(1), WithMaxWidth(10))
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 8) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + " Name   " + UnicodeBorderStyle.Vertical + "\n"

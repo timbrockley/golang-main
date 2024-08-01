@@ -36,30 +36,41 @@ func RenderWindow(rows []string, optionFuncs ...OptionFunc) string {
 		//--------------------
 	}
 	//----------------------------------------
-	if options.MaxWidth > 0 && options.MaxWidth < maxWidth {
+	if options.MaxWidth > 0 && options.MaxWidth != maxWidth {
 		maxWidth = options.MaxWidth
 	}
 	//----------------------------------------
-	rowWidth := maxWidth
-	if maxWidth >= 2 {
-		rowWidth = maxWidth - 2
+	rowWidth := maxWidth - 2
+	if options.Padding > 0 {
+		rowWidth -= options.Padding * 2
+	}
+	if rowWidth < 0 {
+		rowWidth = 0
+	}
+	//----------------------------------------
+	paddingHorizontal := ""
+	paddingSpace := ""
+	if options.Padding > 0 && maxWidth >= (2+options.Padding*2) {
+		paddingHorizontal = strings.Repeat(options.BorderStyle.Horizontal, options.Padding)
+		paddingSpace = strings.Repeat(" ", options.Padding)
 	}
 	//----------------------------------------
 	maxHeight := 0
+	rowHeight := 0
 	//----------------------------------------
-	if options.MaxHeight == 0 {
-		maxHeight = len(rows)
-	} else {
+	if options.MaxHeight > 0 {
 		maxHeight = options.MaxHeight
-	}
-	//----------------------------------------
-	rowHeight := maxHeight
-	if maxHeight >= 2 {
 		rowHeight = maxHeight - 2
+		if rowHeight < 0 {
+			rowHeight = 0
+		}
+	} else {
+		maxHeight = len(rows)
+		rowHeight = maxHeight
 	}
 	//----------------------------------------
-	top := options.BorderStyle.TopLeft + strings.Repeat(options.BorderStyle.Horizontal, rowWidth) + options.BorderStyle.TopRight
-	bottom := options.BorderStyle.BottomLeft + strings.Repeat(options.BorderStyle.Horizontal, rowWidth) + options.BorderStyle.BottomRight
+	top := options.BorderStyle.TopLeft + paddingHorizontal + strings.Repeat(options.BorderStyle.Horizontal, rowWidth) + paddingHorizontal + options.BorderStyle.TopRight
+	bottom := options.BorderStyle.BottomLeft + paddingHorizontal + strings.Repeat(options.BorderStyle.Horizontal, rowWidth) + paddingHorizontal + options.BorderStyle.BottomRight
 	//----------------------------------------
 	builder.WriteString(CursorMove(1, 1) + top)
 	//----------------------------------------
@@ -81,7 +92,7 @@ func RenderWindow(rows []string, optionFuncs ...OptionFunc) string {
 			rowString = fmt.Sprintf("%s%s", rowString, strings.Repeat(" ", rowWidth-runewidth.StringWidth(rowString)))
 		}
 		//----------------------------------------
-		rowString = options.BorderStyle.Vertical + rowString + options.BorderStyle.Vertical
+		rowString = options.BorderStyle.Vertical + paddingSpace + rowString + paddingSpace + options.BorderStyle.Vertical
 		//----------------------------------------
 		builder.WriteString(CursorMove(index+2, 1) + rowString)
 		//----------------------------------------
