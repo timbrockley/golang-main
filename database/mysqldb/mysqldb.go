@@ -531,13 +531,13 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 				//----------
 				switch Type {
 				case "BIGINT", "BIT", "BIT VARYING", "INT", "INTEGER", "MEDIUMINT", "SERIAL", "SMALLINT", "SMALLSERIAL", "TINYINT":
-					value = system.ConvertToInt(value)
+					value = system.ToInt(value)
 				case "DEC", "DECIMAL", "DOUBLE", "DOUBLE PRECISION", "FIXED", "FLOAT", "NUMERIC", "REAL":
-					value = system.ConvertToFloat(value)
+					value = system.ToFloat(value)
 				case "BIGSERIAL", "BINARY", "BLOB", "BYTE", "BYTEA", "LONGBLOB", "TINYBLOB", "VARBINARY":
-					value = system.ConvertToBytes(value)
+					value = system.ToBytes(value)
 				case "BOOL", "BOOLEAN":
-					value = system.ConvertToBool(value)
+					value = system.ToBool(value)
 				}
 				//----------
 				record[Name] = value

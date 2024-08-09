@@ -23,7 +23,7 @@ func TestRenderTable1(t *testing.T) {
 
 func TestRenderTable2(t *testing.T) {
 	//----------------------------------------
-	resultString := RenderTable([][]string{}, WithHeader)
+	resultString := RenderTable([][]string{}, map[string]any{"Header": true})
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + UnicodeBorderStyle.TopRight + "\n" + UnicodeBorderStyle.BottomLeft + UnicodeBorderStyle.BottomRight + "\n"
 	//----------------------------------------
@@ -61,7 +61,7 @@ func TestRenderTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithPadding(1))
+	}, map[string]any{"Header": true, "Padding": 1})
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 12) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 5) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 9) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + " Name       " + UnicodeBorderStyle.Vertical + " Age " + UnicodeBorderStyle.Vertical + " Country " + UnicodeBorderStyle.Vertical + "\n"
@@ -84,7 +84,7 @@ func TestRenderTable5(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithPadding(1), WithMaxWidth(10))
+	}, map[string]any{"Header": true, "Padding": 1, "MaxWidth": 10})
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 8) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + " Name   " + UnicodeBorderStyle.Vertical + "\n"
@@ -107,7 +107,7 @@ func TestRenderTable6(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxColumnWidth(1), WithPadding(0))
+	}, map[string]any{"Header": true, "MaxColumnWidth": 1, "Padding": 0})
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 1) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 1) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 1) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + "N" + UnicodeBorderStyle.Vertical + "A" + UnicodeBorderStyle.Vertical + "C" + UnicodeBorderStyle.Vertical + "\n"
@@ -130,7 +130,7 @@ func TestRenderTable7(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxColumnWidths([]int{1, 2, 3}), WithPadding(0))
+	}, map[string]any{"Header": true, "MaxColumnWidths": []int{1, 2, 3}, "Padding": 0})
 	//----------------------------------------
 	expectedString := UnicodeBorderStyle.TopLeft + strings.Repeat(UnicodeBorderStyle.Horizontal, 1) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 2) + UnicodeBorderStyle.TopMiddle + strings.Repeat(UnicodeBorderStyle.Horizontal, 3) + UnicodeBorderStyle.TopRight + "\n"
 	expectedString += UnicodeBorderStyle.Vertical + "N" + UnicodeBorderStyle.Vertical + "Ag" + UnicodeBorderStyle.Vertical + "Cou" + UnicodeBorderStyle.Vertical + "\n"
@@ -185,7 +185,7 @@ func TestTabwriterTable3(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader)
+	}, map[string]any{"Header": true})
 	//----------------------------------------
 	expectedString := "Name        Age  Country\n"
 	expectedString += "----        ---  -------\n"
@@ -206,7 +206,7 @@ func TestTabwriterTable4(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxWidth(10))
+	}, map[string]any{"Header": true, "MaxWidth": 10})
 	//----------------------------------------
 	expectedString := "Name      \n"
 	expectedString += "----      \n"
@@ -227,7 +227,7 @@ func TestTabwriterTable5(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxColumnWidth(1))
+	}, map[string]any{"Header": true, "MaxColumnWidth": 1})
 	//----------------------------------------
 	expectedString := "N  A  C\n"
 	expectedString += "-  -  -\n"
@@ -248,7 +248,7 @@ func TestTabwriterTable6(t *testing.T) {
 		{"Name", "Age", "Country"},
 		{"John Doe", "30", "USA"},
 		{"Jane Smith", "25", "Canada"},
-	}, WithHeader, WithMaxColumnWidths([]int{1, 2, 3}))
+	}, map[string]any{"Header": true, "MaxColumnWidths": []int{1, 2, 3}})
 	//----------------------------------------
 	expectedString := "N  Ag  Cou\n"
 	expectedString += "-  --  ---\n"

@@ -23,7 +23,7 @@ func TestRenderWindow1(t *testing.T) {
 	expectedString += "\u2514"    // BottomLeft
 	expectedString += "\u2518"    // BottomRight
 	//----------------------------------------
-	resultString = RenderWindow([]string{}, WithStdout)
+	resultString = RenderWindow([]string{}, map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -59,7 +59,7 @@ func TestRenderWindow2(t *testing.T) {
 	expectedString += "\u2514"    // BottomLeft
 	expectedString += "\u2518"    // BottomRight
 	//----------------------------------------
-	resultString = RenderWindow([]string{}, WithMaxWidth(2), WithMaxHeight(2), WithStdout)
+	resultString = RenderWindow([]string{}, map[string]any{"MaxWidth": 2, "MaxHeight": 2, "Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))

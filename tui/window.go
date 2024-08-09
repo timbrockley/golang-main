@@ -18,11 +18,11 @@ import (
 
 //--------------------------------------------------------------------------------
 
-func RenderWindow(rows []string, optionFuncs ...OptionFunc) string {
+func RenderWindow(rows []string, OptionsMap ...map[string]any) string {
 	//----------------------------------------
 	var builder strings.Builder
 	//----------------------------------------
-	options := ParseOptions(optionFuncs...)
+	options := ParseOptions(OptionsMap...)
 	//----------------------------------------
 	maxWidth := 0
 	//----------------------------------------
@@ -36,11 +36,34 @@ func RenderWindow(rows []string, optionFuncs ...OptionFunc) string {
 		//--------------------
 	}
 	//----------------------------------------
-	if options.MaxWidth > 0 && options.MaxWidth != maxWidth {
+	if options.MaxWidth == 0 {
+		maxWidth += options.Padding*2 + 2
+	} else if options.MaxWidth != maxWidth {
 		maxWidth = options.MaxWidth
 	}
 	//----------------------------------------
 	rowWidth := maxWidth - 2
+	//----------------------------------------
+	// for rowIndex := range rows {
+	// 	//--------------------
+	// 	rows[rowIndex] = EscapeString(rows[rowIndex])
+	// 	//--------------------
+	// 	if runewidth.StringWidth(rows[rowIndex]) > maxWidth {
+	// 		maxWidth = runewidth.StringWidth(rows[rowIndex])
+	// 	}
+	// 	//--------------------
+	// }
+	// if options.MaxWidth == 0 {
+	// 	if maxWidth > 0 {
+	// 		maxWidth += 2
+	// 	}
+	// } else if options.MaxWidth != maxWidth {
+	// 	maxWidth = options.MaxWidth
+	// }
+	// //----------------------------------------
+	// rowWidth := maxWidth - 2
+	//----------------------------------------
+
 	if options.Padding > 0 {
 		rowWidth -= options.Padding * 2
 	}

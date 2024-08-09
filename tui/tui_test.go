@@ -26,7 +26,7 @@ func TestRender(t *testing.T) {
 	//----------------------------------------
 	expectedString1 = "XXXXX"
 	//----------------------------------------
-	resultString1 = Render("XXXXXXXXXX", WithStdout, WithMaxWidth(5))
+	resultString1 = Render("XXXXXXXXXX", map[string]any{"Writer": os.Stdout, "MaxWidth": 5})
 	//----------------------------------------
 	if resultString1 != expectedString1 {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString1), []byte(resultString1))
@@ -46,7 +46,7 @@ func TestRender(t *testing.T) {
 	//----------------------------------------
 	expectedString2 = "XXXXXXXXXX"
 	//----------------------------------------
-	resultString2 = Render("XXXXXXXXXX", WithOutput(writer2))
+	resultString2 = Render("XXXXXXXXXX", map[string]any{"Writer": writer2})
 	//----------------------------------------
 	if resultString2 != expectedString2 {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString2), []byte(resultString2))

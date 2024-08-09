@@ -24,7 +24,7 @@ func TestCR_LF_CRLF(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = CR(WithStdout) + LF(WithStdout) + CRLF(WithStdout)
+	resultString = CR(map[string]any{"Writer": os.Stdout}) + LF(map[string]any{"Writer": os.Stdout}) + CRLF(map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -76,16 +76,16 @@ func TestCursorFunctions(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = CursorUp(1, WithStdout)
-	resultString += CursorDown(1, WithStdout)
-	resultString += CursorRight(1, WithStdout)
-	resultString += CursorLeft(1, WithStdout)
-	resultString += CursorHome(WithStdout)
-	resultString += CursorMove(1, 1, WithStdout)
-	resultString += CursorSave(WithStdout)
-	resultString += CursorRestore(WithStdout)
-	resultString += CursorShow(WithStdout)
-	resultString += CursorHide(WithStdout)
+	resultString = CursorUp(1, map[string]any{"Writer": os.Stdout})
+	resultString += CursorDown(1, map[string]any{"Writer": os.Stdout})
+	resultString += CursorRight(1, map[string]any{"Writer": os.Stdout})
+	resultString += CursorLeft(1, map[string]any{"Writer": os.Stdout})
+	resultString += CursorHome(map[string]any{"Writer": os.Stdout})
+	resultString += CursorMove(1, 1, map[string]any{"Writer": os.Stdout})
+	resultString += CursorSave(map[string]any{"Writer": os.Stdout})
+	resultString += CursorRestore(map[string]any{"Writer": os.Stdout})
+	resultString += CursorShow(map[string]any{"Writer": os.Stdout})
+	resultString += CursorHide(map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -138,8 +138,8 @@ func TestScrollbackFunctions(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = ScrollUp(1, WithStdout)
-	resultString += ScrollDown(1, WithStdout)
+	resultString = ScrollUp(1, map[string]any{"Writer": os.Stdout})
+	resultString += ScrollDown(1, map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -179,10 +179,10 @@ func TestClearFunctions(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = ClearScrollbackBuffer(WithStdout)
-	resultString += ClearWindow(WithStdout)
-	resultString += ClearScreen(WithStdout)
-	resultString += ClearLine(WithStdout)
+	resultString = ClearScrollbackBuffer(map[string]any{"Writer": os.Stdout})
+	resultString += ClearWindow(map[string]any{"Writer": os.Stdout})
+	resultString += ClearScreen(map[string]any{"Writer": os.Stdout})
+	resultString += ClearLine(map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
@@ -218,8 +218,8 @@ func TestAlternativeScreenFunctions(t *testing.T) {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))
 	}
 	//----------------------------------------
-	resultString = AlternativeScreenEnable(WithStdout)
-	resultString += AlternativeScreenDisable(WithStdout)
+	resultString = AlternativeScreenEnable(map[string]any{"Writer": os.Stdout})
+	resultString += AlternativeScreenDisable(map[string]any{"Writer": os.Stdout})
 	//----------------------------------------
 	if resultString != expectedString {
 		t.Errorf("expected: %v but got: %v", []byte(expectedString), []byte(resultString))

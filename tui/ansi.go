@@ -57,64 +57,64 @@ const (
 //------------------------------------------------------------
 
 // carriage return
-func CR(optionFuncs ...OptionFunc) string {
-	return Render("\r", optionFuncs...)
+func CR(OptionsMap ...map[string]any) string {
+	return Render("\r", OptionsMap...)
 }
 
 // line feed
-func LF(optionFuncs ...OptionFunc) string {
-	return Render("\n", optionFuncs...)
+func LF(OptionsMap ...map[string]any) string {
+	return Render("\n", OptionsMap...)
 }
 
 // carriage return + line feed
-func CRLF(optionFuncs ...OptionFunc) string {
-	return Render("\r\n", optionFuncs...)
+func CRLF(OptionsMap ...map[string]any) string {
+	return Render("\r\n", OptionsMap...)
 }
 
 //------------------------------------------------------------
 
-func CursorUp(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dA", n), optionFuncs...)
+func CursorUp(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dA", n), OptionsMap...)
 }
 
-func CursorDown(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dB", n), optionFuncs...)
+func CursorDown(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dB", n), OptionsMap...)
 }
 
-func CursorRight(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dC", n), optionFuncs...)
+func CursorRight(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dC", n), OptionsMap...)
 }
 
-func CursorLeft(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dD", n), optionFuncs...)
-}
-
-//------------------------------------------------------------
-
-func CursorHome(optionFuncs ...OptionFunc) string {
-	return Render("\033[H", optionFuncs...)
-}
-
-func CursorMove(row int, col int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%d;%dH", row, col), optionFuncs...)
-}
-
-func CursorSave(optionFuncs ...OptionFunc) string {
-	return Render("\033[s", optionFuncs...)
-}
-
-func CursorRestore(optionFuncs ...OptionFunc) string {
-	return Render("\033[u", optionFuncs...)
+func CursorLeft(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dD", n), OptionsMap...)
 }
 
 //------------------------------------------------------------
 
-func CursorShow(optionFuncs ...OptionFunc) string {
-	return Render("\033[?25h", optionFuncs...)
+func CursorHome(OptionsMap ...map[string]any) string {
+	return Render("\033[H", OptionsMap...)
 }
 
-func CursorHide(optionFuncs ...OptionFunc) string {
-	return Render("\033[?25l", optionFuncs...)
+func CursorMove(row int, col int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%d;%dH", row, col), OptionsMap...)
+}
+
+func CursorSave(OptionsMap ...map[string]any) string {
+	return Render("\033[s", OptionsMap...)
+}
+
+func CursorRestore(OptionsMap ...map[string]any) string {
+	return Render("\033[u", OptionsMap...)
+}
+
+//------------------------------------------------------------
+
+func CursorShow(OptionsMap ...map[string]any) string {
+	return Render("\033[?25h", OptionsMap...)
+}
+
+func CursorHide(OptionsMap ...map[string]any) string {
+	return Render("\033[?25l", OptionsMap...)
 }
 
 //------------------------------------------------------------
@@ -163,45 +163,45 @@ func CursorRowCol() (int, int, error) {
 
 //------------------------------------------------------------
 
-func ScrollUp(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dS", n), optionFuncs...)
+func ScrollUp(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dS", n), OptionsMap...)
 }
 
-func ScrollDown(n int, optionFuncs ...OptionFunc) string {
-	return Render(fmt.Sprintf("\033[%dT", n), optionFuncs...)
+func ScrollDown(n int, OptionsMap ...map[string]any) string {
+	return Render(fmt.Sprintf("\033[%dT", n), OptionsMap...)
 }
 
 //------------------------------------------------------------
 
-func ClearScrollbackBuffer(optionFuncs ...OptionFunc) string {
-	return Render("\033[3J", optionFuncs...)
+func ClearScrollbackBuffer(OptionsMap ...map[string]any) string {
+	return Render("\033[3J", OptionsMap...)
 }
 
 // clear visible screen only (not scrollback buffer)
-func ClearWindow(optionFuncs ...OptionFunc) string {
-	return Render("\033[2J\033[H", optionFuncs...)
+func ClearWindow(OptionsMap ...map[string]any) string {
+	return Render("\033[2J\033[H", OptionsMap...)
 }
 
 // Clear screen and scrollback buffer
-func ClearScreen(optionFuncs ...OptionFunc) string {
-	return Render("\033[2J\033[3J\033[H", optionFuncs...)
+func ClearScreen(OptionsMap ...map[string]any) string {
+	return Render("\033[2J\033[3J\033[H", OptionsMap...)
 }
 
 // clear line and return cursor to first column
-func ClearLine(optionFuncs ...OptionFunc) string {
-	return Render("\033[2K\r", optionFuncs...)
+func ClearLine(OptionsMap ...map[string]any) string {
+	return Render("\033[2K\r", OptionsMap...)
 }
 
 //------------------------------------------------------------
 
 // Enable Alternative Screen
-func AlternativeScreenEnable(optionFuncs ...OptionFunc) string {
-	return Render("\033[?1049h", optionFuncs...)
+func AlternativeScreenEnable(OptionsMap ...map[string]any) string {
+	return Render("\033[?1049h", OptionsMap...)
 }
 
 // Disable Alternative Screen
-func AlternativeScreenDisable(optionFuncs ...OptionFunc) string {
-	return Render("\033[?1049l", optionFuncs...)
+func AlternativeScreenDisable(OptionsMap ...map[string]any) string {
+	return Render("\033[?1049l", OptionsMap...)
 }
 
 //------------------------------------------------------------
@@ -233,8 +233,8 @@ func Effect(effectValue byte) string {
 	return Render(fmt.Sprintf("\033[%dm", effectValue))
 }
 
-func Reset(optionFuncs ...OptionFunc) string {
-	return Render("\033[0m", optionFuncs...)
+func Reset(OptionsMap ...map[string]any) string {
+	return Render("\033[0m", OptionsMap...)
 }
 
 //------------------------------------------------------------

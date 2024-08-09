@@ -20,11 +20,11 @@ import (
 
 //--------------------------------------------------------------------------------
 
-func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
+func RenderTable(rows [][]string, OptionsMap ...map[string]any) string {
 	//----------------------------------------
 	var builder strings.Builder
 	//----------------------------------------
-	options := ParseOptions(optionFuncs...)
+	options := ParseOptions(OptionsMap...)
 	//----------------------------------------
 	if len(rows) == 0 {
 		return options.BorderStyle.TopLeft + options.BorderStyle.TopRight + "\n" + options.BorderStyle.BottomLeft + options.BorderStyle.BottomRight + "\n"
@@ -192,11 +192,11 @@ func RenderTable(rows [][]string, optionFuncs ...OptionFunc) string {
 
 //--------------------------------------------------------------------------------
 
-func TabwriterTable(rows [][]string, optionFuncs ...OptionFunc) string {
+func TabwriterTable(rows [][]string, OptionsMap ...map[string]any) string {
 	//----------------------------------------
 	var buffer bytes.Buffer
 	//----------------------------------------
-	options := ParseOptions(optionFuncs...)
+	options := ParseOptions(OptionsMap...)
 	//----------------------------------------
 	writer := tabwriter.NewWriter(&buffer, 0, 0, options.TabWidth, ' ', 0)
 	//----------------------------------------

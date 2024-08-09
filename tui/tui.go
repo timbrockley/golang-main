@@ -12,7 +12,7 @@ package tui
 import (
 	"fmt"
 	"io"
-	"os"
+	"reflect"
 
 	"github.com/mattn/go-runewidth"
 )
@@ -63,10 +63,7 @@ var UnicodeBorderStyle = BorderStyle{
 
 //--------------------------------------------------------------------------------
 
-type OptionFunc func(*Options)
-
 type Options struct {
-	Writer          io.Writer
 	BorderStyle     BorderStyle
 	Header          bool
 	Padding         int
@@ -77,87 +74,17 @@ type Options struct {
 	MaxHeight       int
 	Row             int
 	Column          int
+	RawMode         bool
+	Writer          io.Writer
 }
 
 var DefaultOptions = Options{BorderStyle: UnicodeBorderStyle, TabWidth: 2}
 
 //--------------------------------------------------------------------------------
 
-func WithHeader(options *Options) { options.Header = true }
-
-func WithBorderStyle(BorderStyle BorderStyle) OptionFunc {
-	return func(options *Options) {
-		options.BorderStyle = BorderStyle
-	}
-}
-
-func WithPadding(padding int) OptionFunc {
-	return func(options *Options) {
-		options.Padding = padding
-	}
-}
-
-func WithTabWidth(tabWidth int) OptionFunc {
-	return func(options *Options) {
-		options.TabWidth = tabWidth
-	}
-}
-
-// max global column width
-func WithMaxColumnWidth(maxColumnWidth int) OptionFunc {
-	return func(options *Options) {
-		options.MaxColumnWidth = maxColumnWidth
-	}
-}
-
-// max individual column widths
-func WithMaxColumnWidths(maxColumnWidths []int) OptionFunc {
-	return func(options *Options) {
-		options.MaxColumnWidths = maxColumnWidths
-	}
-}
-
-func WithMaxWidth(maxWidth int) OptionFunc {
-	return func(options *Options) {
-		options.MaxWidth = maxWidth
-	}
-}
-
-func WithMaxHeight(maxHeight int) OptionFunc {
-	return func(options *Options) {
-		options.MaxHeight = maxHeight
-	}
-}
-
-func WithOutput(writer io.Writer) OptionFunc {
-	return func(options *Options) {
-		if writer == nil {
-			options.Writer = os.Stdout
-		} else {
-			options.Writer = writer
-		}
-	}
-}
-
-func WithStdout(options *Options) { options.Writer = os.Stdout }
-
-//--------------------------------------------------------------------------------
-
-func ParseOptions(optionFuncs ...OptionFunc) Options {
+func Render(outputString string, OptionsMap ...map[string]any) string {
 	//----------------------------------------
-	options := DefaultOptions
-	for _, fn := range optionFuncs {
-		fn(&options)
-	}
-	return options
-	//----------------------------------------
-}
-
-//--------------------------------------------------------------------------------
-
-func Render(outputString string, optionFuncs ...OptionFunc) string {
-	//----------------------------------------
-	options := ParseOptions(optionFuncs...)
+	options := ParseOptions(OptionsMap...)
 	//----------------------------------------
 	if options.MaxWidth > 0 {
 		outputString = TruncateString(outputString, options.MaxWidth)
@@ -229,6 +156,36 @@ func EscapeString(outputString string) string {
 	}
 	//----------------------------------------
 	return string(outputRunes)
+	//----------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+
+
+func ParseOptions(OptionsMap ...map[string]any) Options {
+	//----------------------------------------
+	if len(OptionsMap) == 0 {
+		return DefaultOptions
+	}
+	optionsMap := OptionsMap[0]
+	//----------------------------------------
+	defaultOptions := DefaultOptions
+	reflectStruct := reflect.ValueOf(&defaultOptions).Elem()
+	//----------------------------------------
+	fields := reflect.VisibleFields(reflect.TypeOf(Options{}))
+	for _, reflectField := range fields {
+		if value, ok := optionsMap[reflectField.Name]; ok {
+			fieldValue := reflectStruct.FieldByName(reflectField.Name)
+			if fieldValue.IsValid() && fieldValue.CanSet() {
+				reflectValue := reflect.ValueOf(value)
+				if reflectValue.Type().AssignableTo(fieldValue.Type()) {
+					fieldValue.Set(reflectValue)
+				}
+			}
+		}
+	}
+	//----------------------------------------
+	return defaultOptions
 	//----------------------------------------
 }
 
