@@ -61,37 +61,37 @@ func TestRPC_send_request_method(t *testing.T) {
 		if err != nil {
 			responseString = `{"error":"error occurred while trying to read request body"}`
 		} else {
-			//----------
+			//--------------------
 			requestString = string(requestBytes)
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				requestString, err = conv.Base64_decode(requestString)
 			} else if rpcObject.Encoding == "base64url" {
 				requestString, err = conv.Base64url_decode(requestString)
 			}
-			//----------
+			//--------------------
 			if err != nil {
 				responseString = fmt.Sprintf(`{"error":%q}`, err)
 			} else {
 				responseString = fmt.Sprintf(`{"content_type":%q,"request":%q}`, contentType, requestString)
 			}
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				responseString = conv.Base64_encode(responseString)
 			} else if rpcObject.Encoding == "base64url" {
 				responseString = conv.Base64url_encode(responseString)
 			}
 			responseWriter.Write([]byte(responseString))
-			//----------
+			//--------------------
 		}
 	}))
-	//----------
+	//--------------------
 	defer server.Close()
 	//--------------------------------------------------
 	requestContentType := "text/plain; charset=UTF-8"
 	requestHeadersMap := map[string]string{"Content-Type": requestContentType}
 	requestString := "<REQUEST_DATA>"
-	//----------
+	//--------------------
 	EXPECTED_responseString := fmt.Sprintf(`{"content_type":%q,"request":%q}`, requestContentType, requestString)
 	//--------------------------------------------------
 
@@ -109,12 +109,12 @@ func TestRPC_send_request_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -138,37 +138,37 @@ func TestRPC_send_request_method_base64(t *testing.T) {
 		if err != nil {
 			responseString = `{"error":"error occurred while trying to read request body"}`
 		} else {
-			//----------
+			//--------------------
 			requestString = string(requestBytes)
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				requestString, err = conv.Base64_decode(requestString)
 			} else if rpcObject.Encoding == "base64url" {
 				requestString, err = conv.Base64url_decode(requestString)
 			}
-			//----------
+			//--------------------
 			if err != nil {
 				responseString = fmt.Sprintf(`{"error":%q}`, err)
 			} else {
 				responseString = fmt.Sprintf(`{"content_type":%q,"request":%q}`, contentType, requestString)
 			}
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				responseString = conv.Base64_encode(responseString)
 			} else if rpcObject.Encoding == "base64url" {
 				responseString = conv.Base64url_encode(responseString)
 			}
 			responseWriter.Write([]byte(responseString))
-			//----------
+			//--------------------
 		}
 	}))
-	//----------
+	//--------------------
 	defer server.Close()
 	//--------------------------------------------------
 	requestContentType := "text/plain; charset=UTF-8"
 	requestHeadersMap := map[string]string{"Content-Type": requestContentType}
 	requestString := "<REQUEST_DATA>"
-	//----------
+	//--------------------
 	EXPECTED_responseString := fmt.Sprintf(`{"content_type":%q,"request":%q}`, requestContentType, requestString)
 	//--------------------------------------------------
 
@@ -186,12 +186,12 @@ func TestRPC_send_request_method_base64(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	rpcObject.Encoding = ""
@@ -217,37 +217,37 @@ func TestRPC_send_request_method_base64url(t *testing.T) {
 		if err != nil {
 			responseString = `{"error":"error occurred while trying to read request body"}`
 		} else {
-			//----------
+			//--------------------
 			requestString = string(requestBytes)
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				requestString, err = conv.Base64_decode(requestString)
 			} else if rpcObject.Encoding == "base64url" {
 				requestString, err = conv.Base64url_decode(requestString)
 			}
-			//----------
+			//--------------------
 			if err != nil {
 				responseString = fmt.Sprintf(`{"error":%q}`, err)
 			} else {
 				responseString = fmt.Sprintf(`{"content_type":%q,"request":%q}`, contentType, requestString)
 			}
-			//----------
+			//--------------------
 			if rpcObject.Encoding == "base64" {
 				responseString = conv.Base64_encode(responseString)
 			} else if rpcObject.Encoding == "base64url" {
 				responseString = conv.Base64url_encode(responseString)
 			}
 			responseWriter.Write([]byte(responseString))
-			//----------
+			//--------------------
 		}
 	}))
-	//----------
+	//--------------------
 	defer server.Close()
 	//--------------------------------------------------
 	requestContentType := "text/plain; charset=UTF-8"
 	requestHeadersMap := map[string]string{"Content-Type": requestContentType}
 	requestString := "<REQUEST_DATA>"
-	//----------
+	//--------------------
 	EXPECTED_responseString := fmt.Sprintf(`{"content_type":%q,"request":%q}`, requestContentType, requestString)
 	//--------------------------------------------------
 
@@ -265,12 +265,12 @@ func TestRPC_send_request_method_base64url(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	rpcObject.Encoding = ""
@@ -305,13 +305,13 @@ func TestRPC_send_json_request_method(t *testing.T) {
 			}
 		}
 	}))
-	//----------
+	//--------------------
 	defer server.Close()
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestHeadersMap := map[string]string{"Content-Type": requestContentType}
 	requestMap := map[string]any{"test_key": "test_value"}
-	//----------
+	//--------------------
 	EXPECTED_responseMap := map[string]any{"content_type": requestContentType, "request": requestMap}
 	//--------------------------------------------------
 
@@ -329,12 +329,12 @@ func TestRPC_send_json_request_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if fmt.Sprint(responseMap) != fmt.Sprint(EXPECTED_responseMap) {
 
 			t.Errorf("response = %q but should = %q", responseMap, EXPECTED_responseMap)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -364,26 +364,26 @@ func TestRPC_read_request_method(t *testing.T) {
 		rpcObject.HttpRequest = httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(test.requestString)))
 		//--------------------------------------------------
 		err := rpcObject.RPC_read_request()
-		//----------
+		//--------------------
 		errorString := fmt.Sprint(err)
-		//----------
+		//--------------------
 		if err != nil && errorString != test.errorString {
 
 			t.Errorf("index %d: result error = %q but expected error = %q", index, errorString, test.errorString)
 
 		} else {
 
-			//----------
+			//--------------------
 			if rpcObject.RequestString != test.requestString {
 
 				t.Errorf("index %d: resultString = %q but should = %q", index, rpcObject.RequestString, test.requestString)
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(rpcObject.RequestMap) != fmt.Sprint(test.requestMap) {
 
 				t.Errorf("index %d: requestMap = %q but should = %q", index, fmt.Sprint(rpcObject.RequestMap), fmt.Sprint(test.requestMap))
 			}
-			//----------
+			//--------------------
 		}
 		//--------------------------------------------------
 	}
@@ -410,21 +410,21 @@ func TestRPC_read_request_method_base64(t *testing.T) {
 		rpcObject.HttpRequest = httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(test.requestString)))
 		//--------------------------------------------------
 		err := rpcObject.RPC_read_request()
-		//----------
+		//--------------------
 		errorString := fmt.Sprint(err)
-		//----------
+		//--------------------
 		if err != nil && errorString != test.errorString {
 
 			t.Errorf("index %d: result error = %q but expected error = %q", index, errorString, test.errorString)
 
 		} else {
 
-			//----------
+			//--------------------
 			if rpcObject.RequestString != test.requestString {
 
 				t.Errorf("index %d: resultString = %q but should = %q", index, rpcObject.RequestString, test.requestString)
 			}
-			//----------
+			//--------------------
 		}
 		//--------------------------------------------------
 	}
@@ -458,26 +458,26 @@ func TestRPC_read_json_request_method(t *testing.T) {
 		rpcObject.HttpRequest = httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(test.requestString)))
 		//--------------------------------------------------
 		err := rpcObject.RPC_read_json_request()
-		//----------
+		//--------------------
 		errorString := fmt.Sprint(err)
-		//----------
+		//--------------------
 		if err != nil && errorString != test.errorString {
 
 			t.Errorf("index %d: result error = %q but expected error = %q", index, errorString, test.errorString)
 
 		} else {
 
-			//----------
+			//--------------------
 			if rpcObject.RequestString != test.requestString {
 
 				t.Errorf("index %d: resultString = %q but should = %q", index, rpcObject.RequestString, test.requestString)
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(rpcObject.RequestMap) != fmt.Sprint(test.requestMap) {
 
 				t.Errorf("index %d: requestMap = %q but should = %q", index, fmt.Sprint(rpcObject.RequestMap), fmt.Sprint(test.requestMap))
 			}
-			//----------
+			//--------------------
 		}
 		//--------------------------------------------------
 	}
@@ -511,26 +511,26 @@ func TestRPC_read_jsonrpc_request_method(t *testing.T) {
 		rpcObject.HttpRequest = httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(test.requestString)))
 		//--------------------------------------------------
 		err := rpcObject.RPC_read_jsonrpc_request()
-		//----------
+		//--------------------
 		errorString := fmt.Sprint(err)
-		//----------
+		//--------------------
 		if err != nil && errorString != test.errorString {
 
 			t.Errorf("index %d: result error = %q but expected error = %q", index, errorString, test.errorString)
 
 		} else {
 
-			//----------
+			//--------------------
 			if rpcObject.RequestString != test.requestString {
 
 				t.Errorf("index %d: resultString = %q but should = %q", index, rpcObject.RequestString, test.requestString)
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(rpcObject.RequestMap) != fmt.Sprint(test.requestMap) {
 
 				t.Errorf("index %d: requestMap = %q but should = %q", index, fmt.Sprint(rpcObject.RequestMap), fmt.Sprint(test.requestMap))
 			}
-			//----------
+			//--------------------
 		}
 		//--------------------------------------------------
 	}
@@ -546,27 +546,27 @@ func TestRPC_send_response_method(t *testing.T) {
 	//--------------------------------------------------
 	requestString := "<TEST_DATA>"
 	requestContentType := "text/plain; charset=UTF-8"
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "text/plain; charset=UTF-8"
 	EXPECTED_responseString := "<TEST_DATA>"
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_response(requestString)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -574,20 +574,20 @@ func TestRPC_send_response_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseResponseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseResponseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseResponseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -603,27 +603,27 @@ func TestRPC_send_response_method_base64(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "text/plain; charset=UTF-8"
 	requestString := "<TEST_DATA>"
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "text/plain; charset=UTF-8"
 	EXPECTED_responseString := "<TEST_DATA>"
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_response(requestString)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -631,26 +631,26 @@ func TestRPC_send_response_method_base64(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if rpcObject.Encoding == "base64" {
 			responseString, _ = conv.Base64_decode(responseString)
 		} else if rpcObject.Encoding == "base64url" {
 			responseString, _ = conv.Base64url_decode(responseString)
 		}
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	rpcObject.Encoding = ""
@@ -667,27 +667,27 @@ func TestRPC_send_json_response_method(t *testing.T) {
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
 	requestMap := map[string]any{"test_key": "test_value"}
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"test_key":"test_value"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_json_response(requestMap)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -695,20 +695,20 @@ func TestRPC_send_json_response_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -723,27 +723,27 @@ func TestRPC_send_result_response_method(t *testing.T) {
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
 	requestMap := map[string]any{"test_key": "test_value"}
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"result":{"test_key":"test_value"}}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_result_response(requestMap)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -751,20 +751,20 @@ func TestRPC_send_result_response_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -779,27 +779,27 @@ func TestRPC_send_error_response_method(t *testing.T) {
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
 	requestErrorString := "this is an error"
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":"this is an error"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_error_response(requestErrorString)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -807,20 +807,20 @@ func TestRPC_send_error_response_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -853,13 +853,13 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 			}
 		}
 	}))
-	//----------
+	//--------------------
 	defer server.Close()
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestHeadersMap := map[string]string{"Content-Type": requestContentType}
 	requestMap := map[string]any{"test_key": "test_value"}
-	//----------
+	//--------------------
 	EXPECTED_responseMap := map[string]any{"content_type": requestContentType, "request": requestMap}
 	//--------------------------------------------------
 
@@ -873,11 +873,11 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	//--------------------------------------------------
 	_, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
-	//----------
+	//--------------------
 	if err == nil {
 		t.Error("undefined method not being reported")
 	}
-	//----------
+	//--------------------
 	if fmt.Sprint(err) != "method is not defined or is not a string" {
 		t.Error(err)
 	}
@@ -885,13 +885,13 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	//--------------------------------------------------
 	requestMap["method"] = 0
-	//----------
+	//--------------------
 	_, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
-	//----------
+	//--------------------
 	if err == nil {
 		t.Error("undefined method not being reported")
 	}
-	//----------
+	//--------------------
 	if fmt.Sprint(err) != "method is not defined or is not a string" {
 		t.Error(err)
 	}
@@ -900,13 +900,13 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 	//--------------------------------------------------
 	requestMap["method"] = "echo"
 	requestMap["params"] = 0
-	//----------
+	//--------------------
 	_, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
-	//----------
+	//--------------------
 	if err == nil {
 		t.Error("invalid params not being reported")
 	}
-	//----------
+	//--------------------
 	if fmt.Sprint(err) != "params is not an array or an object" {
 		t.Error(err)
 	}
@@ -914,9 +914,9 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	//--------------------------------------------------
 	requestMap["params"] = []any{}
-	//----------
+	//--------------------
 	_, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	}
@@ -924,9 +924,9 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	//--------------------------------------------------
 	requestMap["params"] = map[string]any{}
-	//----------
+	//--------------------
 	_, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	}
@@ -934,7 +934,7 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	//--------------------------------------------------
 	requestMap["params"] = []any{}
-	//----------
+	//--------------------
 	responseMap, err = rpcObject.RPC_send_jsonrpc_request(requestMap)
 	//--------------------------------------------------
 	if err != nil {
@@ -943,12 +943,12 @@ func TestRPC_send_jsonrpc_request_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if fmt.Sprint(responseMap) != fmt.Sprint(EXPECTED_responseMap) {
 
 			t.Errorf("response = %q but should = %q", responseMap, EXPECTED_responseMap)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -963,27 +963,27 @@ func TestRPC_send_jsonrpc_result_method(t *testing.T) {
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
 	requestResult := map[string]any{"test_key": "test_value"}
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"id":null,"jsonrpc":"2.0","result":{"test_key":"test_value"}}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_result(requestResult)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -991,20 +991,20 @@ func TestRPC_send_jsonrpc_result_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1019,27 +1019,27 @@ func TestRPC_send_jsonrpc_error_method(t *testing.T) {
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
 	requestError := map[string]any{"code": -32700, "message": "parse error"}
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32700,"message":"parse error"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_error(requestError)
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1047,20 +1047,20 @@ func TestRPC_send_jsonrpc_error_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1076,27 +1076,27 @@ func TestRPC_send_jsonrpc_internal_error1_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32603,"message":"internal error"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_internal_error()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1104,20 +1104,20 @@ func TestRPC_send_jsonrpc_internal_error1_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1129,27 +1129,27 @@ func TestRPC_send_jsonrpc_internal_error2_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32603,"data":"test data","message":"internal error"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_internal_error("test data")
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1157,20 +1157,20 @@ func TestRPC_send_jsonrpc_internal_error2_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1184,27 +1184,27 @@ func TestRPC_send_jsonrpc_invalid_params_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32602,"message":"invalid params"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_invalid_params()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1212,20 +1212,20 @@ func TestRPC_send_jsonrpc_invalid_params_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1239,27 +1239,27 @@ func TestRPC_send_jsonrpc_invalid_request_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32600,"message":"invalid request"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_invalid_request()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1267,20 +1267,20 @@ func TestRPC_send_jsonrpc_invalid_request_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1294,27 +1294,27 @@ func TestRPC_send_jsonrpc_method_not_found_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32601,"message":"method not found"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_method_not_found()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1322,20 +1322,20 @@ func TestRPC_send_jsonrpc_method_not_found_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1349,27 +1349,27 @@ func TestRPC_send_jsonrpc_parse_error(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32700,"message":"parse error"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_parse_error()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1377,20 +1377,20 @@ func TestRPC_send_jsonrpc_parse_error(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1404,27 +1404,27 @@ func TestRPC_send_jsonrpc_server_error(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := ""
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"error":{"code":-32000,"message":"server error"},"id":null,"jsonrpc":"2.0"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_send_jsonrpc_server_error()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1432,20 +1432,20 @@ func TestRPC_send_jsonrpc_server_error(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1463,27 +1463,27 @@ func TestRPC_echo_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := "{\"method\":\"echo\",\"data\":\"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\U0001f427\"}"
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"method":"echo","data":"ECHO_TEST ABC <> &quot; ` + "\u00A3 \u65E5\u672C\u8A9E\U0001f427" + `"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.RPC_echo()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1491,20 +1491,20 @@ func TestRPC_echo_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1518,27 +1518,27 @@ func TestJSONRPC_echo_method(t *testing.T) {
 	//--------------------------------------------------
 	requestContentType := "application/json; charset=UTF-8"
 	requestString := "{\"id\":101,\"method\":\"echo\",\"params\":[\"ECHO_TEST ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\U0001f427\"]}"
-	//----------
+	//--------------------
 	EXPECTED_responseContentType := "application/json; charset=UTF-8"
 	EXPECTED_responseString := `{"id":101,"jsonrpc":"2.0","result":"{\"id\":101,\"method\":\"echo\",\"params\":[\"ECHO_TEST ABC <> &quot; ` + "\u00A3 \u65E5\u672C\u8A9E\U0001f427" + `\"]}"}`
 	//--------------------------------------------------
 	httptestRecorder := httptest.NewRecorder()
 	httpRequest := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte(requestString)))
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = httptestRecorder
 	rpcObject.HttpRequest = httpRequest
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": requestContentType}
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	rpcObject.JSONRPC_echo()
-	//----------
+	//--------------------
 
 	//--------------------------------------------------
 	httpResponse := httptestRecorder.Result()
-	//----------
+	//--------------------
 	defer httpResponse.Body.Close()
-	//----------
+	//--------------------
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
 
@@ -1546,20 +1546,20 @@ func TestJSONRPC_echo_method(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		responseContentType := httpResponse.Header.Get("Content-Type")
 		responseString := string(responseBytes)
-		//----------
+		//--------------------
 		if responseContentType != EXPECTED_responseContentType {
 
 			t.Errorf("Content-Type = %q but should = %q", responseContentType, EXPECTED_responseContentType)
 		}
-		//----------
+		//--------------------
 		if responseString != EXPECTED_responseString {
 
 			t.Errorf("response = %q but should = %q", responseString, EXPECTED_responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 }
@@ -1610,9 +1610,9 @@ func TestRPC_Handler(t *testing.T) {
 
 		//--------------------------------------------------
 		httpResponse := httptestRecorder.Result()
-		//----------
+		//--------------------
 		defer httpResponse.Body.Close()
-		//----------
+		//--------------------
 		responseBytes, err := io.ReadAll(httpResponse.Body)
 		if err != nil {
 
@@ -1620,20 +1620,20 @@ func TestRPC_Handler(t *testing.T) {
 
 		} else {
 
-			//----------
+			//--------------------
 			responseContentType := httpResponse.Header.Get("Content-Type")
 			responseString := string(responseBytes)
-			//----------
+			//--------------------
 			if responseContentType != EXPECTED_responseContentType {
 
 				t.Errorf("index %d: Content-Type = %q but should = %q", index, responseContentType, EXPECTED_responseContentType)
 			}
-			//----------
+			//--------------------
 			if responseString != test.responseString {
 
 				t.Errorf("index %d: response = %q but should = %q", index, responseString, test.responseString)
 			}
-			//----------
+			//--------------------
 		}
 		//------------------------------------------------------------
 	}
@@ -1676,9 +1676,9 @@ func TestJSONRPC_Handler(t *testing.T) {
 
 		//--------------------------------------------------
 		httpResponse := httptestRecorder.Result()
-		//----------
+		//--------------------
 		defer httpResponse.Body.Close()
-		//----------
+		//--------------------
 		responseBytes, err := io.ReadAll(httpResponse.Body)
 		if err != nil {
 
@@ -1686,20 +1686,20 @@ func TestJSONRPC_Handler(t *testing.T) {
 
 		} else {
 
-			//----------
+			//--------------------
 			responseContentType := httpResponse.Header.Get("Content-Type")
 			responseString := string(responseBytes)
-			//----------
+			//--------------------
 			if responseContentType != EXPECTED_responseContentType {
 
 				t.Errorf("index %d: Content-Type = %q but should = %q", index, responseContentType, EXPECTED_responseContentType)
 			}
-			//----------
+			//--------------------
 			if responseString != test.responseString {
 
 				t.Errorf("index %d: response = %q but should = %q", index, responseString, test.responseString)
 			}
-			//----------
+			//--------------------
 		}
 		//------------------------------------------------------------
 	}

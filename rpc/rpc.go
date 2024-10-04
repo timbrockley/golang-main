@@ -32,21 +32,21 @@ const ContentTypeJSON string = "application/json; charset=UTF-8"
 //--------------------------------------------------------------------------------
 
 type RPCStruct struct {
-	//----------
+	//--------------------
 	ResponseWriter http.ResponseWriter
 	HttpRequest    *http.Request
-	//----------
+	//--------------------
 	RequestURL    string
 	RequestString string
 	RequestMap    map[string]any
-	//----------
+	//--------------------
 	RemoteIPAddr string
-	//----------
+	//--------------------
 	ResponseURL        string
 	ResponseHeadersMap map[string]string
-	//----------
+	//--------------------
 	Encoding string
-	//----------
+	//--------------------
 }
 
 //--------------------------------------------------------------------------------
@@ -84,25 +84,25 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 		rpcObject.RequestURL = rpcObject.HttpRequest.URL.String()
 		//--------------------------------------------------
 		requestString = string(requestBytes)
-		//----------
+		//--------------------
 		if rpcObject.Encoding == "base64" {
 			requestString, err = conv.Base64_decode(requestString)
 		} else if rpcObject.Encoding == "base64url" {
 			requestString, err = conv.Base64url_decode(requestString)
 		}
-		//----------
+		//--------------------
 		if err == nil {
 
-			//----------
+			//--------------------
 			rpcObject.RequestString = requestString
-			//----------
+			//--------------------
 			// if request looks like it might be single json try decode but don't report any errors
 			match, _ := regexp.MatchString(`^\s*{.*}\s*$`, requestString)
 			if match {
 
-				//----------
+				//--------------------
 				jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
-				//----------
+				//--------------------
 				if err == nil && isObject(jsonInterface) {
 
 					rpcObject.RequestMap = jsonInterface.(map[string]any)
@@ -111,9 +111,9 @@ func (rpcObject *RPCStruct) RPC_read_request() error {
 
 					err = nil // ignore error
 				}
-				//----------
+				//--------------------
 			}
-			//----------
+			//--------------------
 		}
 		//--------------------------------------------------
 	}
@@ -142,45 +142,45 @@ func (rpcObject *RPCStruct) RPC_send_request(requestString string) (string, erro
 	} else if rpcObject.Encoding == "base64url" {
 		requestString = conv.Base64url_encode(requestString)
 	}
-	//----------
+	//--------------------
 	httpRequest, err = http.NewRequest("POST", rpcObject.ResponseURL, bytes.NewBuffer([]byte(requestString)))
-	//----------
+	//--------------------
 	if err == nil {
 
-		//----------
+		//--------------------
 		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
 			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeText
 		}
-		//----------
+		//--------------------
 		for headerKey, headerValue := range rpcObject.ResponseHeadersMap {
 
 			httpRequest.Header.Add(headerKey, headerValue)
 		}
-		//----------
+		//--------------------
 		httpResponse, err = http.DefaultClient.Do(httpRequest)
-		//----------
+		//--------------------
 		if err == nil {
 
-			//----------
+			//--------------------
 			defer httpResponse.Body.Close()
-			//----------
+			//--------------------
 			responseBytes, err = io.ReadAll(httpResponse.Body)
-			//----------
+			//--------------------
 			if err == nil {
-				//----------
+				//--------------------
 				responseString = string(responseBytes)
-				//----------
+				//--------------------
 				if rpcObject.Encoding == "base64" {
 					responseString, err = conv.Base64_decode(responseString)
 				} else if rpcObject.Encoding == "base64url" {
 					responseString, err = conv.Base64url_decode(responseString)
 				}
-				//----------
+				//--------------------
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 
 	}
 	//--------------------------------------------------
@@ -203,22 +203,22 @@ func (rpcObject *RPCStruct) RPC_send_json_request(requestMap map[string]any) (an
 	var responseMap any
 	//--------------------------------------------------
 	requestString, err = RPC_encode_json(requestMap)
-	//----------
+	//--------------------
 	if err == nil {
 
-		//----------
+		//--------------------
 		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
 			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 		}
-		//----------
+		//--------------------
 		responseString, err = rpcObject.RPC_send_request(requestString)
-		//----------
+		//--------------------
 		if err == nil {
 
 			responseMap, err = RPC_decode_json(responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	return responseMap, err
@@ -236,10 +236,10 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 	var jsonInterface any
 	//--------------------------------------------------
 	err = rpcObject.RPC_read_request()
-	//----------
+	//--------------------
 	if err == nil {
 
-		//----------
+		//--------------------
 		// match what looks like a single json request
 		match, _ := regexp.MatchString(`^\s*{.*}\s*$`, rpcObject.RequestString)
 		if !match {
@@ -248,9 +248,9 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 
 		} else {
 
-			//----------
+			//--------------------
 			jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
-			//----------
+			//--------------------
 			if err == nil {
 
 				if isObject(jsonInterface) {
@@ -262,9 +262,9 @@ func (rpcObject *RPCStruct) RPC_read_json_request() error {
 					err = errors.New("parse error")
 				}
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	return err
@@ -282,12 +282,12 @@ func (rpcObject *RPCStruct) RPC_read_jsonrpc_request() error {
 	var jsonInterface any
 	//--------------------------------------------------
 	err = rpcObject.RPC_read_request()
-	//----------
+	//--------------------
 	if err == nil {
 
-		//----------
+		//--------------------
 		jsonInterface, err = RPC_decode_json(rpcObject.RequestString)
-		//----------
+		//--------------------
 		if err == nil {
 
 			if isObject(jsonInterface) {
@@ -299,7 +299,7 @@ func (rpcObject *RPCStruct) RPC_read_jsonrpc_request() error {
 				err = errors.New("parse error")
 			}
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	return err
@@ -333,28 +333,28 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any) 
 	}
 	//--------------------------------------------------
 	requestMap["jsonrpc"] = "2.0"
-	//----------
+	//--------------------
 	if requestMap["id"] == nil {
 		requestMap["id"] = auto.ID()
 	}
 	//--------------------------------------------------
 	requestString, err = RPC_encode_json(requestMap)
-	//----------
+	//--------------------
 	if err == nil {
 
-		//----------
+		//--------------------
 		if rpcObject.ResponseHeadersMap["Content-Type"] == "" {
 
 			rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
 		}
-		//----------
+		//--------------------
 		responseString, err = rpcObject.RPC_send_request(requestString)
-		//----------
+		//--------------------
 		if err == nil {
 
 			responseMap, err = RPC_decode_json(responseString)
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	return responseMap, err
@@ -372,18 +372,18 @@ func (rpcObject *RPCStruct) RPC_send_response(responseString string) {
 
 		rpcObject.ResponseHeadersMap["Content-Type"] = ContentTypeText
 	}
-	//----------
+	//--------------------
 	for headerKey, headerValue := range rpcObject.ResponseHeadersMap {
 
 		rpcObject.ResponseWriter.Header().Set(headerKey, headerValue)
 	}
-	//----------
+	//--------------------
 	if rpcObject.Encoding == "base64" {
 		responseString = conv.Base64_encode(responseString)
 	} else if rpcObject.Encoding == "base64url" {
 		responseString = conv.Base64url_encode(responseString)
 	}
-	//----------
+	//--------------------
 	fmt.Fprint(rpcObject.ResponseWriter, responseString)
 	//--------------------------------------------------
 }
@@ -428,7 +428,7 @@ func (rpcObject *RPCStruct) RPC_send_result_response(result any) {
 
 	//--------------------------------------------------
 	responseMap := map[string]any{"result": result}
-	//----------
+	//--------------------
 	rpcObject.RPC_send_json_response(responseMap)
 	//--------------------------------------------------
 }
@@ -441,7 +441,7 @@ func (rpcObject *RPCStruct) RPC_send_error_response(errorString string) {
 
 	//--------------------------------------------------
 	responseMap := map[string]any{"error": errorString}
-	//----------
+	//--------------------
 	rpcObject.RPC_send_json_response(responseMap)
 	//--------------------------------------------------
 }
@@ -458,11 +458,11 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_result(result any) error {
 	}
 	//--------------------------------------------------
 	responseMap := map[string]any{"jsonrpc": "2.0", "id": nil}
-	//----------
+	//--------------------
 	if isNumber(rpcObject.RequestMap["id"]) || isString(rpcObject.RequestMap["id"]) {
 		responseMap["id"] = rpcObject.RequestMap["id"]
 	}
-	//----------
+	//--------------------
 	responseMap["result"] = result
 	//--------------------------------------------------
 	responseString, err := RPC_encode_json(responseMap)
@@ -487,11 +487,11 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_error(error any) error {
 	}
 	//--------------------------------------------------
 	responseMap := map[string]any{"jsonrpc": "2.0", "id": nil}
-	//----------
+	//--------------------
 	if isNumber(rpcObject.RequestMap["id"]) || isString(rpcObject.RequestMap["id"]) {
 		responseMap["id"] = rpcObject.RequestMap["id"]
 	}
-	//----------
+	//--------------------
 	responseMap["error"] = error
 	//--------------------------------------------------
 	responseString, err := RPC_encode_json(responseMap)
@@ -512,7 +512,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_server_error(Data ...any) error {
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32000, "message": "server error"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -530,7 +530,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_request(Data ...any) error 
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32600, "message": "invalid request"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -548,7 +548,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_method_not_found(Data ...any) error
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32601, "message": "method not found"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -566,7 +566,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_invalid_params(Data ...any) error {
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32602, "message": "invalid params"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -584,7 +584,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_internal_error(Data ...any) error {
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32603, "message": "internal error"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -602,7 +602,7 @@ func (rpcObject *RPCStruct) RPC_send_jsonrpc_parse_error(Data ...any) error {
 
 	//--------------------------------------------------
 	errorMap := map[string]any{"code": -32700, "message": "parse error"}
-	//----------
+	//--------------------
 	if Data != nil && Data[0] != nil {
 
 		errorMap["data"] = Data[0]
@@ -632,23 +632,23 @@ func (rpcObject *RPCStruct) RPC_echo() {
 	//--------------------------------------------------
 	REGEXP := regexp.MustCompile(`(?i)^X`)
 	for name, values := range rpcObject.HttpRequest.Header {
-		//----------
+		//--------------------
 		if REGEXP.FindString(name) != "" {
-			//----------
+			//--------------------
 			rpcObject.ResponseWriter.Header().Set(name, strings.Join(values, ", "))
-			//----------
+			//--------------------
 			if strings.EqualFold(name, "X-Debug") && strings.EqualFold(values[0], "true") {
-				//----------
+				//--------------------
 				fmt.Println("\n" + strings.Repeat("-", 40))
 				fmt.Println(rpcObject.HttpRequest.Method, rpcObject.HttpRequest.URL.String(), rpcObject.HttpRequest.Proto)
 				fmt.Println(strings.Repeat("-", 40))
 				fmt.Println(rpcObject.RequestString)
 				fmt.Println(strings.Repeat("-", 40) + "\n")
-				//----------
+				//--------------------
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	rpcObject.RPC_send_response(rpcObject.RequestString)
@@ -671,23 +671,23 @@ func (rpcObject *RPCStruct) JSONRPC_echo() {
 	//--------------------------------------------------
 	REGEXP := regexp.MustCompile(`(?i)^X`)
 	for name, values := range rpcObject.HttpRequest.Header {
-		//----------
+		//--------------------
 		if REGEXP.FindString(name) != "" {
-			//----------
+			//--------------------
 			rpcObject.ResponseWriter.Header().Set(name, strings.Join(values, ", "))
-			//----------
+			//--------------------
 			if strings.EqualFold(name, "X-Debug") && strings.EqualFold(values[0], "true") {
-				//----------
+				//--------------------
 				fmt.Println("\n" + strings.Repeat("-", 40))
 				fmt.Println(rpcObject.HttpRequest.Method, rpcObject.HttpRequest.URL.String(), rpcObject.HttpRequest.Proto)
 				fmt.Println(strings.Repeat("-", 40))
 				fmt.Println(rpcObject.RequestString)
 				fmt.Println(strings.Repeat("-", 40) + "\n")
-				//----------
+				//--------------------
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------
 	rpcObject.RPC_send_jsonrpc_result(rpcObject.RequestString)
@@ -708,21 +708,21 @@ func RPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Request) 
 	var err error
 	//--------------------------------------------------
 	var rpcObject RPCStruct
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = responseWriter
 	rpcObject.HttpRequest = httpRequest
-	//----------
+	//--------------------
 	rpcObject.ResponseURL = rpcObject.HttpRequest.URL.String()
-	//----------
+	//--------------------
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": ContentTypeJSON}
-	//----------
+	//--------------------
 	err = rpcObject.RPC_read_json_request()
 	//--------------------------------------------------
 	if err != nil {
 
-		//----------
+		//--------------------
 		rpcObject.RPC_send_error_response(fmt.Sprint(err))
-		//----------
+		//--------------------
 
 	} else {
 
@@ -730,9 +730,9 @@ func RPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Request) 
 		method, exists := rpcObject.RequestMap["method"]
 		if !exists {
 
-			//----------
+			//--------------------
 			rpcObject.RPC_send_error_response("method is not defined")
-			//----------
+			//--------------------
 
 		} else {
 
@@ -762,26 +762,26 @@ func JSONRPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Reque
 	var err error
 	//--------------------------------------------------
 	var rpcObject RPCStruct
-	//----------
+	//--------------------
 	rpcObject.ResponseWriter = responseWriter
 	rpcObject.HttpRequest = httpRequest
-	//----------
+	//--------------------
 	rpcObject.ResponseURL = rpcObject.HttpRequest.URL.String()
-	//----------
+	//--------------------
 	contentType := httpRequest.Header.Get("Content-Type")
 	if contentType == "" {
 		contentType = ContentTypeJSON
 	}
-	//----------
+	//--------------------
 	rpcObject.ResponseHeadersMap = map[string]string{"Content-Type": contentType}
-	//----------
+	//--------------------
 	err = rpcObject.RPC_read_jsonrpc_request()
 	//--------------------------------------------------
 	if err != nil {
 
-		//----------
+		//--------------------
 		rpcObject.RPC_send_jsonrpc_parse_error(fmt.Sprint(err))
-		//----------
+		//--------------------
 
 	} else {
 
@@ -789,15 +789,15 @@ func JSONRPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Reque
 		method, exists := rpcObject.RequestMap["method"]
 		if !exists {
 
-			//----------
+			//--------------------
 			rpcObject.RPC_send_jsonrpc_method_not_found(rpcObject.RequestMap["method"])
-			//----------
+			//--------------------
 
 		} else if rpcObject.RequestMap["params"] != nil && !isArray(rpcObject.RequestMap["params"]) && !isObject(rpcObject.RequestMap["params"]) {
 
-			//----------
+			//--------------------
 			rpcObject.RPC_send_jsonrpc_invalid_params(rpcObject.RequestMap["params"])
-			//----------
+			//--------------------
 
 		} else {
 
@@ -846,24 +846,24 @@ func GetRemoteIPAddr(httpRequest *http.Request) string {
 	}
 	//--------------------------------------------------
 	ips = strings.Split(ipAddr, ",")
-	//----------
+	//--------------------
 	if len(ips) >= 1 {
-		//----------
+		//--------------------
 		ipAddr = ips[0]
-		//----------
+		//--------------------
 		ipAddr = strings.TrimSpace(ipAddr)
-		//----------
+		//--------------------
 		colonIndex := strings.Index(ipAddr, ":")
 		if colonIndex >= 0 {
 			ipAddr = ipAddr[:colonIndex]
 		}
-		//----------
+		//--------------------
 	} else {
-		//----------
+		//--------------------
 		ipAddr = ""
-		//----------
+		//--------------------
 	}
-	//----------
+	//--------------------
 	return ipAddr
 	//--------------------------------------------------
 }

@@ -238,7 +238,7 @@ func TestRPC_encode_jsonrpc_response(t *testing.T) {
 	//--------------------------------------------------
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -263,7 +263,7 @@ func TestRPC_encode_jsonrpc_request(t *testing.T) {
 	//--------------------------------------------------
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID, "method": "echo"}
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"id":%d,"jsonrpc":"2.0","method":"echo"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -289,7 +289,7 @@ func TestRPC_encode_jsonrpc_result_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	RESULT := true
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"id":%d,"jsonrpc":"2.0","result":true}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -315,7 +315,7 @@ func TestRPC_encode_jsonrpc_error_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	ERROR_MAP := map[string]any{"code": -32000, "message": "server error"}
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32000,"message":"server error"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -341,7 +341,7 @@ func TestRPC_encode_jsonrpc_server_error_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32000,"data":"some data","message":"server error"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -367,7 +367,7 @@ func TestRPC_encode_jsonrpc_invalid_request_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32600,"data":"some data","message":"invalid request"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -393,7 +393,7 @@ func TestRPC_encode_jsonrpc_method_not_found_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32601,"data":"some data","message":"method not found"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -419,7 +419,7 @@ func TestRPC_encode_jsonrpc_invalid_params_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32602,"data":"some data","message":"invalid params"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -445,7 +445,7 @@ func TestRPC_encode_jsonrpc_internal_error_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32603,"data":"some data","message":"internal error"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}
@@ -471,7 +471,7 @@ func TestRPC_encode_jsonrpc_parse_error_response(t *testing.T) {
 	ID := auto.ID()
 	REQUEST_MAP := map[string]any{"id": ID}
 	DATA := "some data"
-	//----------
+	//--------------------
 	EXPECTED_RESULT := fmt.Sprintf(`{"error":{"code":-32700,"data":"some data","message":"parse error"},"id":%d,"jsonrpc":"2.0"}`, ID)
 	//----------------------------------------
 	jsonrpc := RPC_jsonrpcStruct{RequestMap: REQUEST_MAP}

@@ -131,7 +131,7 @@ func (jsonrpc *RPC_jsonrpcStruct) RPC_encode_jsonrpc_request() (string, error) {
 	}
 	//--------------------------------------------------
 	jsonrpc.RequestMap["jsonrpc"] = "2.0"
-	//----------
+	//--------------------
 	if jsonrpc.RequestMap["id"] == nil {
 		jsonrpc.RequestMap["id"] = auto.ID()
 	}
@@ -349,9 +349,9 @@ func RPC_decode_jsonrpc_request(requestString string) (map[string]any, error) {
 	var jsonInterface any
 	//--------------------------------------------------
 	requestMap := map[string]any{}
-	//----------
+	//--------------------
 	jsonInterface, err = RPC_decode_json(requestString)
-	//----------
+	//--------------------
 	if err == nil {
 
 		if isObject(jsonInterface) {
