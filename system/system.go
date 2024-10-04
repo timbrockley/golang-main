@@ -11,6 +11,7 @@ package system
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"runtime"
@@ -26,10 +27,10 @@ import (
 //--------------------------------------------------------------------------------
 
 //------------------------------------------------------------
-// ConvertToString
+// ToString
 //------------------------------------------------------------
 
-func ConvertToString(value any) string {
+func ToString(value any) string {
 	//------------------------------------------------------------
 	switch typedValue := value.(type) {
 	case string:
@@ -50,277 +51,208 @@ func ConvertToString(value any) string {
 }
 
 //------------------------------------------------------------
-// ConvertToBytes
+// ToBytes
 //------------------------------------------------------------
 
-func ConvertToBytes(value any) []byte {
+func ToBytes(value any) []byte {
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case []byte:
+		return typedValue
+	case string:
+		return []byte(typedValue)
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
+		return []byte(fmt.Sprint(typedValue))
+	default:
+		return []byte{}
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToInt
+//------------------------------------------------------------
+
+func ToInt(value any) int {
+	//------------------------------------------------------------
+	if value == nil {
+		return 0
+	}
 	//------------------------------------------------------------
 	switch typedValue := value.(type) {
 	case string:
-		return []byte(typedValue)
-	case []byte:
-		return typedValue
+		valueSplit := strings.Split(typedValue, ".")
+		if len(valueSplit) > 0 {
+			int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
+			return int(int64Val)
+		} else {
+			return 0
+		}
+	case int:
+		return int(typedValue)
+	case int32:
+		return int(typedValue)
+	case int64:
+		return int(typedValue)
+	case float32:
+		return int(typedValue)
+	case float64:
+		return int(typedValue)
+	case bool:
+		if typedValue {
+			return 1
+		} else {
+			return 0
+		}
+	default:
+		return 0
 	}
-	return []byte{}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToInt
+// ToInt32
 //------------------------------------------------------------
 
-func ConvertToInt(value any) int {
+func ToInt32(value any) int32 {
 	//------------------------------------------------------------
 	if value == nil {
-		//----------
 		return 0
-		//----------
-	} else {
-
-		if fmt.Sprintf("%T", value) == "string" {
-			//----------
-			valueSplit := strings.Split(value.(string), ".")
-			if len(valueSplit) > 0 {
-				int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
-				return int(int64Val)
-			} else {
-				return 0
-			}
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int" {
-			//----------
-			return value.(int)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int32" {
-			//----------
-			return value.(int)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int64" {
-			//----------
-			return value.(int)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float32" {
-			//----------
-			return int(value.(float32))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float64" {
-			//----------
-			return int(value.(float64))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "bool" {
-			//----------
-			if value.(bool) {
-				return 1
-			} else {
-				return 0
-			}
-			//----------
+	}
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case string:
+		valueSplit := strings.Split(typedValue, ".")
+		if len(valueSplit) > 0 {
+			int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
+			return int32(int64Val)
 		} else {
-			//----------
 			return 0
-			//----------
 		}
+	case int:
+		return int32(typedValue)
+	case int32:
+		return int32(typedValue)
+	case int64:
+		return int32(typedValue)
+	case float32:
+		return int32(typedValue)
+	case float64:
+		return int32(typedValue)
+	case bool:
+		if typedValue {
+			return 1
+		} else {
+			return 0
+		}
+	default:
+		return 0
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToInt32
+// ToInt64
 //------------------------------------------------------------
 
-func ConvertToInt32(value any) int32 {
+func ToInt64(value any) int64 {
 	//------------------------------------------------------------
 	if value == nil {
-		//----------
 		return 0
-		//----------
-	} else {
-
-		if fmt.Sprintf("%T", value) == "string" {
-			//----------
-			valueSplit := strings.Split(value.(string), ".")
-			if len(valueSplit) > 0 {
-				int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
-				return int32(int64Val)
-			} else {
-				return 0
-			}
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int" {
-			//----------
-			return value.(int32)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int32" {
-			//----------
-			return value.(int32)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int64" {
-			//----------
-			return value.(int32)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float32" {
-			//----------
-			return int32(value.(float32))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float64" {
-			//----------
-			return int32(value.(float64))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "bool" {
-			//----------
-			if value.(bool) {
-				return 1
-			} else {
-				return 0
-			}
-			//----------
+	}
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case string:
+		valueSplit := strings.Split(typedValue, ".")
+		if len(valueSplit) > 0 {
+			int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
+			return int64Val
 		} else {
-			//----------
 			return 0
-			//----------
 		}
+	case int:
+		return int64(typedValue)
+	case int32:
+		return int64(typedValue)
+	case int64:
+		return int64(typedValue)
+	case float32:
+		return int64(typedValue)
+	case float64:
+		return int64(typedValue)
+	case bool:
+		if typedValue {
+			return 1
+		} else {
+			return 0
+		}
+	default:
+		return 0
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToInt64
+// ToFloat
 //------------------------------------------------------------
 
-func ConvertToInt64(value any) int64 {
+func ToFloat(value any) float64 {
+	//------------------------------------------------------------
+	return ToFloat64(value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToFloat32
+//------------------------------------------------------------
+
+func ToFloat32(value any) float32 {
+	//------------------------------------------------------------
+	return float32(ToFloat64(value))
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToFloat64
+//------------------------------------------------------------
+
+func ToFloat64(value any) float64 {
 	//------------------------------------------------------------
 	if value == nil {
-		//----------
 		return 0
-		//----------
-	} else {
-
-		if fmt.Sprintf("%T", value) == "string" {
-			//----------
-			valueSplit := strings.Split(value.(string), ".")
-			if len(valueSplit) > 0 {
-				int64Val, _ := strconv.ParseInt(valueSplit[0], 10, 0)
-				return int64Val
-			} else {
-				return 0
-			}
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int" {
-			//----------
-			return value.(int64)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int32" {
-			//----------
-			return value.(int64)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int64" {
-			//----------
-			return value.(int64)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float32" {
-			//----------
-			return int64(value.(float32))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float64" {
-			//----------
-			return int64(value.(float64))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "bool" {
-			//----------
-			if value.(bool) {
-				return 1
-			} else {
-				return 0
-			}
-			//----------
+	}
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case string:
+		float64Val, _ := strconv.ParseFloat(value.(string), 64)
+		return float64Val
+	case int:
+		return float64(typedValue)
+	case int32:
+		return float64(typedValue)
+	case int64:
+		return float64(typedValue)
+	case float32:
+		return float64(typedValue)
+	case float64:
+		return float64(typedValue)
+	case bool:
+		if typedValue {
+			return 1
 		} else {
-			//----------
 			return 0
-			//----------
 		}
+	default:
+		return 0
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToFloat
+// ToBool
 //------------------------------------------------------------
 
-func ConvertToFloat(value any) float64 {
-	//------------------------------------------------------------
-	return ConvertToFloat64(value)
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ConvertToFloat32
-//------------------------------------------------------------
-
-func ConvertToFloat32(value any) float32 {
-	//------------------------------------------------------------
-	return float32(ConvertToFloat64(value))
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ConvertToFloat64
-//------------------------------------------------------------
-
-func ConvertToFloat64(value any) float64 {
-	//------------------------------------------------------------
-	if value == nil {
-		//----------
-		return 0
-		//----------
-	} else {
-
-		if fmt.Sprintf("%T", value) == "string" {
-			//----------
-			float64Val, _ := strconv.ParseFloat(value.(string), 64)
-			return float64Val
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int" {
-			//----------
-			return float64(value.(int))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int32" {
-			//----------
-			return float64(value.(int32))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "int64" {
-			//----------
-			return float64(value.(int64))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float32" {
-			//----------
-			return float64(value.(float32))
-			//----------
-		} else if fmt.Sprintf("%T", value) == "float64" {
-			//----------
-			return value.(float64)
-			//----------
-		} else if fmt.Sprintf("%T", value) == "bool" {
-			//----------
-			if value.(bool) {
-				return 1
-			} else {
-				return 0
-			}
-			//----------
-		} else {
-			//----------
-			return 0
-			//----------
-		}
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ConvertToBool
-//------------------------------------------------------------
-
-func ConvertToBool(value any) bool {
+func ToBool(value any) bool {
 	//------------------------------------------------------------
 	switch typedValue := value.(type) {
 	case string:
@@ -329,8 +261,71 @@ func ConvertToBool(value any) bool {
 		return typedValue != 0
 	case bool:
 		return typedValue
+	default:
+		return false
 	}
-	return false
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// CopyMap
+//------------------------------------------------------------
+
+func CopyMap(m map[string]interface{}) map[string]interface{} {
+	newMap := make(map[string]interface{})
+	for k, v := range m {
+		vm, ok := v.(map[string]interface{})
+		if ok {
+			newMap[k] = CopyMap(vm)
+		} else {
+			newMap[k] = v
+		}
+	}
+	return newMap
+}
+
+//------------------------------------------------------------
+// ToStringSlice
+//------------------------------------------------------------
+
+func ToStringSlice(value any) []string {
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case []string:
+		return typedValue
+	default:
+		return []string{}
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToIntSlice
+//------------------------------------------------------------
+
+func ToIntSlice(value any) []int {
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case []int:
+		return typedValue
+	default:
+		return []int{}
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToWriter
+//------------------------------------------------------------
+
+func ToWriter(value any) io.Writer {
+	//------------------------------------------------------------
+	switch typedValue := value.(type) {
+	case io.Writer:
+		return typedValue
+	default:
+		return io.Discard
+	}
 	//------------------------------------------------------------
 }
 
@@ -353,17 +348,17 @@ func GetENVs() map[string]string {
 	envs := map[string]string{}
 	//--------------------------------------------------------------------------------
 	for _, e := range os.Environ() {
-		//----------
+		//--------------------
 		pair := strings.SplitN(e, "=", 2)
-		//----------
+		//--------------------
 		if pair[0] != "" && pair[1] != "" {
-			//----------
+			//--------------------
 			key := pair[0]
-			//----------
+			//--------------------
 			envs[key] = pair[1]
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------------------------------------
 	return envs
@@ -389,13 +384,13 @@ func SetENVs(keyVals map[string]string) error {
 	var err error
 	//--------------------------------------------------------------------------------
 	for key, val := range keyVals {
-		//----------
+		//--------------------
 		err = os.Setenv(key, val)
-		//----------
+		//--------------------
 		if err != nil {
 			break
 		}
-		//----------
+		//--------------------
 	}
 	//--------------------------------------------------------------------------------
 	return err
@@ -411,28 +406,28 @@ func LoadENVs(FilePath ...string) error {
 	var filePath, filename string
 	//--------------------------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-		//----------
+		//--------------------
 		filePath = FilePath[0]
-		//----------
-		if isDir, _ := file.IsDir(filePath); isDir {
+		//--------------------
+		if IsDirectory, _ := file.IsDirectory(filePath); IsDirectory {
 			filename = FindENVFilename(filePath)
 			filePath = file.FilePathJoin(filePath, filename)
 		}
-		//----------
+		//--------------------
 	} else {
-		//----------
+		//--------------------
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
-		//----------
+		//--------------------
 		filename = FindENVFilename(file.Path(filePath))
 		filePath = file.FilePathJoin(file.Path(filePath), filename)
-		//----------
+		//--------------------
 		// if !file.FilePathExists(filePath) {
 		// 	return nil
 		// }
-		//----------
+		//--------------------
 	}
-	//----------
+	//--------------------
 	return godotenv.Load(filePath)
 	//--------------------------------------------------------------------------------
 }
@@ -444,9 +439,9 @@ func LoadENVs(FilePath ...string) error {
 func FindENVFilename(path string) string {
 	//------------------------------------------------------------
 	HOSTNAME := strings.ToLower(GetHostname())
-	//----------
+	//--------------------
 	dockerYesNo := file.FilePathExists("/.dockerenv")
-	//----------
+	//--------------------
 	OS := strings.ToLower(GetOS())
 	//------------------------------------------------------------
 	FILENAME_HOSTNAME_DOCKER_EXT := "." + HOSTNAME + "_docker.env"
@@ -517,7 +512,7 @@ func GetLocalIPAddr() string {
 	ip_addr := ""
 	//--------------------------------------------------------------------------------
 	ip_addrs, _ := GetLocalIPs()
-	//----------
+	//--------------------
 	if fmt.Sprintf("%T", ip_addrs) == "[]net.IP" && ip_addrs[0] != nil {
 		ip_addr = fmt.Sprintf("%v", ip_addrs[0])
 	} else {

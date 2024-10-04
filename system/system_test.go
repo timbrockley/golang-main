@@ -4,6 +4,7 @@ package system
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"testing"
@@ -14,322 +15,346 @@ import (
 //------------------------------------------------------------
 
 //------------------------------------------------------------
-// ConvertToString
+// ToString
 //------------------------------------------------------------
 
-func TestConvertToString(t *testing.T) {
+func TestToString(t *testing.T) {
 	//------------------------------------------------------------
-	stringVal := ConvertToString("stringVal")
+	stringVal := ToString("stringVal")
 	//------------------------------------------------------------
 	if stringVal != "stringVal" {
-
-		t.Errorf("ConvertToString(\"stringVal\") = %q but should = %q", stringVal, "stringVal")
+		t.Errorf("ToString(\"stringVal\") = %q but should = %q", stringVal, "stringVal")
 	}
 	//------------------------------------------------------------
-	bytesVal := ConvertToString([]byte("bytesVal"))
+	bytesVal := ToString([]byte("bytesVal"))
 	//------------------------------------------------------------
 	if string(bytesVal) != "bytesVal" {
-
-		t.Errorf("ConvertToString([]byte(\"bytesVal\")) = %q but should = %q", bytesVal, []byte("bytesVal"))
+		t.Errorf("ToString([]byte(\"bytesVal\")) = %q but should = %q", bytesVal, []byte("bytesVal"))
 	}
 	//------------------------------------------------------------
-	intVal := ConvertToString(123)
+	intVal := ToString(123)
 	//------------------------------------------------------------
 	if intVal != "123" {
-
-		t.Errorf("ConvertToString(123) = %q but should = %q", intVal, "123")
+		t.Errorf("ToString(123) = %q but should = %q", intVal, "123")
 	}
 	//------------------------------------------------------------
-	floatVal := ConvertToString(123.456)
+	floatVal := ToString(123.456)
 	//------------------------------------------------------------
 	if floatVal != "123.456" {
-
-		t.Errorf("ConvertToString(123.456) = %q but should = %q", floatVal, "123.456")
+		t.Errorf("ToString(123.456) = %q but should = %q", floatVal, "123.456")
 	}
 	//------------------------------------------------------------
-	boolVal1 := ConvertToString(true)
+	boolVal1 := ToString(true)
 	//------------------------------------------------------------
 	if boolVal1 != "true" {
-
-		t.Error("ConvertToString(true) = \"false\" but should = \"true\"")
+		t.Error("ToString(true) = \"false\" but should = \"true\"")
 	}
 	//------------------------------------------------------------
-	boolVal2 := ConvertToString(false)
+	boolVal2 := ToString(false)
 	//------------------------------------------------------------
 	if boolVal2 != "false" {
-
-		t.Error("ConvertToString(false) = \"true\" but should = \"false\"")
+		t.Error("ToString(false) = \"true\" but should = \"false\"")
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToBytes
+// ToBytes
 //------------------------------------------------------------
 
-func TestConvertToBytes(t *testing.T) {
+func TestToBytes(t *testing.T) {
 	//------------------------------------------------------------
-	stringVal := ConvertToBytes("stringVal")
+	bytesVal := ToBytes([]byte{0x31, 0x32, 0x33})
+	//------------------------------------------------------------
+	if fmt.Sprintf("%#v", bytesVal) != "[]byte{0x31, 0x32, 0x33}" {
+		t.Errorf("ToBytes(\"stringVal\") = %q but should = %q", bytesVal, []byte{0x31, 0x32, 0x33})
+	}
+	//------------------------------------------------------------
+	stringVal := ToBytes("stringVal")
 	//------------------------------------------------------------
 	if string(stringVal) != "stringVal" {
 
-		t.Errorf("ConvertToBytes(\"stringVal\") = %q but should = %q", stringVal, []byte("stringVal"))
+		t.Errorf("ToBytes(\"stringVal\") = %q but should = %q", stringVal, []byte("stringVal"))
 	}
 	//------------------------------------------------------------
-	bytesVal := ConvertToBytes([]byte("bytesVal"))
+	intVal := ToBytes(123)
 	//------------------------------------------------------------
-	if string(bytesVal) != "bytesVal" {
-
-		t.Errorf("ConvertToBytes([]byte(\"bytesVal\")) = %v but should = %v", bytesVal, []byte("bytesVal"))
+	if fmt.Sprintf("%#v", intVal) != "[]byte{0x31, 0x32, 0x33}" {
+		t.Errorf("ToBytes(123) = %v but should = %v", intVal, []byte{0x31, 0x32, 0x33})
 	}
 	//------------------------------------------------------------
-	intVal1 := ConvertToBytes(123)
+	floatVal := ToBytes(123.456)
 	//------------------------------------------------------------
-	// if fmt.Sprintf("%#v", intVal1) != "[]byte{0x7b}" {
-
-	// 	t.Errorf("ConvertToBytes(123) = %v but should = %v", intVal1, []byte{123})
-	// }
-	if fmt.Sprintf("%#v", intVal1) != "[]byte{}" {
-
-		t.Errorf("ConvertToBytes(123) = %v but should = %v", intVal1, []byte{})
+	if fmt.Sprintf("%#v", floatVal) != "[]byte{0x31, 0x32, 0x33, 0x2e, 0x34, 0x35, 0x36}" {
+		t.Errorf("ToBytes(123.456) = %v but should = %v", floatVal, []byte{0x31, 0x32, 0x33, 0x2e, 0x34, 0x35, 0x36})
 	}
 	//------------------------------------------------------------
-	intVal2 := ConvertToBytes(257)
+	boolVal := ToBytes(true)
 	//------------------------------------------------------------
-	// if fmt.Sprintf("%#v", intVal2) != "[]byte{0x1}" {
-
-	// 	t.Errorf("ConvertToBytes(257) = %v but should = %v", intVal2, []byte{1})
-	// }
-	if fmt.Sprintf("%#v", intVal2) != "[]byte{}" {
-
-		t.Errorf("ConvertToBytes(257) = %v but should = %v", intVal2, []byte{})
-	}
-	//------------------------------------------------------------
-	floatVal := ConvertToBytes(123.456)
-	//------------------------------------------------------------
-	if fmt.Sprintf("%#v", floatVal) != "[]byte{}" {
-
-		t.Errorf("ConvertToBytes(123.456) = %v but should = %v", floatVal, []byte{})
-	}
-	//------------------------------------------------------------
-	boolVal1 := ConvertToBytes(true)
-	//------------------------------------------------------------
-	if fmt.Sprintf("%#v", boolVal1) != "[]byte{}" {
-
-		t.Errorf("ConvertToBytes(true) = %v but should = %v", boolVal1, []byte{})
-	}
-	//------------------------------------------------------------
-	boolVal2 := ConvertToBytes(false)
-	//------------------------------------------------------------
-	if fmt.Sprintf("%#v", boolVal2) != "[]byte{}" {
-
-		t.Errorf("ConvertToBytes(false) = %v but should = %v", boolVal2, []byte{})
+	if fmt.Sprintf("%#v", boolVal) != "[]byte{}" {
+		t.Errorf("ToBytes(true) = %v but should = %v", boolVal, []byte{})
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToInt
+// ToInt
 //------------------------------------------------------------
 
-func TestConvertToInt(t *testing.T) {
+func TestToInt(t *testing.T) {
 	//------------------------------------------------------------
-	stringVal1 := ConvertToInt("stringVal")
+	stringVal1 := ToInt("stringVal")
 	//------------------------------------------------------------
 	if stringVal1 != 0 {
-
-		t.Errorf("ConvertToInt(\"stringVal\") = %d but should = %d", stringVal1, 0)
+		t.Errorf("ToInt(\"stringVal\") = %d but should = %d", stringVal1, 0)
 	}
 	//------------------------------------------------------------
-	stringVal2 := ConvertToInt("123")
+	stringVal2 := ToInt("123")
 	//------------------------------------------------------------
 	if stringVal2 != 123 {
-
-		t.Errorf("ConvertToInt(\"123\") = %d but should = %d", stringVal2, 123)
+		t.Errorf("ToInt(\"123\") = %d but should = %d", stringVal2, 123)
 	}
 	//------------------------------------------------------------
-	stringVal3 := ConvertToInt("123.456")
+	stringVal3 := ToInt("123.456")
 	//------------------------------------------------------------
 	if stringVal3 != 123 {
-
-		t.Errorf("ConvertToInt(\"123.456\") = %d but should = %d", stringVal3, 123)
+		t.Errorf("ToInt(\"123.456\") = %d but should = %d", stringVal3, 123)
 	}
 	//------------------------------------------------------------
-	bytesVal := ConvertToInt("bytesVal")
+	bytesVal := ToInt("bytesVal")
 	//------------------------------------------------------------
 	if bytesVal != 0 {
-
-		t.Errorf("ConvertToInt([]byte(\"bytesVal\")) = %d but should = %d", bytesVal, 0)
+		t.Errorf("ToInt([]byte(\"bytesVal\")) = %d but should = %d", bytesVal, 0)
 	}
 	//------------------------------------------------------------
-	intVal := ConvertToInt(123)
+	intVal := ToInt(123)
 	//------------------------------------------------------------
 	if intVal != 123 {
-
-		t.Errorf("ConvertToInt(123) = %d but should = %d", intVal, 123)
+		t.Errorf("ToInt(123) = %d but should = %d", intVal, 123)
 	}
 	//------------------------------------------------------------
-	floatVal := ConvertToInt(123.456)
+	floatVal := ToInt(123.456)
 	//------------------------------------------------------------
 	if floatVal != 123 {
-
-		t.Errorf("ConvertToInt(123.456) = %d but should = %d", floatVal, 123)
+		t.Errorf("ToInt(123.456) = %d but should = %d", floatVal, 123)
 	}
 	//------------------------------------------------------------
-	boolVal1 := ConvertToInt(true)
+	boolVal1 := ToInt(true)
 	//------------------------------------------------------------
 	if boolVal1 != 1 {
-
-		t.Errorf("ConvertToInt(true) = %d but should = %d", boolVal1, 1)
+		t.Errorf("ToInt(true) = %d but should = %d", boolVal1, 1)
 	}
 	//------------------------------------------------------------
-	boolVal2 := ConvertToInt(false)
+	boolVal2 := ToInt(false)
 	//------------------------------------------------------------
 	if boolVal2 != 0 {
-
-		t.Errorf("ConvertToInt(false) = %d but should = %d", boolVal2, 0)
+		t.Errorf("ToInt(false) = %d but should = %d", boolVal2, 0)
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToFloat
+// ToFloat
 //------------------------------------------------------------
 
-func TestConvertToFloat(t *testing.T) {
+func TestToFloat(t *testing.T) {
 	//------------------------------------------------------------
-	stringVal1 := ConvertToFloat("stringVal")
+	stringVal1 := ToFloat("stringVal")
 	//------------------------------------------------------------
 	if stringVal1 != 0 {
-
-		t.Errorf("ConvertToFloat(\"stringVal\") = %v but should = %v", stringVal1, 0)
+		t.Errorf("ToFloat(\"stringVal\") = %v but should = %v", stringVal1, 0)
 	}
 	//------------------------------------------------------------
-	stringVal2 := ConvertToFloat("123")
+	stringVal2 := ToFloat("123")
 	//------------------------------------------------------------
 	if stringVal2 != 123 {
-
-		t.Errorf("ConvertToFloat(\"123\") = %v but should = %v", stringVal2, 123)
+		t.Errorf("ToFloat(\"123\") = %v but should = %v", stringVal2, 123)
 	}
 	//------------------------------------------------------------
-	stringVal3 := ConvertToFloat("123.456")
+	stringVal3 := ToFloat("123.456")
 	//------------------------------------------------------------
 	if stringVal3 != 123.456 {
-
-		t.Errorf("ConvertToFloat(\"123.456\") = %v but should = %v", stringVal3, 123.456)
+		t.Errorf("ToFloat(\"123.456\") = %v but should = %v", stringVal3, 123.456)
 	}
 	//------------------------------------------------------------
-	bytesVal := ConvertToFloat("bytesVal")
+	bytesVal := ToFloat("bytesVal")
 	//------------------------------------------------------------
 	if bytesVal != 0 {
-
-		t.Errorf("ConvertToFloat([]byte(\"bytesVal\")) = %v but should = %v", bytesVal, 0)
+		t.Errorf("ToFloat([]byte(\"bytesVal\")) = %v but should = %v", bytesVal, 0)
 	}
 	//------------------------------------------------------------
-	intVal := ConvertToFloat(123)
+	intVal := ToFloat(123)
 	//------------------------------------------------------------
 	if intVal != 123 {
-
-		t.Errorf("ConvertToFloat(\"intVal\") = %v but should = %v", intVal, 123)
+		t.Errorf("ToFloat(\"intVal\") = %v but should = %v", intVal, 123)
 	}
 	//------------------------------------------------------------
-	floatVal := ConvertToFloat(123.456)
+	floatVal := ToFloat(123.456)
 	//------------------------------------------------------------
 	if floatVal != 123.456 {
-
-		t.Errorf("ConvertToFloat(\"floatVal\") = %v but should = %v", floatVal, 123.456)
+		t.Errorf("ToFloat(\"floatVal\") = %v but should = %v", floatVal, 123.456)
 	}
 	//------------------------------------------------------------
-	boolVal1 := ConvertToFloat(true)
+	boolVal1 := ToFloat(true)
 	//------------------------------------------------------------
 	if boolVal1 != 1 {
-
-		t.Errorf("ConvertToFloat(true) = %v but should = %v", boolVal1, 1)
+		t.Errorf("ToFloat(true) = %v but should = %v", boolVal1, 1)
 	}
 	//------------------------------------------------------------
-	boolVal2 := ConvertToFloat(false)
+	boolVal2 := ToFloat(false)
 	//------------------------------------------------------------
 	if boolVal2 != 0 {
-
-		t.Errorf("ConvertToFloat(false) = %v but should = %v", boolVal2, 0)
+		t.Errorf("ToFloat(false) = %v but should = %v", boolVal2, 0)
 	}
 	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
-// ConvertToBool
+// ToBool
 //------------------------------------------------------------
 
-func TestConvertToBool(t *testing.T) {
+func TestToBool(t *testing.T) {
 	//------------------------------------------------------------
-	stringVal1 := ConvertToBool("")
+	stringVal1 := ToBool("")
 	//------------------------------------------------------------
 	if stringVal1 {
-
-		t.Errorf("ConvertToBool(\"\") = %v but should = %v", stringVal1, false)
+		t.Errorf("ToBool(\"\") = %v but should = %v", stringVal1, false)
 	}
 	//------------------------------------------------------------
-	stringVal2 := ConvertToBool("123")
+	stringVal2 := ToBool("123")
 	//------------------------------------------------------------
 	if !stringVal2 {
-
-		t.Errorf("ConvertToBool(123) = %v but should = %v", stringVal2, true)
+		t.Errorf("ToBool(123) = %v but should = %v", stringVal2, true)
 	}
 	//------------------------------------------------------------
-	stringVal3 := ConvertToBool("true")
+	stringVal3 := ToBool("true")
 	//------------------------------------------------------------
 	if !stringVal3 {
-
-		t.Errorf("ConvertToBool(\"true\") = %v but should = %v", stringVal3, true)
+		t.Errorf("ToBool(\"true\") = %v but should = %v", stringVal3, true)
 	}
 	//------------------------------------------------------------
-	stringVal4 := ConvertToBool("false")
+	stringVal4 := ToBool("false")
 	//------------------------------------------------------------
 	if stringVal4 {
-
-		t.Errorf("ConvertToBool(\"false\") = %v but should = %v", stringVal4, false)
+		t.Errorf("ToBool(\"false\") = %v but should = %v", stringVal4, false)
 	}
 	//------------------------------------------------------------
-	stringVal5 := ConvertToBool("true")
+	stringVal5 := ToBool("true")
 	//------------------------------------------------------------
 	if !stringVal5 {
-
-		t.Errorf("ConvertToBool(\"true\") = %v but should = %v", stringVal5, true)
+		t.Errorf("ToBool(\"true\") = %v but should = %v", stringVal5, true)
 	}
 	//------------------------------------------------------------
-	bytesVal := ConvertToBool([]byte{})
+	bytesVal := ToBool([]byte{})
 	//------------------------------------------------------------
 	if bytesVal {
-
-		t.Errorf("ConvertToBool([]byte(\"bytesVal\")) = %v but should = %v", bytesVal, false)
+		t.Errorf("ToBool([]byte(\"bytesVal\")) = %v but should = %v", bytesVal, false)
 	}
 	//------------------------------------------------------------
-	intVal := ConvertToBool(123)
+	intVal := ToBool(123)
 	//------------------------------------------------------------
 	if !intVal {
-
-		t.Errorf("ConvertToBool(123) = %v but should = %v", intVal, true)
+		t.Errorf("ToBool(123) = %v but should = %v", intVal, true)
 	}
 	//------------------------------------------------------------
-	floatVal := ConvertToBool(123.456)
+	floatVal := ToBool(123.456)
 	//------------------------------------------------------------
 	if !floatVal {
-
-		t.Errorf("ConvertToBool(123.456) = %v but should = %v", floatVal, true)
+		t.Errorf("ToBool(123.456) = %v but should = %v", floatVal, true)
 	}
 	//------------------------------------------------------------
-	boolVal1 := ConvertToBool(true)
+	boolVal1 := ToBool(true)
 	//------------------------------------------------------------
 	if !boolVal1 {
-
-		t.Error("ConvertToBool(true) = false but should = true")
+		t.Error("ToBool(true) = false but should = true")
 	}
 	//------------------------------------------------------------
-	boolVal2 := ConvertToBool(false)
+	boolVal2 := ToBool(false)
 	//------------------------------------------------------------
 	if boolVal2 {
+		t.Error("ToBool(false) = true but should = false")
+	}
+	//------------------------------------------------------------
+}
 
-		t.Error("ConvertToBool(false) = true but should = false")
+//------------------------------------------------------------
+// ToStringSlice
+//------------------------------------------------------------
+
+func TestToStringSlice(t *testing.T) {
+	//------------------------------------------------------------
+	stringSlice := ToStringSlice([]string{"1", "2", "3"})
+	//------------------------------------------------------------
+	if fmt.Sprintf("%#v", stringSlice) != `[]string{"1", "2", "3"}` {
+		t.Errorf(`ToStringSlice([]string{"1", "2", "3"}) = %v but should = %v`, fmt.Sprintf("%#v", stringSlice), `[]string{"1", "2", "3"}`)
+	}
+	//------------------------------------------------------------
+	stringVal := ToStringSlice("")
+	//------------------------------------------------------------
+	if fmt.Sprintf("%#v", stringVal) != "[]string{}" {
+		t.Errorf("ToStringSlice([]string{}) = %v but should = %v", fmt.Sprintf("%#v", stringVal), "[]string{}")
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToIntSlice
+//------------------------------------------------------------
+
+func TestToIntSlice(t *testing.T) {
+	//------------------------------------------------------------
+	intSlice := ToIntSlice([]int{1, 2, 3})
+	//------------------------------------------------------------
+	if fmt.Sprintf("%#v", intSlice) != `[]int{1, 2, 3}` {
+		t.Errorf(`ToIntSlice([]int{1, 2, 3}) = %v but should = %v`, fmt.Sprintf("%#v", intSlice), `[]int{1, 2, 3}`)
+	}
+	//------------------------------------------------------------
+	intVal := ToIntSlice("")
+	//------------------------------------------------------------
+	if fmt.Sprintf("%#v", intVal) != "[]int{}" {
+		t.Errorf("ToIntSlice([]int{}) = %v but should = %v", fmt.Sprintf("%#v", intVal), "[]int{}")
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ToWriter
+//------------------------------------------------------------
+
+func TestToWriter(t *testing.T) {
+	//------------------------------------------------------------
+	writerVal := ToWriter(io.Discard)
+	//------------------------------------------------------------
+	if writerVal == nil || fmt.Sprintf("%#v", writerVal) != "io.discard{}" {
+		t.Errorf("ToWriter(io.Discard) = %v but should = %v", fmt.Sprintf("%#v", writerVal), "io.discard{}")
+	}
+	//------------------------------------------------------------
+	stringVal := ToWriter("")
+	//------------------------------------------------------------
+	// if stringVal != nil {
+	// 	t.Errorf("ToWriter(\"\") = %v but should = %v", stringVal, nil)
+	// }
+	if stringVal == nil || fmt.Sprintf("%#v", stringVal) != "io.discard{}" {
+		t.Errorf("ToWriter(\"\") = %v but should = %v", stringVal, "io.discard{}")
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// CopyMap
+//------------------------------------------------------------
+
+func TestCopyMap(t *testing.T) {
+	//------------------------------------------------------------
+	map1 := map[string]any{"IntVal": 1}
+	map2 := CopyMap(map1)
+	map2["IntVal"] = 2
+	//------------------------------------------------------------
+	if map1["IntVal"] != 1 {
+		t.Errorf(`map1["IntVal"] = %d but should = %d`, map1["IntVal"], 1)
+	}
+	if map2["IntVal"] != 2 {
+		t.Errorf(`map2["IntVal"] = %d but should = %d`, map2["IntVal"], 2)
 	}
 	//------------------------------------------------------------
 }
@@ -447,7 +472,7 @@ func TestCLIParam(t *testing.T) {
 func TestGetENV(t *testing.T) {
 	//------------------------------------------------------------
 	os.Setenv("GOLANG_TEST", "TEST1234")
-	//----------
+	//--------------------
 	result := GetENV("GOLANG_TEST")
 	//------------------------------------------------------------
 	if result != "TEST1234" {
@@ -468,7 +493,7 @@ func TestGetENVs(t *testing.T) {
 	if result == nil {
 		t.Errorf("GetENVs = %v", result)
 	}
-	//----------
+	//--------------------
 	if os.Getenv("GOROOT") == "" {
 		t.Error("error getting environment variables")
 	}
@@ -482,7 +507,7 @@ func TestGetENVs(t *testing.T) {
 func TestSetENV(t *testing.T) {
 	//------------------------------------------------------------
 	SetENV("GOLANG_SETENV_TEST", "SETENV_TEST1234")
-	//----------
+	//--------------------
 	result := os.Getenv("GOLANG_SETENV_TEST")
 	//------------------------------------------------------------
 	if result != "SETENV_TEST1234" {
@@ -499,26 +524,26 @@ func TestSetENV(t *testing.T) {
 func TestSetENVs(t *testing.T) {
 	//------------------------------------------------------------
 	err := SetENVs(map[string]string{"GOLANG_SETENV_TEST1": "SETENV_TEST1", "GOLANG_SETENV_TEST2": "SETENV_TEST2"})
-	//----------
+	//--------------------
 	result1 := os.Getenv("GOLANG_SETENV_TEST1")
 	result2 := os.Getenv("GOLANG_SETENV_TEST2")
 	//------------------------------------------------------------
 	if err != nil {
-		//----------
+		//--------------------
 		t.Error(err)
-		//----------
+		//--------------------
 	} else {
-		//----------
+		//--------------------
 		if result1 != "SETENV_TEST1" {
 
 			t.Errorf("GOLANG_SETENV_TEST1 = %q", result1)
 		}
-		//----------
+		//--------------------
 		if result2 != "SETENV_TEST2" {
 
 			t.Errorf("GOLANG_SETENV_TEST2 = %q", result2)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -530,12 +555,12 @@ func TestSetENVs(t *testing.T) {
 func TestLoadENVs(t *testing.T) {
 	//------------------------------------------------------------
 	err := LoadENVs()
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
 	}
-	//----------
+	//--------------------
 	if os.Getenv("_SYSTEM_TEST") != "_SYSTEM_TEST_VALUE" {
 
 		t.Error("error getting environment variables")
