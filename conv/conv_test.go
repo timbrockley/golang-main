@@ -61,12 +61,12 @@ func TestBase64_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	dataString = "ABC <> &quot; \u00A3 \u65E5\u672C\u8A9E\U0001f427"
@@ -80,12 +80,12 @@ func TestBase64_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -140,12 +140,12 @@ func TestBase64url_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	dataString = "\u65E5\u672C\u8A9E\U0001f427"
@@ -159,12 +159,12 @@ func TestBase64url_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -293,12 +293,12 @@ func TestBase91_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	dataString = "May your trails be crooked, winding, lonesome, dangerous, leading to the most amazing view. May your mountains rise into and above the clouds."
@@ -312,12 +312,12 @@ func TestBase91_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	dataString = "May your trails be crooked, winding, lonesome, dangerous, leading to the most amazing view. May your mountains rise into and above the clouds."
@@ -331,12 +331,12 @@ func TestBase91_decode(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != dataString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -353,7 +353,7 @@ func TestJSON_MarshalIndent(t *testing.T) {
 
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
-	//----------
+	//--------------------
 	jsonString := "[\n\t{\n\t\t\"test_key1\": \"test_value1_<=>\"\n\t},\n\t{\n\t\t\"test_key2\": \"test_value2\"\n\t}\n]"
 	//------------------------------------------------------------
 
@@ -361,19 +361,19 @@ func TestJSON_MarshalIndent(t *testing.T) {
 	resultBytes, err := JSON_MarshalIndent(jsonMap, "", "\t")
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
 
 	} else {
 
-		//----------
+		//--------------------
 		if string(resultBytes) != jsonString {
 
 			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -386,7 +386,7 @@ func TestJSON_marshal(t *testing.T) {
 
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
-	//----------
+	//--------------------
 	jsonString := "[{\"test_key1\":\"test_value1_<=>\"},{\"test_key2\":\"test_value2\"}]"
 	//------------------------------------------------------------
 
@@ -394,19 +394,19 @@ func TestJSON_marshal(t *testing.T) {
 	resultBytes, err := JSON_Marshal(jsonMap)
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
 
 	} else {
 
-		//----------
+		//--------------------
 		if string(resultBytes) != jsonString {
 
 			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -419,7 +419,7 @@ func TestJSON_encode(t *testing.T) {
 
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1"}, map[string]interface{}{"test_key2": "test_value2"}}
-	//----------
+	//--------------------
 	jsonString := "[{\"test_key1\":\"test_value1\"},{\"test_key2\":\"test_value2\"}]"
 	//------------------------------------------------------------
 
@@ -427,19 +427,19 @@ func TestJSON_encode(t *testing.T) {
 	resultString, err := JSON_encode(jsonMap)
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
 
 	} else {
 
-		//----------
+		//--------------------
 		if resultString != jsonString {
 
 			t.Errorf("resultString = %q but should = %q", resultString, jsonString)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -452,7 +452,7 @@ func TestJSON_decode(t *testing.T) {
 
 	//------------------------------------------------------------
 	jsonString := "[{\"test_key1\":\"test_value1\"},{\"test_key2\":\"test_value2\"}]"
-	//----------
+	//--------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1"}, map[string]interface{}{"test_key2": "test_value2"}}
 	//------------------------------------------------------------
 
@@ -460,19 +460,19 @@ func TestJSON_decode(t *testing.T) {
 	resultMap, err := JSON_decode(jsonString)
 	//--------------------------------------------------
 
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
 
 	} else {
 
-		//----------
+		//--------------------
 		if fmt.Sprint(resultMap) != fmt.Sprint(jsonMap) {
 
 			t.Errorf("resultMap = %#v but should = %#v", resultMap, jsonMap)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
