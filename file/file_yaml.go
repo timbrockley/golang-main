@@ -73,11 +73,11 @@ func ReadYAMLFile(filePath string) (map[string]any, error) {
 	var err error
 	//------------------------------------------------------------
 	var yamlBytes []byte
-	//----------
+	//--------------------
 	yamlBytes, err = os.ReadFile(filePath)
-	//----------
+	//--------------------
 	yamlData := map[string]any{}
-	//----------
+	//--------------------
 	if err == nil {
 
 		err = yaml.Unmarshal([]byte(yamlBytes), &CustomYamlTagProcessor{&yamlData})

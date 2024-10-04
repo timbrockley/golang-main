@@ -54,7 +54,7 @@ func TestMain(t *testing.T) {
 // Lock method
 //------------------------------------------------------------
 
-func TestLockUnlock(t *testing.T) {
+func TestMutexLockUnlock(t *testing.T) {
 
 	//------------------------------------------------------------
 	var resultString, EXPECTED_string string
@@ -62,14 +62,14 @@ func TestLockUnlock(t *testing.T) {
 	//------------------------------------------------------------
 	resultString = fmt.Sprint(&FileMutex.SyncMutex)
 	EXPECTED_string = "&{0 0}"
-	//----------
+	//--------------------
 	if resultString != EXPECTED_string {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 0
-	//----------
+	//--------------------
 	if resultInt != EXPECTED_int {
 		t.Errorf("expected result = %d but should = %d", resultInt, EXPECTED_int)
 	}
@@ -80,14 +80,14 @@ func TestLockUnlock(t *testing.T) {
 	//------------------------------------------------------------
 	resultString = fmt.Sprint(&FileMutex.SyncMutex)
 	EXPECTED_string = "&{1 0}"
-	//----------
+	//--------------------
 	if resultString != EXPECTED_string {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 3
-	//----------
+	//--------------------
 	if resultInt != EXPECTED_int {
 		t.Errorf("expected result = %d but should = %d", resultInt, EXPECTED_int)
 	}
@@ -98,23 +98,23 @@ func TestLockUnlock(t *testing.T) {
 	//------------------------------------------------------------
 	resultString = fmt.Sprint(&FileMutex.SyncMutex)
 	EXPECTED_string = "&{0 0}"
-	//----------
+	//--------------------
 	if resultString != EXPECTED_string {
 		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
 	EXPECTED_int = 0
-	//----------
+	//--------------------
 	if resultInt != EXPECTED_int {
 		t.Errorf("expected result = %d but should = %d", resultInt, EXPECTED_int)
 	}
 	//------------------------------------------------------------
 	err := FileMutex.Unlock()
 	errString := fmt.Sprint(err)
-	//----------
+	//--------------------
 	EXPECTED_errString := "already unlocked"
-	//----------
+	//--------------------
 	if errString != EXPECTED_errString {
 		t.Errorf("errString = %q but should = %q", errString, EXPECTED_errString)
 	}
@@ -156,7 +156,7 @@ func TestIsDir(t *testing.T) {
 	var err error
 	var result bool
 	//------------------------------------------------------------
-	result, err = IsDir(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
+	result, err = IsDirectory(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
 	//------------------------------------------------------------
 	if err == nil || result {
 
@@ -164,7 +164,7 @@ func TestIsDir(t *testing.T) {
 		t.Errorf("result = %v but should = %v", result, false)
 	}
 	//------------------------------------------------------------
-	result, err = IsDir(`/`)
+	result, err = IsDirectory(`/`)
 	//------------------------------------------------------------
 	if err != nil || !result {
 
@@ -323,7 +323,7 @@ func TestFilePathSplit(t *testing.T) {
 
 		t.Errorf(`path = %q`, path)
 	}
-	//----------
+	//--------------------
 	if filename == "" {
 
 		t.Errorf(`filename = %q`, filename)
@@ -335,7 +335,7 @@ func TestFilePathSplit(t *testing.T) {
 
 		t.Errorf(`path = %q`, path)
 	}
-	//----------
+	//--------------------
 	if filename != "filename" {
 
 		t.Errorf(`filename = %q`, filename)
@@ -347,7 +347,7 @@ func TestFilePathSplit(t *testing.T) {
 
 		t.Errorf(`path = %q`, path)
 	}
-	//----------
+	//--------------------
 	if filename != "" {
 
 		t.Errorf(`filename = %q`, filename)
@@ -359,7 +359,7 @@ func TestFilePathSplit(t *testing.T) {
 
 		t.Errorf(`path = %q`, path)
 	}
-	//----------
+	//--------------------
 	if filename != "filename.txt" {
 
 		t.Errorf(`filename = %q`, filename)
@@ -581,7 +581,7 @@ func TestFileSave(t *testing.T) {
 
 	//------------------------------------------------------------
 	err := FileSave(testDataFilename, "<TEST_DATA>")
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
@@ -645,7 +645,7 @@ func TestFileRemove(t *testing.T) {
 	testTempFilename := testTempGolangPath + "/TEMP_FILE.txt"
 	//--------------------------------------------------------------------------------
 	err = FileSave(testTempFilename, "<TEST_DATA>")
-	//----------
+	//--------------------
 	if err != nil {
 
 		t.Error(err)
@@ -680,7 +680,7 @@ func TestTempPath(t *testing.T) {
 
 		t.Error(err)
 	}
-	//----------
+	//--------------------
 	if tempPath == "" {
 
 		t.Errorf("tempPath should not = %q", "")
@@ -701,7 +701,7 @@ func TestTempFilePath(t *testing.T) {
 
 		t.Error(err)
 	}
-	//----------
+	//--------------------
 	if tempFilePath == "" {
 
 		t.Errorf("tempFilePath should not = %q", "")
@@ -736,7 +736,7 @@ func TestLog(t *testing.T) {
 	var len1, len2, len3 int
 	//------------------------------------------------------------
 	dataBytes1, _ := os.ReadFile(testLogFilename)
-	//----------
+	//--------------------
 	len1 = len(dataBytes1)
 	//------------------------------------------------------------
 	err = Log("<TEST_DATA>")
@@ -747,16 +747,16 @@ func TestLog(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		dataBytes2, _ := os.ReadFile(testLogFilename)
-		//----------
+		//--------------------
 		len2 = len(dataBytes2)
-		//----------
+		//--------------------
 		if len1 >= len2 || len2 == 0 {
 
 			t.Error("error occurred while trying to write to log file")
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	err = Log("<TEST_DATA>", testLogFilename)
@@ -767,16 +767,16 @@ func TestLog(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		dataBytes3, _ := os.ReadFile(testLogFilename)
-		//----------
+		//--------------------
 		len3 = len(dataBytes3)
-		//----------
+		//--------------------
 		if len2 >= len3 || len3 == 0 {
 
 			t.Error("error occurred while trying to write to log file")
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }

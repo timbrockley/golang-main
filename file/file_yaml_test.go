@@ -24,9 +24,9 @@ func TestReadYAMLFile(t *testing.T) {
 	var yamlData map[string]any
 	//------------------------------------------------------------
 
-	//----------
+	//--------------------
 	yamlData, err = ReadYAMLFile("file_yaml_test.yaml")
-	//----------
+	//--------------------
 
 	//------------------------------------------------------------
 	if err != nil {
@@ -41,14 +41,14 @@ func TestReadYAMLFile(t *testing.T) {
 
 		} else {
 
-			//----------
+			//--------------------
 			if yamlData["UUID"] != testUUID {
 
 				t.Errorf("yamlData[\"UUID\"] equals %q but should equal %q\n", yamlData["UUID"], testUUID)
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -62,13 +62,13 @@ func TestAddYamlResolvers(t *testing.T) {
 	var yamlData map[string]any
 	//------------------------------------------------------------
 
-	//----------
+	//--------------------
 	AddYamlResolvers("!ord", resolveOrd)
-	//----------
+	//--------------------
 
-	//----------
+	//--------------------
 	yamlData, err = ReadYAMLFile("file_yaml_test.yaml")
-	//----------
+	//--------------------
 
 	//------------------------------------------------------------
 	if err != nil {
@@ -83,14 +83,14 @@ func TestAddYamlResolvers(t *testing.T) {
 
 		} else {
 
-			//----------
+			//--------------------
 			if yamlData["charToOrd"] != "65" {
 
 				t.Errorf("yamlData[\"charToOrd\"] equals %q but should equal %q\n", yamlData["charToOrd"], "65")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
