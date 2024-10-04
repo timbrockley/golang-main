@@ -58,7 +58,7 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ = runtime.Caller(0)
-	//----------
+	//--------------------
 	filePath = file.FilePathBase(filePath) + ".db"
 	//------------------------------------------------------------
 	sqlite_conn, err = Connect(SQLdbStruct{DBType: db_type, FilePath: filePath, AutoCreate: true}, false)
@@ -69,22 +69,22 @@ func TestConnect(t *testing.T) {
 
 	} else {
 
-		//----------
+		//--------------------
 		database := file.FilenameBase(filePath)
 		database_ext := file.FilenameExt(filePath)
-		//----------
+		//--------------------
 		if sqlite_conn.FilePath != filePath {
 			t.Errorf("filePath = %q but should = %q", sqlite_conn.FilePath, filePath)
 		}
-		//----------
+		//--------------------
 		if sqlite_conn.Database != database {
 			t.Errorf("Database = %q but should = %q", sqlite_conn.Database, database)
 		}
-		//----------
+		//--------------------
 		if sqlite_conn.DatabaseExt != database_ext {
 			t.Errorf("DatabaseExt = %q but should = %q", sqlite_conn.DatabaseExt, database_ext)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	// env_filePath := os.Getenv("SQLITE_FILEPATH")
@@ -93,56 +93,56 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	DATABASE := "_system"
 	DATABASE_EXT := "db"
-	//----------
+	//--------------------
 	FILEPATH := file.FilePathJoin(env_dataPath, env_database+"."+DATABASE_EXT)
 	//------------------------------------------------------------
 	sqlite_conn.FilePath = ""
-	//----------
+	//--------------------
 	sqlite_conn.Database = ""
 	sqlite_conn.DatabaseExt = ""
 	//------------------------------------------------------------
 	_ = sqlite_conn.Connect(true)
 	//------------------------------------------------------------
 	if FILEPATH != "/.db" {
-		//----------
+		//--------------------
 		if sqlite_conn.FilePath != FILEPATH {
 			t.Errorf("filePath = %q but should = %q", sqlite_conn.FilePath, FILEPATH)
 		}
-		//----------
+		//--------------------
 	}
-	//----------
+	//--------------------
 	if sqlite_conn.Database != DATABASE {
 		t.Errorf("Database = %q but should = %q", sqlite_conn.Database, DATABASE)
 	}
-	//----------
+	//--------------------
 	if sqlite_conn.DatabaseExt != DATABASE_EXT {
 		t.Errorf("DatabaseExt = %q but should = %q", sqlite_conn.DatabaseExt, DATABASE_EXT)
 	}
 	//------------------------------------------------------------
 	DATABASE = "test"
 	DATABASE_EXT = "db"
-	//----------
+	//--------------------
 	FILEPATH = file.FilePathJoin(env_dataPath, DATABASE+"."+DATABASE_EXT)
 	//------------------------------------------------------------
 	sqlite_conn.FilePath = ""
-	//----------
+	//--------------------
 	sqlite_conn.Database = "test"
 	sqlite_conn.DatabaseExt = ""
 	//------------------------------------------------------------
 	_ = sqlite_conn.Connect(true)
 	//------------------------------------------------------------
 	if FILEPATH != "/.db" {
-		//----------
+		//--------------------
 		if sqlite_conn.FilePath != FILEPATH {
 			t.Errorf("filePath = %q but should = %q", sqlite_conn.FilePath, FILEPATH)
 		}
-		//----------
+		//--------------------
 	}
-	//----------
+	//--------------------
 	if sqlite_conn.Database != DATABASE {
 		t.Errorf("Database = %q but should = %q", sqlite_conn.Database, DATABASE)
 	}
-	//----------
+	//--------------------
 	if sqlite_conn.DatabaseExt != DATABASE_EXT {
 		t.Errorf("DatabaseExt = %q but should = %q", sqlite_conn.DatabaseExt, DATABASE_EXT)
 	}
@@ -354,16 +354,16 @@ func TestQueryRecords(t *testing.T) {
 	time.Sleep(time.Second * 1)
 	//------------------------------------------------------------
 	records, err = mysql_conn.QueryRecords("SELECT * FROM test.cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if len(records) == 0 {
 			t.Errorf("len(records) = %d but should be greater than 0", len(records))
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -371,36 +371,36 @@ func TestQueryRecords(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	records, err = postgres_conn.QueryRecords("SELECT * FROM cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 1
-		//----------
+		//--------------------
 		if len(records) != length {
 			t.Errorf("len(records) = %d but should = %d", len(records), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]") {
 				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Mazda price:9001]")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["id"]) != "int64" {
 				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int64")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
 				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["price"]) != "int64" {
 				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int64")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -408,36 +408,36 @@ func TestQueryRecords(t *testing.T) {
 	// sqlite
 	//------------------------------------------------------------
 	records, err = sqlite_conn.QueryRecords("SELECT * FROM cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 1
-		//----------
+		//--------------------
 		if len(records) != length {
 			t.Errorf("len(records) = %d but should = %d", len(records), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]") {
 				t.Errorf("records[0] = %q but should = %q", fmt.Sprint(records[0]), "map[id:1 name:Skoda price:9000]")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["id"]) != "int" {
 				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["id"]), "int")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
 				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
 				t.Errorf(`records[0]["price"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["price"]), "int")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -449,13 +449,13 @@ func TestGetSQLTableInfo(t *testing.T) {
 	// GetSQLTableInfo
 	//------------------------------------------------------------
 	var err error
-	//----------
+	//--------------------
 	var columInfoRows []struct {
 		Sequence int
 		Name     string
 		Type     string
 	}
-	//----------
+	//--------------------
 	var columnInfoMap map[string]string
 	//------------------------------------------------------------
 
@@ -463,28 +463,28 @@ func TestGetSQLTableInfo(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = mysql_conn.GetSQLTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:int name:varchar price:int]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:int name:varchar price:int]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -492,28 +492,28 @@ func TestGetSQLTableInfo(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = postgres_conn.GetSQLTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id integer}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id integer}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:integer name:character varying price:integer]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:integer name:character varying price:integer]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -521,28 +521,28 @@ func TestGetSQLTableInfo(t *testing.T) {
 	// sqlite
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = sqlite_conn.GetSQLTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -554,13 +554,13 @@ func TestGetTableInfo(t *testing.T) {
 	// GetTableInfo
 	//------------------------------------------------------------
 	var err error
-	//----------
+	//--------------------
 	var columInfoRows []struct {
 		Sequence int
 		Name     string
 		Type     string
 	}
-	//----------
+	//--------------------
 	var columnInfoMap map[string]string
 	//------------------------------------------------------------
 
@@ -568,28 +568,28 @@ func TestGetTableInfo(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = mysql_conn.GetTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id int}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id int}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:INT name:VARCHAR price:INT]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT name:VARCHAR price:INT]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -597,28 +597,28 @@ func TestGetTableInfo(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = postgres_conn.GetTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
-			//----------
+			//--------------------
 		} else {
-			//----------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INT4}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INT4}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:INT4 name:VARCHAR price:INT4]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INT4 name:VARCHAR price:INT4]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -626,28 +626,28 @@ func TestGetTableInfo(t *testing.T) {
 	// sqlite
 	//------------------------------------------------------------
 	columInfoRows, columnInfoMap, err = sqlite_conn.GetTableInfo("cars")
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		length := 3
-		//----------
+		//--------------------
 		if len(columInfoRows) != length {
 			t.Errorf("len(columInfoRows) = %d but should = %d", len(columInfoRows), length)
 		} else {
-			//----------
-			//----------
+			//--------------------
+			//--------------------
 			if !strings.EqualFold(fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}") {
 				t.Errorf("columInfoRows[0] = %q but should = %q", fmt.Sprint(columInfoRows[0]), "{1 id INTEGER}")
 			}
-			//----------
+			//--------------------
 			if fmt.Sprint(columnInfoMap) != "map[id:INTEGER name:VARCHAR(255) price:INT]" {
 				t.Errorf("columnInfoMap = %q but should = %q", fmt.Sprint(columnInfoMap), "map[id:INTEGER name:VARCHAR(255) price:INT]")
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -665,17 +665,17 @@ func TestShowDatabases(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	databases, err = mysql_conn.ShowDatabases()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		testExists := slices.Contains(databases, "test")
-		//----------
+		//--------------------
 		if !testExists {
 			t.Errorf(`testExists = %t but should = %t`, testExists, true)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -683,17 +683,17 @@ func TestShowDatabases(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	databases, err = postgres_conn.ShowDatabases()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		testExists := slices.Contains(databases, "test")
-		//----------
+		//--------------------
 		if !testExists {
 			t.Errorf(`testExists = %t but should = %t`, testExists, true)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -706,17 +706,17 @@ func TestShowDatabases(t *testing.T) {
 	//
 
 	databases, err = sqlite_conn.ShowDatabases()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		testExists := slices.Contains(databases, "test")
-		//----------
+		//--------------------
 		if testExists {
 			t.Errorf(`testExists = %t but should = %t`, testExists, false)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -734,17 +734,17 @@ func TestShowTables(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	tables, err = mysql_conn.ShowTables()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		carsExists := slices.Contains(tables, "cars")
-		//----------
+		//--------------------
 		if !carsExists {
 			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -752,17 +752,17 @@ func TestShowTables(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	tables, err = postgres_conn.ShowTables()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		carsExists := slices.Contains(tables, "cars")
-		//----------
+		//--------------------
 		if !carsExists {
 			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -770,17 +770,17 @@ func TestShowTables(t *testing.T) {
 	// sqlite
 	//------------------------------------------------------------
 	tables, err = sqlite_conn.ShowTables()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		carsExists := slices.Contains(tables, "cars")
-		//----------
+		//--------------------
 		if !carsExists {
 			t.Errorf(`carsExists = %t but should = %t`, carsExists, true)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -798,19 +798,19 @@ func TestShowTablesMap(t *testing.T) {
 	// mysql
 	//------------------------------------------------------------
 	tablesMap, err = mysql_conn.ShowTablesMap()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		tableInfoMap := tablesMap["cars"]
-		//----------
+		//--------------------
 		EXPECTED_result := "map[id:INT name:VARCHAR price:INT]"
-		//----------
+		//--------------------
 		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
 			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -818,19 +818,19 @@ func TestShowTablesMap(t *testing.T) {
 	// postgres
 	//------------------------------------------------------------
 	tablesMap, err = postgres_conn.ShowTablesMap()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		tableInfoMap := tablesMap["cars"]
-		//----------
+		//--------------------
 		EXPECTED_result := "map[id:INT4 name:VARCHAR price:INT4]"
-		//----------
+		//--------------------
 		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
 			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -838,19 +838,19 @@ func TestShowTablesMap(t *testing.T) {
 	// sqlite
 	//------------------------------------------------------------
 	tablesMap, err = sqlite_conn.ShowTablesMap()
-	//----------
+	//--------------------
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		tableInfoMap := tablesMap["cars"]
-		//----------
+		//--------------------
 		EXPECTED_result := "map[id:INTEGER name:VARCHAR(255) price:INT]"
-		//----------
+		//--------------------
 		if fmt.Sprint(tableInfoMap) != EXPECTED_result {
 			t.Errorf(`tableInfoMap = %s but should = %s`, fmt.Sprint(tableInfoMap), EXPECTED_result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -874,12 +874,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != false {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	result, err = mysql_conn.TableExists("cars")
@@ -887,12 +887,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != true {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -904,12 +904,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != false {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	result, err = postgres_conn.TableExists("cars")
@@ -917,12 +917,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != true {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 
@@ -934,12 +934,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != false {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	result, err = sqlite_conn.TableExists("cars")
@@ -947,12 +947,12 @@ func TestTableExists(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		//----------
+		//--------------------
 		if result != true {
 
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -1002,7 +1002,7 @@ func TestCheckTableName(t *testing.T) {
 func TestEscapeApostrophes(t *testing.T) {
 	//------------------------------------------------------------
 	result := EscapeApostrophes(`1'2''3`)
-	//----------
+	//--------------------
 	EXPECTED_result := `1''2''''3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
@@ -1017,7 +1017,7 @@ func TestEscapeApostrophes(t *testing.T) {
 func TestEscapeDoubleQuotes(t *testing.T) {
 	//------------------------------------------------------------
 	result := EscapeDoubleQuotes(`1"2""3`)
-	//----------
+	//--------------------
 	EXPECTED_result := `1""2""""3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
@@ -1032,7 +1032,7 @@ func TestEscapeDoubleQuotes(t *testing.T) {
 func TestEscapeMySQLString(t *testing.T) {
 	//------------------------------------------------------------
 	result := EscapeMySQLString("\\_\x00_\r_\n_\x1A_\"_'")
-	//----------
+	//--------------------
 	EXPECTED_result := `\\_\` + "\x00" + `_\r_\n_\Z_\"_\'`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
@@ -1047,7 +1047,7 @@ func TestEscapeMySQLString(t *testing.T) {
 func TestEscapePostgreSQLString(t *testing.T) {
 	//------------------------------------------------------------
 	result := EscapePostgreSQLString(`TEST_'"\_TEST`)
-	//----------
+	//--------------------
 	EXPECTED_result := ` E'TEST_''"\\_TEST'`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {

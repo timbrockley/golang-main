@@ -24,15 +24,15 @@ import (
 //------------------------------------------------------------
 
 type SQLiteDBStruct struct {
-	//----------
+	//--------------------
 	FilePath    string
 	Database    string
 	DatabaseExt string
-	//----------
+	//--------------------
 	AutoCreate bool
-	//----------
+	//--------------------
 	DB *sql.DB
-	//----------
+	//--------------------
 }
 
 //------------------------------------------------------------
@@ -57,55 +57,55 @@ func (conn *SQLiteDBStruct) Connect() error {
 
 		if database == ":memory:" {
 
-			//----------
+			//--------------------
 			filePath = ":memory:"
 			databaseExt = ""
-			//----------
+			//--------------------
 
 		} else {
 
-			//----------
+			//--------------------
 			if databaseExt == "" {
 				databaseExt = file.FilenameExt(database)
 			}
-			//----------
+			//--------------------
 			if databaseExt != "" {
 				database = file.FilenameBase(database)
 			} else {
 				databaseExt = "db"
 			}
-			//----------
+			//--------------------
 			if filePath == "" {
 				filePath = file.Path()
 			}
-			//----------
+			//--------------------
 			filePath = file.FilePathJoin(filePath, database+"."+databaseExt)
-			//----------
+			//--------------------
 		}
 
 	} else {
 
 		if filePath == ":memory:" {
 
-			//----------
+			//--------------------
 			database = ":memory:"
 			databaseExt = ""
-			//----------
+			//--------------------
 
 		} else {
 
-			//----------
+			//--------------------
 			if filePath == "" {
-				//----------
+				//--------------------
 				// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 				_, filePath, _, _ = runtime.Caller(1)
-				//----------
+				//--------------------
 				filePath = file.FilePathBase(filePath) + ".db"
-				//----------
+				//--------------------
 			}
-			//----------
+			//--------------------
 			database = file.Filename(filePath)
-			//----------
+			//--------------------
 			if database != "" {
 				if databaseExt == "" {
 					databaseExt = file.FilenameExt(database)
@@ -116,9 +116,9 @@ func (conn *SQLiteDBStruct) Connect() error {
 					databaseExt = "db"
 				}
 			}
-			//----------
+			//--------------------
 		}
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	conn.FilePath = filePath
@@ -197,7 +197,7 @@ func (conn *SQLiteDBStruct) QueryRecords(query string, args ...any) ([]map[strin
 	var rows *sql.Rows
 	//------------------------------------------------------------
 	rows, err = conn.DB.Query(strings.TrimSpace(query), args...)
-	//----------
+	//--------------------
 	if err != nil {
 		return nil, err
 	}
@@ -223,15 +223,15 @@ func (conn *SQLiteDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error
 		for sqlRows.Next() {
 			//------------------------------------------------------------
 			scans := make([]any, len(columns))
-			//----------
+			//--------------------
 			record := make(map[string]any)
-			//----------
+			//--------------------
 			for i := range scans {
 				scans[i] = &scans[i]
 			}
-			//----------
+			//--------------------
 			sqlRows.Scan(scans...)
-			//----------
+			//--------------------
 			for index, value := range scans {
 				//------------------------------------------------------------
 				switch typedValue := value.(type) {
@@ -264,7 +264,7 @@ func (conn *SQLiteDBStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error
 				case string:
 					value = typedValue
 				}
-				//----------
+				//--------------------
 				record[columns[index]] = value
 				//------------------------------------------------------------
 			}
@@ -378,11 +378,11 @@ func (conn *SQLiteDBStruct) TableExists(tableName string) (bool, error) {
 	if conn.DB == nil {
 		return false, errors.New("not connected")
 	}
-	//----------
+	//--------------------
 	if tableName == "" {
 		return false, errors.New("table name cannot be blank")
 	}
-	//----------
+	//--------------------
 	if !CheckTableName(tableName) {
 		return false, errors.New("invalid table name")
 	}
@@ -399,13 +399,13 @@ func (conn *SQLiteDBStruct) TableExists(tableName string) (bool, error) {
 	defer rows.Close()
 	//------------------------------------------------------------
 	var count int
-	//----------
+	//--------------------
 	for rows.Next() {
-		//----------
+		//--------------------
 		err = rows.Scan(&count)
-		//----------
+		//--------------------
 	}
-	//----------
+	//--------------------
 	if err != nil {
 		return false, err
 	}
@@ -430,11 +430,11 @@ func (conn *SQLiteDBStruct) GetSQLTableInfo(tableName string) (
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
 	}
-	//----------
+	//--------------------
 	if tableName == "" {
 		return nil, nil, errors.New("table name cannot be blank")
 	}
-	//----------
+	//--------------------
 	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
@@ -454,21 +454,21 @@ func (conn *SQLiteDBStruct) GetSQLTableInfo(tableName string) (
 	if err == nil {
 		//------------------------------------------------------------
 		defer rows.Close()
-		//----------
+		//--------------------
 		for rows.Next() {
-			//----------
+			//--------------------
 			var columInfoRow struct {
 				Sequence int
 				Name     string
 				Type     string
 			}
-			//----------
+			//--------------------
 			if err = rows.Scan(&columInfoRow.Sequence, &columInfoRow.Name, &columInfoRow.Type); err != nil {
 				break
 			}
-			//----------
+			//--------------------
 			columInfoRows = append(columInfoRows, columInfoRow)
-			//----------
+			//--------------------
 			columnInfoMap[columInfoRow.Name] = columInfoRow.Type
 			//------------------------------------------------------------
 		}
@@ -495,11 +495,11 @@ func (conn *SQLiteDBStruct) GetTableInfo(tableName string) (
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
 	}
-	//----------
+	//--------------------
 	if tableName == "" {
 		return nil, nil, errors.New("table name cannot be blank")
 	}
-	//----------
+	//--------------------
 	if !CheckTableName(tableName) {
 		return nil, nil, errors.New("invalid table name")
 	}
@@ -540,26 +540,26 @@ func (conn *SQLiteDBStruct) GetRowsInfo(rows *sql.Rows) (
 		Name     string
 		Type     string
 	}
-	//----------
+	//--------------------
 	columnInfoMap := map[string]string{}
 	//------------------------------------------------------------
 	colTypes, err = rows.ColumnTypes()
-	//----------
+	//--------------------
 	if err == nil {
 		//------------------------------------------------------------
 		for index, column := range colTypes {
-			//----------
+			//--------------------
 			Name := column.Name()
 			Type := column.DatabaseTypeName()
-			//----------
+			//--------------------
 			columInfoRows = append(columInfoRows, struct {
 				Sequence int
 				Name     string
 				Type     string
 			}{index + 1, Name, Type})
-			//----------
+			//--------------------
 			columnInfoMap[Name] = Type
-			//----------
+			//--------------------
 		}
 		//------------------------------------------------------------
 	}
@@ -613,19 +613,19 @@ func CheckTableName(tableName string) bool {
 	var match bool
 	//------------------------------------------------------------
 	if strings.Contains(tableName, ".") {
-		//----------
+		//--------------------
 		elements := strings.Split(tableName, ".")
-		//----------
+		//--------------------
 		if len(elements) != 2 {
 			return false
 		}
-		//----------
+		//--------------------
 		if !CheckDatabaseName(elements[0]) {
 			return false
 		}
-		//----------
+		//--------------------
 		tableName = elements[1]
-		//----------
+		//--------------------
 	}
 	//------------------------------------------------------------
 	// should start with underscore or a letter
@@ -639,7 +639,7 @@ func CheckTableName(tableName string) bool {
 	// remaining characters should only contain underscores, letters or numbers
 	//------------------------------------------------------------
 	match, err = regexp.MatchString(`^[_A-Za-z0-9]*$`, tableName)
-	//----------
+	//--------------------
 	return err == nil && match
 	//------------------------------------------------------------
 }
