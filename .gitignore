@@ -1,0 +1,10 @@
+**/**/.env
+
+**/**/gin-bin
+**/**/tmp
+
+golang-main
+database/mysqldb/.env
+database/postgresdb/.env
+database/sqlitedb/sqlitedb_test.db
+database/sqlitedb/test.db
