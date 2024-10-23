@@ -168,7 +168,7 @@ func TestClearFunctions(t *testing.T) {
 	expectedString = "\033[3J"               // ClearScrollbackBuffer
 	expectedString += "\033[2J\033[H"        // ClearWindow
 	expectedString += "\033[2J\033[3J\033[H" // ClearScreen
-	expectedString += "\033[2K\r"            // ClearLine
+	expectedString += "\033[2K"              // ClearLine
 	//----------------------------------------
 	resultString = ClearScrollbackBuffer()
 	resultString += ClearWindow()

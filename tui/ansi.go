@@ -189,7 +189,7 @@ func ClearScreen(OptionsMap ...map[string]any) string {
 
 // clear line and return cursor to first column
 func ClearLine(OptionsMap ...map[string]any) string {
-	return Render("\033[2K\r", OptionsMap...)
+	return Render("\033[2K", OptionsMap...)
 }
 
 //------------------------------------------------------------
