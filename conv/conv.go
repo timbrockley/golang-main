@@ -13,10 +13,135 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/mtraver/base91"
 )
+
+const BASE_CHARSET = "!#%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz"
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// Base_encode
+//------------------------------------------------------------
+
+func Base_encode(dataString string) string {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString
+	}
+	//------------------------------------------------------------
+	paddingLength := 0
+	if len(dataString)%4 > 0 {
+		paddingLength = 4 - len(dataString)%4
+	}
+	//------------------------------------------------------------
+	outputLength := ((len(dataString) + paddingLength) / 4 * 5) - paddingLength
+	outputBytes := make([]byte, outputLength)
+	outputIndex := 0
+	//------------------------------------------------------------
+	for dataIndex := 0; dataIndex < len(dataString); dataIndex += 4 {
+		//---------------------------------------------------
+		var b0, b1, b2, b3 byte
+		//---------------------------------------------------
+		b0 = dataString[dataIndex]
+		if dataIndex+1 < len(dataString) {
+			b1 = dataString[dataIndex+1]
+		}
+		if dataIndex+2 < len(dataString) {
+			b2 = dataString[dataIndex+2]
+		}
+		if dataIndex+3 < len(dataString) {
+			b3 = dataString[dataIndex+3]
+		}
+		//---------------------------------------------------
+		charCodeSum := int(b0)<<24 | int(b1)<<16 | int(b2)<<8 | int(b3)
+		//---------------------------------------------------
+		if charCodeSum == 0 {
+			//---------------------------------------------------
+			OutputToByteSlice(&outputBytes, outputIndex, 33)
+			OutputToByteSlice(&outputBytes, outputIndex+1, 33)
+			OutputToByteSlice(&outputBytes, outputIndex+2, 33)
+			OutputToByteSlice(&outputBytes, outputIndex+3, 33)
+			OutputToByteSlice(&outputBytes, outputIndex+4, 33)
+			//---------------------------------------------------
+		} else {
+			//---------------------------------------------------
+			for subIndex := 4; subIndex >= 0; subIndex -= 1 {
+				value := charCodeSum % 85
+				charCodeSum = (charCodeSum - value) / 85
+				OutputToByteSlice(&outputBytes, outputIndex+subIndex, BASE_CHARSET[value])
+			}
+			//---------------------------------------------------
+		}
+		//---------------------------------------------------
+		outputIndex += 5
+		//---------------------------------------------------
+	}
+	//------------------------------------------------------------
+	return string(outputBytes)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// Base_decode
+//------------------------------------------------------------
+
+func Base_decode(dataString string) (string, error) {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	paddingLength := 0
+	if len(dataString)%5 > 0 {
+		paddingLength = 5 - len(dataString)%5
+	}
+	//------------------------------------------------------------
+	outputLength := ((len(dataString) + paddingLength) / 5 * 4) - paddingLength
+	outputBytes := make([]byte, outputLength)
+	outputIndex := 0
+	//------------------------------------------------------------
+	for dataIndex := 0; dataIndex < len(dataString); dataIndex += 5 {
+		//---------------------------------------------------
+		b0, b1, b2, b3, b4 := 84, 84, 84, 84, 84
+		//---------------------------------------------------
+		b0 = strings.IndexByte(BASE_CHARSET, dataString[dataIndex])
+		if dataIndex+1 < len(dataString) {
+			b1 = strings.IndexByte(BASE_CHARSET, dataString[dataIndex+1])
+		}
+		if dataIndex+2 < len(dataString) {
+			b2 = strings.IndexByte(BASE_CHARSET, dataString[dataIndex+2])
+		}
+		if dataIndex+3 < len(dataString) {
+			b3 = strings.IndexByte(BASE_CHARSET, dataString[dataIndex+3])
+		}
+		if dataIndex+4 < len(dataString) {
+			b4 = strings.IndexByte(BASE_CHARSET, dataString[dataIndex+4])
+		}
+		//---------------------------------------------------
+		if b0 == -1 || b1 == -1 || b2 == -1 || b3 == -1 || b4 == -1 {
+			return "", fmt.Errorf("data contains one or more invalid characters")
+		}
+		//---------------------------------------------------
+		decodedChunk := 52200625*b0 + 614125*b1 + 7225*b2 + 85*b3 + b4
+		//---------------------------------------------------
+		OutputToByteSlice(&outputBytes, outputIndex, byte(decodedChunk>>24))
+		OutputToByteSlice(&outputBytes, outputIndex+1, byte(decodedChunk>>16))
+		OutputToByteSlice(&outputBytes, outputIndex+2, byte(decodedChunk>>8))
+		OutputToByteSlice(&outputBytes, outputIndex+3, byte(decodedChunk))
+		//---------------------------------------------------
+		outputIndex += 4
+		//---------------------------------------------------
+	}
+	//------------------------------------------------------------
+	return string(outputBytes), nil
+	//------------------------------------------------------------
+}
 
 //------------------------------------------------------------
 //############################################################
@@ -56,6 +181,18 @@ func Base64_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
 	return string(dataBytes), err
 	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// BaseEncodeByte
+//------------------------------------------------------------
+
+func OutputToByteSlice(slice *[]byte, index int, value byte) bool {
+	if index >= 0 && index < len(*slice) {
+		(*slice)[index] = value
+		return true
+	}
+	return false
 }
 
 //------------------------------------------------------------
@@ -310,7 +447,6 @@ func JSON_decode(jsonString string) (interface{}, error) {
 	//------------------------------------------------------------
 	return jsonInterface, err
 	//------------------------------------------------------------
-
 }
 
 //------------------------------------------------------------

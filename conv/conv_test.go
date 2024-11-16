@@ -12,11 +12,72 @@ import (
 //------------------------------------------------------------
 
 //------------------------------------------------------------
+// Base_encode
+//------------------------------------------------------------
+
+func TestBase_encode(t *testing.T) {
+	//--------------------------------------------------
+	testCases := []struct {
+		dataString     string
+		expectedString string
+	}{
+		{"A", "8q"},
+		{"AA", "8x]"},
+		{"AAA", "8x_i"},
+		{"AAAA", "8x_j)"},
+		{"\x00\x00\x00\x00", "!!!!!"},
+		{"\U0001f427", "s@SkB"},
+		{"ABC\U0001f427", "8xix1W</w"},
+		{"!#%&()*+,./:;<=>?@[]^_{|}", ".[;<_0s0Yw24wV=7&8]n8?wI]B@2)/L2"},
+	}
+	//--------------------------------------------------
+	for _, testCase := range testCases {
+		resultString := Base_encode(testCase.dataString)
+		if resultString != testCase.expectedString {
+			t.Errorf("(%q) resultString = %q %v but should = %q %v", testCase.dataString, resultString, []byte(resultString), testCase.expectedString, []byte(testCase.expectedString))
+		}
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+// Base_encode
+//------------------------------------------------------------
+
+func TestBase_decode(t *testing.T) {
+	//--------------------------------------------------
+	testCases := []struct {
+		dataString     string
+		expectedString string
+	}{
+		{"8q", "A"},
+		{"8x]", "AA"},
+		{"8x_i", "AAA"},
+		{"8x_j)", "AAAA"},
+		{"!!!!!", "\x00\x00\x00\x00"},
+		{"s@SkB", "\U0001f427"},
+		{"8xix1W</w", "ABC\U0001f427"},
+		{".[;<_0s0Yw24wV=7&8]n8?wI]B@2)/L2", "!#%&()*+,./:;<=>?@[]^_{|}"},
+	}
+	//--------------------------------------------------
+	for _, testCase := range testCases {
+		resultString, err := Base_decode(testCase.dataString)
+		if err != nil {
+			t.Error(err)
+		} else {
+			if resultString != testCase.expectedString {
+				t.Errorf("(%q) resultString = %q %v but should = %q %v", testCase.dataString, resultString, []byte(resultString), testCase.expectedString, []byte(testCase.expectedString))
+			}
+		}
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
 // Base64_encode
 //------------------------------------------------------------
 
 func TestBase64_encode(t *testing.T) {
-
 	//------------------------------------------------------------
 	var dataString, base64String, resultString string
 	//------------------------------------------------------------
@@ -25,7 +86,6 @@ func TestBase64_encode(t *testing.T) {
 	resultString = Base64_encode(dataString)
 	//--------------------------------------------------
 	if resultString != dataString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, dataString)
 	}
 	//--------------------------------------------------
@@ -35,7 +95,6 @@ func TestBase64_encode(t *testing.T) {
 	resultString = Base64_encode(dataString)
 	//--------------------------------------------------
 	if resultString != base64String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base64String)
 	}
 	//--------------------------------------------------
@@ -46,7 +105,6 @@ func TestBase64_encode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase64_decode(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var dataString, base64String, resultString string
@@ -56,14 +114,10 @@ func TestBase64_decode(t *testing.T) {
 	resultString, err = Base64_decode(dataString)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -75,14 +129,10 @@ func TestBase64_decode(t *testing.T) {
 	resultString, err = Base64_decode(base64String)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -95,7 +145,6 @@ func TestBase64_decode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase64url_encode(t *testing.T) {
-
 	//------------------------------------------------------------
 	var dataString, base64urlString, resultString string
 	//------------------------------------------------------------
@@ -104,7 +153,6 @@ func TestBase64url_encode(t *testing.T) {
 	resultString = Base64url_encode(dataString)
 	//--------------------------------------------------
 	if resultString != dataString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, dataString)
 	}
 	//--------------------------------------------------
@@ -114,7 +162,6 @@ func TestBase64url_encode(t *testing.T) {
 	resultString = Base64url_encode(dataString)
 	//--------------------------------------------------
 	if resultString != base64urlString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base64urlString)
 	}
 	//--------------------------------------------------
@@ -125,7 +172,6 @@ func TestBase64url_encode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase64url_decode(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var dataString, base64urlString, resultString string
@@ -135,14 +181,10 @@ func TestBase64url_decode(t *testing.T) {
 	resultString, err = Base64url_decode(dataString)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -154,14 +196,10 @@ func TestBase64url_decode(t *testing.T) {
 	resultString, err = Base64url_decode(base64urlString)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -174,7 +212,6 @@ func TestBase64url_decode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase64_Base64url(t *testing.T) {
-
 	//------------------------------------------------------------
 	var dataString, base64String, base64urlString, resultString string
 	//------------------------------------------------------------
@@ -183,7 +220,6 @@ func TestBase64_Base64url(t *testing.T) {
 	resultString = Base64_Base64url(dataString)
 	//--------------------------------------------------
 	if resultString != dataString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, dataString)
 	}
 	//------------------------------------------------------------
@@ -193,7 +229,6 @@ func TestBase64_Base64url(t *testing.T) {
 	resultString = Base64_Base64url(base64String)
 	//--------------------------------------------------
 	if resultString != base64urlString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base64urlString)
 	}
 	//------------------------------------------------------------
@@ -204,7 +239,6 @@ func TestBase64_Base64url(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase64url_Base64(t *testing.T) {
-
 	//------------------------------------------------------------
 	var dataString, base64String, base64urlString, resultString string
 	//------------------------------------------------------------
@@ -213,7 +247,6 @@ func TestBase64url_Base64(t *testing.T) {
 	resultString = Base64url_Base64(dataString)
 	//--------------------------------------------------
 	if resultString != dataString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, dataString)
 	}
 	//------------------------------------------------------------
@@ -223,7 +256,6 @@ func TestBase64url_Base64(t *testing.T) {
 	resultString = Base64url_Base64(base64urlString)
 	//--------------------------------------------------
 	if resultString != base64String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base64String)
 	}
 	//------------------------------------------------------------
@@ -238,7 +270,6 @@ func TestBase64url_Base64(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase91_encode(t *testing.T) {
-
 	//--------------------------------------------------
 	var dataString, base91String, resultString string
 	//--------------------------------------------------
@@ -247,7 +278,6 @@ func TestBase91_encode(t *testing.T) {
 	resultString = Base91_encode(dataString, false)
 	//--------------------------------------------------
 	if resultString != dataString {
-
 		t.Errorf("resultString = %q but should = %q", resultString, dataString)
 	}
 	//--------------------------------------------------
@@ -257,7 +287,6 @@ func TestBase91_encode(t *testing.T) {
 	resultString = Base91_encode(dataString, false)
 	//--------------------------------------------------
 	if resultString != base91String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base91String)
 	}
 	//--------------------------------------------------
@@ -267,7 +296,6 @@ func TestBase91_encode(t *testing.T) {
 	resultString = Base91_encode(dataString, true)
 	//--------------------------------------------------
 	if resultString != base91String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base91String)
 	}
 	//--------------------------------------------------
@@ -277,7 +305,6 @@ func TestBase91_encode(t *testing.T) {
 	resultString = Base91_encode(dataString, false)
 	//--------------------------------------------------
 	if resultString != base91String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base91String)
 	}
 	//--------------------------------------------------
@@ -287,7 +314,6 @@ func TestBase91_encode(t *testing.T) {
 	resultString = Base91_encode(dataString, false)
 	//--------------------------------------------------
 	if resultString != base91String {
-
 		t.Errorf("resultString = %q but should = %q", resultString, base91String)
 	}
 	//--------------------------------------------------
@@ -298,7 +324,6 @@ func TestBase91_encode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestBase91_decode(t *testing.T) {
-
 	//--------------------------------------------------
 	var err error
 	var dataString, base91String, resultString string
@@ -308,14 +333,10 @@ func TestBase91_decode(t *testing.T) {
 	resultString, err = Base91_decode(dataString, false)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -327,14 +348,10 @@ func TestBase91_decode(t *testing.T) {
 	resultString, err = Base91_decode(base91String, false)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -346,14 +363,10 @@ func TestBase91_decode(t *testing.T) {
 	resultString, err = Base91_decode(base91String, true)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -365,14 +378,10 @@ func TestBase91_decode(t *testing.T) {
 	resultString, err = Base91_decode(base91String, false)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -384,14 +393,10 @@ func TestBase91_decode(t *testing.T) {
 	resultString, err = Base91_decode(base91String, false)
 	//--------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != dataString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, dataString)
 		}
 		//--------------------
@@ -408,7 +413,6 @@ func TestBase91_decode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestJSON_MarshalIndent(t *testing.T) {
-
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
 	//--------------------
@@ -421,14 +425,10 @@ func TestJSON_MarshalIndent(t *testing.T) {
 
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if string(resultBytes) != jsonString {
-
 			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
 		}
 		//--------------------
@@ -441,7 +441,6 @@ func TestJSON_MarshalIndent(t *testing.T) {
 //------------------------------------------------------------
 
 func TestJSON_marshal(t *testing.T) {
-
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1_<=>"}, map[string]interface{}{"test_key2": "test_value2"}}
 	//--------------------
@@ -454,14 +453,10 @@ func TestJSON_marshal(t *testing.T) {
 
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if string(resultBytes) != jsonString {
-
 			t.Errorf("string(resultBytes) = %q but should = %q", string(resultBytes), jsonString)
 		}
 		//--------------------
@@ -474,7 +469,6 @@ func TestJSON_marshal(t *testing.T) {
 //------------------------------------------------------------
 
 func TestJSON_encode(t *testing.T) {
-
 	//------------------------------------------------------------
 	jsonMap := []interface{}{map[string]interface{}{"test_key1": "test_value1"}, map[string]interface{}{"test_key2": "test_value2"}}
 	//--------------------
@@ -487,14 +481,10 @@ func TestJSON_encode(t *testing.T) {
 
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if resultString != jsonString {
-
 			t.Errorf("resultString = %q but should = %q", resultString, jsonString)
 		}
 		//--------------------
@@ -507,7 +497,6 @@ func TestJSON_encode(t *testing.T) {
 //------------------------------------------------------------
 
 func TestJSON_decode(t *testing.T) {
-
 	//------------------------------------------------------------
 	jsonString := "[{\"test_key1\":\"test_value1\"},{\"test_key2\":\"test_value2\"}]"
 	//--------------------
@@ -520,14 +509,10 @@ func TestJSON_decode(t *testing.T) {
 
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if fmt.Sprint(resultMap) != fmt.Sprint(jsonMap) {
-
 			t.Errorf("resultMap = %#v but should = %#v", resultMap, jsonMap)
 		}
 		//--------------------
