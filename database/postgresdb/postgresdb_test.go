@@ -23,7 +23,6 @@ var conn1 PostgresDBStruct
 //------------------------------------------------------------
 
 func TestConnect1(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -36,14 +35,12 @@ func TestConnect1(t *testing.T) {
 }
 
 func TestConnect2(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
 	conn1, err = Connect(PostgresDBStruct{Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//------------------------------------------------------------
@@ -54,7 +51,6 @@ func TestConnect2(t *testing.T) {
 //------------------------------------------------------------
 
 func TestExec(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var result sql.Result
@@ -89,7 +85,6 @@ func TestExec(t *testing.T) {
 //------------------------------------------------------------
 
 func TestQuery(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
@@ -107,9 +102,7 @@ func TestQuery(t *testing.T) {
 	rows, err = conn1.Query("SELECT * FROM cars")
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//------------------------------------------------------------
@@ -123,9 +116,7 @@ func TestQuery(t *testing.T) {
 			err := rows.Scan(&id, &name, &price)
 			//--------------------
 			if err != nil {
-
 				t.Error(err)
-
 			} else {
 
 				//--------------------
@@ -135,12 +126,10 @@ func TestQuery(t *testing.T) {
 				if id == EXPECTED_id {
 					//--------------------
 					if name != EXPECTED_name {
-
 						t.Errorf("name = %q but should = %q", name, EXPECTED_name)
 					}
 					//--------------------
 					if price != EXPECTED_price {
-
 						t.Errorf("price = %d but should = %d", price, EXPECTED_price)
 					}
 					//--------------------
@@ -151,12 +140,10 @@ func TestQuery(t *testing.T) {
 		}
 		//--------------------
 		if result_count != EXPECTED_count {
-
 			t.Errorf("count = %d but should = %d", result_count, EXPECTED_count)
 		}
 		//--------------------
 		if !row_found {
-
 			t.Error("results row not found")
 		}
 		//--------------------
@@ -169,7 +156,6 @@ func TestQuery(t *testing.T) {
 //------------------------------------------------------------
 
 func TestQueryRow(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err1, err2 error
 	var row1, row2 *sql.Row
@@ -192,32 +178,26 @@ func TestQueryRow(t *testing.T) {
 	err2 = row2.Scan(&id, &name, &price)
 	//------------------------------------------------------------
 	if err1 != nil {
-
 		t.Error(err1)
 	}
 	//--------------------
 	if err2 != nil {
-
 		t.Error(err2)
 	}
 	//------------------------------------------------------------
 	if count != EXPECTED_count {
-
 		t.Errorf("count = %d but should = %d", count, EXPECTED_count)
 	}
 	//--------------------
 	if id != EXPECTED_id {
-
 		t.Errorf("id = %d but should = %d", id, EXPECTED_id)
 	}
 	//--------------------
 	if name != EXPECTED_name {
-
 		t.Errorf("name = %q but should = %q", name, EXPECTED_name)
 	}
 	//--------------------
 	if price != EXPECTED_price {
-
 		t.Errorf("price = %d but should = %d", price, EXPECTED_price)
 	}
 	//------------------------------------------------------------
@@ -254,7 +234,7 @@ func TestQueryRecords(t *testing.T) {
 			}
 			//--------------------
 			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
-				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
+				t.Errorf(`records[0]["name"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
 			}
 			//--------------------
 			if fmt.Sprintf("%T", records[0]["price"]) != "int64" {
@@ -430,7 +410,6 @@ func TestShowTablesMap(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestTableExists(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -442,7 +421,6 @@ func TestTableExists(t *testing.T) {
 	} else {
 		//--------------------
 		if result != false {
-
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
 		//--------------------
@@ -455,7 +433,6 @@ func TestTableExists(t *testing.T) {
 	} else {
 		//--------------------
 		if result != true {
-
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
 		//--------------------
@@ -472,32 +449,26 @@ func TestCheckTableName(t *testing.T) {
 	var result bool
 	//------------------------------------------------------------
 	if result = CheckTableName(""); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("aa!!"); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("1a"); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("test1"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("_table_name"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("table_name"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
@@ -518,7 +489,6 @@ func TestEscapeApostrophes(t *testing.T) {
 	EXPECTED_result := `1''2''''3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
-
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
@@ -535,7 +505,6 @@ func TestEscapeDoubleQuotes(t *testing.T) {
 	EXPECTED_result := `1""2""""3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
-
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
@@ -550,7 +519,6 @@ func TestEscapePostgreSQLString(t *testing.T) {
 	EXPECTED_result := ` E'TEST_''"\\_TEST'`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
-
 		t.Errorf(`result = "%v" but should = "%v"`, result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
@@ -565,7 +533,6 @@ func TestEscapePostgreSQLString(t *testing.T) {
 //------------------------------------------------------------
 
 func TestClose(t *testing.T) {
-
 	//------------------------------------------------------------
 	conn1.Close()
 	//------------------------------------------------------------

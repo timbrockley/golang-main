@@ -15,9 +15,11 @@ import (
 
 //--------------------------------------------------------------------------------
 
-var conn1 SQLiteDBStruct
-var conn2 SQLiteDBStruct
-var conn3 SQLiteDBStruct
+var (
+	conn1 SQLiteDBStruct
+	conn2 SQLiteDBStruct
+	conn3 SQLiteDBStruct
+)
 
 //--------------------------------------------------------------------------------
 //################################################################################
@@ -28,7 +30,6 @@ var conn3 SQLiteDBStruct
 //--------------------------------------------------------------------------------
 
 func TestConnect(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var tempFilePath, filePath, filenameBase string
@@ -38,7 +39,6 @@ func TestConnect(t *testing.T) {
 	conn1, err = Connect(SQLiteDBStruct{FilePath: tempFilePath, AutoCreate: false})
 	//------------------------------------------------------------
 	if err == nil {
-
 		t.Error("error not returned for made up database name using autoCreate=false")
 	}
 	//------------------------------------------------------------
@@ -51,17 +51,14 @@ func TestConnect(t *testing.T) {
 	conn1, _ = Connect(SQLiteDBStruct{AutoCreate: false})
 	//------------------------------------------------------------
 	if conn1.FilePath != filePath {
-
 		t.Errorf("filePath = %q but should = %q", conn1.FilePath, filePath)
 	}
 	//--------------------
 	if conn1.Database != filenameBase {
-
 		t.Errorf("database = %q but should = %q", conn1.Database, filenameBase)
 	}
 	//--------------------
 	if conn1.DatabaseExt != "db" {
-
 		t.Errorf("databaseExt = %q but should = %q", conn1.DatabaseExt, "db")
 	}
 	//------------------------------------------------------------
@@ -73,24 +70,19 @@ func TestConnect(t *testing.T) {
 	conn1, err = Connect(SQLiteDBStruct{AutoCreate: true, FilePath: filePath})
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//--------------------
 		if conn1.FilePath != filePath {
-
 			t.Errorf("filePath = %q but should = %q", conn1.FilePath, filePath)
 		}
 		//--------------------
 		if conn1.Database != filenameBase {
-
 			t.Errorf("database = %q but should = %q", conn1.Database, filenameBase)
 		}
 		//--------------------
 		if conn1.DatabaseExt != "db" {
-
 			t.Errorf("databaseExt = %q but should = %q", conn1.DatabaseExt, "db")
 		}
 		//--------------------
@@ -107,7 +99,6 @@ func TestConnect(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestExec(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -127,7 +118,6 @@ func TestExec(t *testing.T) {
 	_, err = conn1.Exec(stmt)
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//------------------------------------------------------------
@@ -138,7 +128,6 @@ func TestExec(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestQuery(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
@@ -156,9 +145,7 @@ func TestQuery(t *testing.T) {
 	rows, err = conn1.Query("SELECT * FROM cars")
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//------------------------------------------------------------
@@ -172,9 +159,7 @@ func TestQuery(t *testing.T) {
 			err := rows.Scan(&id, &name, &price)
 			//--------------------
 			if err != nil {
-
 				t.Error(err)
-
 			} else {
 
 				//--------------------
@@ -184,12 +169,10 @@ func TestQuery(t *testing.T) {
 				if id == EXPECTED_id {
 					//--------------------
 					if name != EXPECTED_name {
-
 						t.Errorf("name = %q but should = %q", name, EXPECTED_name)
 					}
 					//--------------------
 					if price != EXPECTED_price {
-
 						t.Errorf("price = %d but should = %d", price, EXPECTED_price)
 					}
 					//--------------------
@@ -200,12 +183,10 @@ func TestQuery(t *testing.T) {
 		}
 		//--------------------
 		if result_count != EXPECTED_count {
-
 			t.Errorf("count = %d but should = %d", result_count, EXPECTED_count)
 		}
 		//--------------------
 		if !row_found {
-
 			t.Error("results row not found")
 		}
 		//--------------------
@@ -218,7 +199,6 @@ func TestQuery(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestQueryRow(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err1, err2 error
 	var row1, row2 *sql.Row
@@ -241,32 +221,26 @@ func TestQueryRow(t *testing.T) {
 	err2 = row2.Scan(&id, &name, &price)
 	//------------------------------------------------------------
 	if err1 != nil {
-
 		t.Error(err1)
 	}
 	//--------------------
 	if err2 != nil {
-
 		t.Error(err2)
 	}
 	//------------------------------------------------------------
 	if count != EXPECTED_count {
-
 		t.Errorf("count = %d but should = %d", count, EXPECTED_count)
 	}
 	//--------------------
 	if id != EXPECTED_id {
-
 		t.Errorf("id = %d but should = %d", id, EXPECTED_id)
 	}
 	//--------------------
 	if name != EXPECTED_name {
-
 		t.Errorf("name = %q but should = %q", name, EXPECTED_name)
 	}
 	//--------------------
 	if price != EXPECTED_price {
-
 		t.Errorf("price = %d but should = %d", price, EXPECTED_price)
 	}
 	//------------------------------------------------------------
@@ -307,7 +281,7 @@ func TestQueryRecords(t *testing.T) {
 			}
 			//--------------------
 			if fmt.Sprintf("%T", records[0]["name"]) != "string" {
-				t.Errorf(`records[0]["id"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
+				t.Errorf(`records[0]["name"] type = %q but should = %q`, fmt.Sprintf("%T", records[0]["name"]), "string")
 			}
 			//--------------------
 			if fmt.Sprintf("%T", records[0]["price"]) != "int" {
@@ -460,7 +434,6 @@ func TestGetTableInfo(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestTableExists(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -472,7 +445,6 @@ func TestTableExists(t *testing.T) {
 	} else {
 		//--------------------
 		if result != false {
-
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
 		//--------------------
@@ -485,7 +457,6 @@ func TestTableExists(t *testing.T) {
 	} else {
 		//--------------------
 		if result != true {
-
 			t.Errorf("result = %v but should = %v", result, !result)
 		}
 		//--------------------
@@ -506,32 +477,26 @@ func TestCheckTableName(t *testing.T) {
 	var result bool
 	//------------------------------------------------------------
 	if result = CheckTableName(""); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("aa!!"); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("1a"); result != false {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("test1"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("_table_name"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
 	if result = CheckTableName("table_name"); result != true {
-
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
@@ -552,7 +517,6 @@ func TestEscapeApostrophes(t *testing.T) {
 	EXPECTED_result := `1''2''''3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
-
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
@@ -569,7 +533,6 @@ func TestEscapeDoubleQuotes(t *testing.T) {
 	EXPECTED_result := `1""2""""3`
 	//------------------------------------------------------------
 	if result != EXPECTED_result {
-
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
@@ -584,7 +547,6 @@ func TestEscapeDoubleQuotes(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestClose(t *testing.T) {
-
 	//------------------------------------------------------------
 	conn1.Close()
 	//------------------------------------------------------------
@@ -599,7 +561,6 @@ func TestClose(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestMemoryDatabase1(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var count int
@@ -607,9 +568,7 @@ func TestMemoryDatabase1(t *testing.T) {
 	conn2, err = Connect(SQLiteDBStruct{Database: ":memory:", AutoCreate: false})
 	//--------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//--------------------------------------------
@@ -622,9 +581,7 @@ func TestMemoryDatabase1(t *testing.T) {
 		_, err = conn2.Exec(stmt)
 		//--------------------------------------------
 		if err != nil {
-
 			t.Error(err)
-
 		} else {
 
 			//--------------------------------------------
@@ -633,18 +590,14 @@ func TestMemoryDatabase1(t *testing.T) {
 			err = row.Scan(&count)
 			//--------------------------------------------
 			if err != nil {
-
 				t.Error(err)
-
 			} else {
 
 				//--------------------------------------------
 				EXPECTED_count := 1
 				//--------------------------------------------
 				if count != EXPECTED_count {
-
 					t.Errorf("count = %d but should = %d", count, EXPECTED_count)
-
 				}
 				//--------------------------------------------
 
@@ -659,7 +612,6 @@ func TestMemoryDatabase1(t *testing.T) {
 }
 
 func TestMemoryDatabase2(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var count int
@@ -667,9 +619,7 @@ func TestMemoryDatabase2(t *testing.T) {
 	conn3, err = Connect(SQLiteDBStruct{FilePath: ":memory:", AutoCreate: false})
 	//--------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//--------------------------------------------
@@ -683,9 +633,7 @@ func TestMemoryDatabase2(t *testing.T) {
 		_, err = conn3.Exec(stmt)
 		//--------------------------------------------
 		if err != nil {
-
 			t.Error(err)
-
 		} else {
 
 			//--------------------------------------------
@@ -694,18 +642,14 @@ func TestMemoryDatabase2(t *testing.T) {
 			err = row.Scan(&count)
 			//--------------------------------------------
 			if err != nil {
-
 				t.Error(err)
-
 			} else {
 
 				//--------------------------------------------
 				EXPECTED_count := 2
 				//--------------------------------------------
 				if count != EXPECTED_count {
-
 					t.Errorf("count = %d but should = %d", count, EXPECTED_count)
-
 				}
 				//--------------------------------------------
 
