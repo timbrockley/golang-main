@@ -267,7 +267,8 @@ func (conn *PostgresDBStruct) GetSQLTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -343,7 +344,8 @@ func (conn *PostgresDBStruct) GetTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -391,7 +393,8 @@ func (conn *PostgresDBStruct) GetRowsInfo(rows *sql.Rows) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	var err error
 	var colTypes []*sql.ColumnType
@@ -518,7 +521,7 @@ func (conn *PostgresDBStruct) ShowDatabases() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -567,7 +570,7 @@ func (conn *PostgresDBStruct) ShowTables() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -618,7 +621,7 @@ func (conn *PostgresDBStruct) ShowTablesMap() (map[string]map[string]string, err
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tablesMap = map[string]map[string]string{}
+	tablesMap := map[string]map[string]string{}
 	//----------------------------------------
 	for rows.Next() {
 		//----------------------------------------
@@ -670,6 +673,28 @@ func (conn *PostgresDBStruct) Close() error {
 //############################################################
 //------------------------------------------------------------
 
+//------------------------------------------------------------
+// NullStringToString
+//------------------------------------------------------------
+
+func NullStringToString(nullString sql.NullString) string {
+	//------------------------------------------------------------
+	if nullString.Valid {
+		return nullString.String
+	}
+	//------------------------------------------------------------
+	return ""
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// EscapeApostrophes
+//------------------------------------------------------------
+
 func EscapeApostrophes(dataString string) string {
 	//------------------------------------------------------------
 	replacer := strings.NewReplacer(
@@ -680,6 +705,8 @@ func EscapeApostrophes(dataString string) string {
 	//------------------------------------------------------------
 }
 
+//------------------------------------------------------------
+// EscapeDoubleQuotes
 //------------------------------------------------------------
 
 func EscapeDoubleQuotes(dataString string) string {
@@ -693,6 +720,8 @@ func EscapeDoubleQuotes(dataString string) string {
 }
 
 //------------------------------------------------------------
+// EscapePostgreSQLString
+//------------------------------------------------------------
 
 func EscapePostgreSQLString(dataString string) string {
 	//------------------------------------------------------------
@@ -704,12 +733,18 @@ func EscapePostgreSQLString(dataString string) string {
 //############################################################
 //------------------------------------------------------------
 
+//------------------------------------------------------------
+// CheckDatabaseName
+//------------------------------------------------------------
+
 func CheckDatabaseName(databaseName string) bool {
 	//------------------------------------------------------------
 	return CheckTableName(databaseName)
 	//------------------------------------------------------------
 }
 
+//------------------------------------------------------------
+// CheckTableName
 //------------------------------------------------------------
 
 func CheckTableName(tableName string) bool {

@@ -18,9 +18,9 @@ import (
 //--------------------------------------------------------------------------------
 
 var (
-	mysql_conn    SQLdbStruct
-	postgres_conn SQLdbStruct
-	sqlite_conn   SQLdbStruct
+	mysql_conn    SQLdb
+	postgres_conn SQLdb
+	sqlite_conn   SQLdb
 )
 
 //--------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	db_type = "mysql"
 	//------------------------------------------------------------
-	mysql_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test", AutoCreate: true}, true)
+	mysql_conn, err = Connect(SQLdb{DBType: db_type, Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -48,7 +48,7 @@ func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
 	db_type = "postgres"
 	//------------------------------------------------------------
-	postgres_conn, err = Connect(SQLdbStruct{DBType: db_type, Database: "test", AutoCreate: true}, true)
+	postgres_conn, err = Connect(SQLdb{DBType: db_type, Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -63,7 +63,7 @@ func TestConnect(t *testing.T) {
 	//--------------------
 	filePath = file.FilePathBase(filePath) + ".db"
 	//------------------------------------------------------------
-	sqlite_conn, err = Connect(SQLdbStruct{DBType: db_type, FilePath: filePath, AutoCreate: true}, false)
+	sqlite_conn, err = Connect(SQLdb{DBType: db_type, FilePath: filePath, AutoCreate: true}, false)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -973,6 +973,32 @@ func TestCheckTableName(t *testing.T) {
 //################################################################################
 //--------------------------------------------------------------------------------
 
+func TestNullStringToString(t *testing.T) {
+	//------------------------------------------------------------
+	var data1, data2 sql.NullString
+	//------------------------------------------------------------
+	data1 = sql.NullString{String: "", Valid: false}     // Represents a null value
+	data2 = sql.NullString{String: "test1", Valid: true} // Represents a non-null value
+	//------------------------------------------------------------
+	result1 := NullStringToString(data1)
+	result2 := NullStringToString(data2)
+	//--------------------
+	EXPECTED_result1 := ""
+	EXPECTED_result2 := "test1"
+	//------------------------------------------------------------
+	if result1 != EXPECTED_result1 {
+		t.Errorf("result1 = %s but should = %s", result1, EXPECTED_result1)
+	}
+	if result2 != EXPECTED_result2 {
+		t.Errorf("result2 = %s but should = %s", result2, EXPECTED_result2)
+	}
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+//################################################################################
+//--------------------------------------------------------------------------------
+
 func TestEscapeApostrophes(t *testing.T) {
 	//------------------------------------------------------------
 	result := EscapeApostrophes(`1'2''3`)
@@ -1068,7 +1094,7 @@ func TestMemoryDatabase1(t *testing.T) {
 	var err error
 	var count int
 	//------------------------------------------------------------
-	sqlite_conn, err = Connect(SQLdbStruct{Database: ":memory:", AutoCreate: false})
+	sqlite_conn, err = Connect(SQLdb{Database: ":memory:", AutoCreate: false})
 	//--------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -1119,7 +1145,7 @@ func TestMemoryDatabase2(t *testing.T) {
 	var err error
 	var count int
 	//------------------------------------------------------------
-	sqlite_conn, err = Connect(SQLdbStruct{FilePath: ":memory:", AutoCreate: false})
+	sqlite_conn, err = Connect(SQLdb{FilePath: ":memory:", AutoCreate: false})
 	//--------------------------------------------
 	if err != nil {
 		t.Error(err)

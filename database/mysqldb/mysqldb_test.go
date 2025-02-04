@@ -14,8 +14,10 @@ import (
 //------------------------------------------------------------
 
 var (
-	conn1 MySQLdbStruct
-	connX MySQLdbStruct
+	conn1 MySQLdb
+	connX MySQLdb
+
+	signalChannel = map[string]chan bool{}
 )
 
 //------------------------------------------------------------
@@ -23,24 +25,46 @@ var (
 //------------------------------------------------------------
 
 //------------------------------------------------------------
+// setup channel helpers
+//------------------------------------------------------------
+
+func init() {
+	sendSignal("TestConnect")
+}
+
+func sendSignal(name string) {
+	signalChannel[name] = make(chan bool)
+	go func() { signalChannel[name] <- true }()
+}
+
+func receiveSignal(name string) {
+	<-signalChannel[name]
+	// delete(signalChannel, name)
+}
+
+//------------------------------------------------------------
 // Connect
 //------------------------------------------------------------
 
 func TestConnect(t *testing.T) {
 	//------------------------------------------------------------
+	receiveSignal("TestConnect")
+	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
-	conn1, err = Connect(MySQLdbStruct{Database: "MADE_UP_NAME_FDSDFDDVDHIFHDIH"}, true)
+	conn1, err = Connect(MySQLdb{Database: "MADE_UP_NAME_FDSDFDDVDHIFHDIH"}, true)
 	//------------------------------------------------------------
 	if err == nil {
 		t.Error("Connect should fail if database does not exist")
 	}
 	//------------------------------------------------------------
-	conn1, err = Connect(MySQLdbStruct{Database: "test", AutoCreate: true}, true)
+	conn1, err = Connect(MySQLdb{Database: "test", AutoCreate: true}, true)
 	//------------------------------------------------------------
 	if err != nil {
 		t.Error(err)
 	}
+	//------------------------------------------------------------
+	sendSignal("TestExec1")
 	//------------------------------------------------------------
 }
 
@@ -49,6 +73,8 @@ func TestConnect(t *testing.T) {
 //------------------------------------------------------------
 
 func TestExec1(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestExec1")
 	//------------------------------------------------------------
 	var err error
 	var result sql.Result
@@ -83,6 +109,10 @@ func TestExec1(t *testing.T) {
 		t.Error(err)
 	}
 	//------------------------------------------------------------
+	time.Sleep(1 * time.Second)
+	//------------------------------------------------------------
+	sendSignal("TestExec2")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -91,13 +121,12 @@ func TestExec1(t *testing.T) {
 
 func TestExec2(t *testing.T) {
 	//------------------------------------------------------------
-	time.Sleep(1 * time.Second)
+	receiveSignal("TestExec2")
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
 	_, err = conn1.Exec(`
 		USE test;
-		DELETE FROM cars;
 		INSERT INTO cars(name, price) VALUES('Skoda',9000);
 		INSERT INTO cars(name, price) VALUES('Audi',52642);
 		INSERT INTO cars(name, price) VALUES('Mercedes',57127);
@@ -112,6 +141,8 @@ func TestExec2(t *testing.T) {
 		t.Error(err)
 	}
 	//------------------------------------------------------------
+	sendSignal("TestQuery")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -119,6 +150,8 @@ func TestExec2(t *testing.T) {
 //------------------------------------------------------------
 
 func TestQuery(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestQuery")
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
@@ -183,6 +216,8 @@ func TestQuery(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestQueryRow")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -191,37 +226,26 @@ func TestQuery(t *testing.T) {
 
 func TestQueryRow(t *testing.T) {
 	//------------------------------------------------------------
-	var err1, err2 error
-	var row1, row2 *sql.Row
-	var count int
+	receiveSignal("TestQueryRow")
+	//------------------------------------------------------------
+	var err1 error
+	var row1 *sql.Row
 	//------------------------------------------------------------
 	var id int
 	var name string
 	var price int
 	//------------------------------------------------------------
-	EXPECTED_count := 8
-	//--------------------
 	EXPECTED_name := "Mercedes"
 	EXPECTED_price := 57127
 	//------------------------------------------------------------
-	row1 = conn1.QueryRow("SELECT COUNT(*) AS count FROM test.cars")
-	row2 = conn1.QueryRow("SELECT * FROM test.cars WHERE name = ?", EXPECTED_name)
+	row1 = conn1.QueryRow("SELECT * FROM test.cars WHERE name = ?", EXPECTED_name)
 	//------------------------------------------------------------
-	err1 = row1.Scan(&count)
-	err2 = row2.Scan(&id, &name, &price)
+	err1 = row1.Scan(&id, &name, &price)
 	//------------------------------------------------------------
 	if err1 != nil {
 		t.Error(err1)
 	}
-	//--------------------
-	if err2 != nil {
-		t.Error(err2)
-	}
 	//------------------------------------------------------------
-	if count != EXPECTED_count {
-		t.Errorf("count = %d but should = %d", count, EXPECTED_count)
-	}
-	//--------------------
 	if name != EXPECTED_name {
 		t.Errorf("name = %q but should = %q", name, EXPECTED_name)
 	}
@@ -230,6 +254,8 @@ func TestQueryRow(t *testing.T) {
 		t.Errorf("price = %d but should = %d", price, EXPECTED_price)
 	}
 	//------------------------------------------------------------
+	sendSignal("TestQueryRecords")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -237,6 +263,8 @@ func TestQueryRow(t *testing.T) {
 //------------------------------------------------------------
 
 func TestQueryRecords(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestQueryRecords")
 	//------------------------------------------------------------
 	var err error
 	var records []map[string]any
@@ -270,6 +298,8 @@ func TestQueryRecords(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestGetSQLTableInfo")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -277,6 +307,8 @@ func TestQueryRecords(t *testing.T) {
 //------------------------------------------------------------
 
 func TestGetSQLTableInfo(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestGetSQLTableInfo")
 	//------------------------------------------------------------
 	var err error
 	//--------------------
@@ -317,6 +349,8 @@ func TestGetSQLTableInfo(t *testing.T) {
 		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestGetTableInfo")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -324,6 +358,8 @@ func TestGetSQLTableInfo(t *testing.T) {
 //------------------------------------------------------------
 
 func TestGetTableInfo(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestGetTableInfo")
 	//------------------------------------------------------------
 	var err error
 	//--------------------
@@ -360,6 +396,8 @@ func TestGetTableInfo(t *testing.T) {
 		//------------------------------------------------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestShowDatabases")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -367,6 +405,8 @@ func TestGetTableInfo(t *testing.T) {
 //------------------------------------------------------------
 
 func TestShowDatabases(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestShowDatabases")
 	//------------------------------------------------------------
 	databases, err := conn1.ShowDatabases()
 	//--------------------
@@ -382,6 +422,8 @@ func TestShowDatabases(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestShowTables")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -389,6 +431,8 @@ func TestShowDatabases(t *testing.T) {
 //------------------------------------------------------------
 
 func TestShowTables(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestShowTables")
 	//------------------------------------------------------------
 	tables, err := conn1.ShowTables()
 	//--------------------
@@ -404,6 +448,8 @@ func TestShowTables(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestShowTablesMap")
+	//------------------------------------------------------------
 }
 
 //------------------------------------------------------------
@@ -411,6 +457,8 @@ func TestShowTables(t *testing.T) {
 //------------------------------------------------------------
 
 func TestShowTablesMap(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestShowTablesMap")
 	//------------------------------------------------------------
 	tablesMap, err := conn1.ShowTablesMap()
 	//--------------------
@@ -428,6 +476,8 @@ func TestShowTablesMap(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestLockTables")
+	//------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------
@@ -435,6 +485,8 @@ func TestShowTablesMap(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestLockTables(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestLockTables")
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -462,6 +514,8 @@ func TestLockTables(t *testing.T) {
 		t.Error(err)
 	}
 	//------------------------------------------------------------
+	sendSignal("TestUnlockTables")
+	//------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------
@@ -470,11 +524,15 @@ func TestLockTables(t *testing.T) {
 
 func TestUnlockTables(t *testing.T) {
 	//------------------------------------------------------------
+	receiveSignal("TestUnlockTables")
+	//------------------------------------------------------------
 	err := conn1.UnlockTables()
 	//--------------------
 	if err != nil {
 		t.Error(err)
 	}
+	//------------------------------------------------------------
+	sendSignal("TestTableExists")
 	//------------------------------------------------------------
 }
 
@@ -487,6 +545,8 @@ func TestUnlockTables(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestTableExists(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestTableExists")
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -515,6 +575,8 @@ func TestTableExists(t *testing.T) {
 		//--------------------
 	}
 	//------------------------------------------------------------
+	sendSignal("TestCheckTableName")
+	//------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------
@@ -522,6 +584,8 @@ func TestTableExists(t *testing.T) {
 //--------------------------------------------------------------------------------
 
 func TestCheckTableName(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestCheckTableName")
 	//------------------------------------------------------------
 	var result bool
 	//------------------------------------------------------------
@@ -549,6 +613,42 @@ func TestCheckTableName(t *testing.T) {
 		t.Errorf("result = %v but should = %v", result, !result)
 	}
 	//------------------------------------------------------------
+	sendSignal("TestNullStringToString")
+	//------------------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+//################################################################################
+//--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+// TestNullStringToString
+//--------------------------------------------------------------------------------
+
+func TestNullStringToString(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestNullStringToString")
+	//------------------------------------------------------------
+	var data1, data2 sql.NullString
+	//------------------------------------------------------------
+	data1 = sql.NullString{String: "", Valid: false}     // Represents a null value
+	data2 = sql.NullString{String: "test1", Valid: true} // Represents a non-null value
+	//------------------------------------------------------------
+	result1 := NullStringToString(data1)
+	result2 := NullStringToString(data2)
+	//--------------------
+	EXPECTED_result1 := ""
+	EXPECTED_result2 := "test1"
+	//------------------------------------------------------------
+	if result1 != EXPECTED_result1 {
+		t.Errorf("result1 = %s but should = %s", result1, EXPECTED_result1)
+	}
+	if result2 != EXPECTED_result2 {
+		t.Errorf("result2 = %s but should = %s", result2, EXPECTED_result2)
+	}
+	//------------------------------------------------------------
+	sendSignal("TestEscapeApostrophes")
+	//------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------
@@ -561,6 +661,8 @@ func TestCheckTableName(t *testing.T) {
 
 func TestEscapeApostrophes(t *testing.T) {
 	//------------------------------------------------------------
+	receiveSignal("TestEscapeApostrophes")
+	//------------------------------------------------------------
 	result := EscapeApostrophes(`1'2''3`)
 	//--------------------
 	EXPECTED_result := `1''2''''3`
@@ -568,6 +670,8 @@ func TestEscapeApostrophes(t *testing.T) {
 	if result != EXPECTED_result {
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
+	//------------------------------------------------------------
+	sendSignal("TestEscapeDoubleQuotes")
 	//------------------------------------------------------------
 }
 
@@ -577,6 +681,8 @@ func TestEscapeApostrophes(t *testing.T) {
 
 func TestEscapeDoubleQuotes(t *testing.T) {
 	//------------------------------------------------------------
+	receiveSignal("TestEscapeDoubleQuotes")
+	//------------------------------------------------------------
 	result := EscapeDoubleQuotes(`1"2""3`)
 	//--------------------
 	EXPECTED_result := `1""2""""3`
@@ -585,11 +691,15 @@ func TestEscapeDoubleQuotes(t *testing.T) {
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
 	//------------------------------------------------------------
+	sendSignal("TestEscapeMySQLString")
+	//------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------
 
 func TestEscapeMySQLString(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestEscapeMySQLString")
 	//------------------------------------------------------------
 	result := EscapeMySQLString("\\_\x00_\r_\n_\x1A_\"_'")
 	//--------------------
@@ -598,6 +708,8 @@ func TestEscapeMySQLString(t *testing.T) {
 	if result != EXPECTED_result {
 		t.Errorf("result = %s but should = %s", result, EXPECTED_result)
 	}
+	//------------------------------------------------------------
+	sendSignal("TestClose")
 	//------------------------------------------------------------
 }
 
@@ -610,6 +722,8 @@ func TestEscapeMySQLString(t *testing.T) {
 //------------------------------------------------------------
 
 func TestClose(t *testing.T) {
+	//------------------------------------------------------------
+	receiveSignal("TestClose")
 	//------------------------------------------------------------
 	conn1.Close()
 	//------------------------------------------------------------

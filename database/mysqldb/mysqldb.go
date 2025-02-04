@@ -23,7 +23,7 @@ import (
 
 //------------------------------------------------------------
 
-type MySQLdbStruct struct {
+type MySQLdb struct {
 	//--------------------
 	Host string
 	//--------------------
@@ -57,7 +57,7 @@ func init() {
 // Connect method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
+func (conn *MySQLdb) Connect(checkENV ...bool) error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -133,10 +133,10 @@ func (conn *MySQLdbStruct) Connect(checkENV ...bool) error {
 //------------------------------------------------------------
 // Connect - interface to connect method
 //------------------------------------------------------------
-// conn, err = Connect(MySQLdbStruct{ }, checkENV)
+// conn, err = Connect(MySQLdb{ }, checkENV)
 //------------------------------------------------------------
 
-func Connect(conn MySQLdbStruct, checkENV ...bool) (MySQLdbStruct, error) {
+func Connect(conn MySQLdb, checkENV ...bool) (MySQLdb, error) {
 	//------------------------------------------------------------
 	return conn, conn.Connect(checkENV...)
 	//------------------------------------------------------------
@@ -146,7 +146,7 @@ func Connect(conn MySQLdbStruct, checkENV ...bool) (MySQLdbStruct, error) {
 // Exec method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Exec(query string, args ...any) (sql.Result, error) {
+func (conn *MySQLdb) Exec(query string, args ...any) (sql.Result, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -160,7 +160,7 @@ func (conn *MySQLdbStruct) Exec(query string, args ...any) (sql.Result, error) {
 // Query method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Query(query string, args ...any) (*sql.Rows, error) {
+func (conn *MySQLdb) Query(query string, args ...any) (*sql.Rows, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, errors.New("not connected")
@@ -174,7 +174,7 @@ func (conn *MySQLdbStruct) Query(query string, args ...any) (*sql.Rows, error) {
 // QueryRow method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
+func (conn *MySQLdb) QueryRow(query string, args ...any) *sql.Row {
 	//------------------------------------------------------------
 	return conn.DB.QueryRow(strings.TrimSpace(query), args...)
 	//------------------------------------------------------------
@@ -184,7 +184,7 @@ func (conn *MySQLdbStruct) QueryRow(query string, args ...any) *sql.Row {
 // QueryRecords method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) QueryRecords(query string, args ...any) ([]map[string]any, error) {
+func (conn *MySQLdb) QueryRecords(query string, args ...any) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var err error
 	var rows *sql.Rows
@@ -205,7 +205,7 @@ func (conn *MySQLdbStruct) QueryRecords(query string, args ...any) ([]map[string
 // LockTables method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) LockTables(Tables ...string) error {
+func (conn *MySQLdb) LockTables(Tables ...string) error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -250,7 +250,7 @@ func (conn *MySQLdbStruct) LockTables(Tables ...string) error {
 // UnlockTables method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) UnlockTables() error {
+func (conn *MySQLdb) UnlockTables() error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -272,7 +272,7 @@ func (conn *MySQLdbStruct) UnlockTables() error {
 // TableExists method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
+func (conn *MySQLdb) TableExists(tableName string) (bool, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return false, errors.New("not connected")
@@ -325,14 +325,15 @@ func (conn *MySQLdbStruct) TableExists(tableName string) (bool, error) {
 // GetSQLTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
+func (conn *MySQLdb) GetSQLTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -401,14 +402,15 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
 // GetTableInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
+func (conn *MySQLdb) GetTableInfo(tableName string) (
 	[]struct {
 		Sequence int
 		Name     string
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -449,14 +451,15 @@ func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
 // GetRowsInfo method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) GetRowsInfo(rows *sql.Rows) (
+func (conn *MySQLdb) GetRowsInfo(rows *sql.Rows) (
 	[]struct {
 		Sequence int
 		Name     string
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	var err error
 	var colTypes []*sql.ColumnType
@@ -498,7 +501,7 @@ func (conn *MySQLdbStruct) GetRowsInfo(rows *sql.Rows) (
 // ScanRows method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
+func (conn *MySQLdb) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error) {
 	//------------------------------------------------------------
 	var records []map[string]any
 	//------------------------------------------------------------
@@ -558,7 +561,7 @@ func (conn *MySQLdbStruct) ScanRows(sqlRows *sql.Rows) ([]map[string]any, error)
 // ShowDatabases method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) ShowDatabases() ([]string, error) {
+func (conn *MySQLdb) ShowDatabases() ([]string, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return []string{}, errors.New("not connected")
@@ -583,7 +586,7 @@ func (conn *MySQLdbStruct) ShowDatabases() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -607,7 +610,7 @@ func (conn *MySQLdbStruct) ShowDatabases() ([]string, error) {
 // ShowTables method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) ShowTables() ([]string, error) {
+func (conn *MySQLdb) ShowTables() ([]string, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return []string{}, errors.New("not connected")
@@ -632,7 +635,7 @@ func (conn *MySQLdbStruct) ShowTables() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -656,7 +659,7 @@ func (conn *MySQLdbStruct) ShowTables() ([]string, error) {
 // ShowTablesMap method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) ShowTablesMap() (map[string]map[string]string, error) {
+func (conn *MySQLdb) ShowTablesMap() (map[string]map[string]string, error) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return map[string]map[string]string{}, errors.New("not connected")
@@ -683,7 +686,7 @@ func (conn *MySQLdbStruct) ShowTablesMap() (map[string]map[string]string, error)
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tablesMap = map[string]map[string]string{}
+	tablesMap := map[string]map[string]string{}
 	//----------------------------------------
 	for rows.Next() {
 		//----------------------------------------
@@ -717,7 +720,7 @@ func (conn *MySQLdbStruct) ShowTablesMap() (map[string]map[string]string, error)
 // Close method
 //------------------------------------------------------------
 
-func (conn *MySQLdbStruct) Close() error {
+func (conn *MySQLdb) Close() error {
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -728,6 +731,24 @@ func (conn *MySQLdbStruct) Close() error {
 	conn.DB = nil
 	//------------------------------------------------------------
 	return err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// NullStringToString
+//------------------------------------------------------------
+
+func NullStringToString(nullString sql.NullString) string {
+	//------------------------------------------------------------
+	if nullString.Valid {
+		return nullString.String
+	}
+	//------------------------------------------------------------
+	return ""
 	//------------------------------------------------------------
 }
 
