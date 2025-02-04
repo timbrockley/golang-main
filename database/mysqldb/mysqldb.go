@@ -332,7 +332,8 @@ func (conn *MySQLdbStruct) GetSQLTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -408,7 +409,8 @@ func (conn *MySQLdbStruct) GetTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -456,7 +458,8 @@ func (conn *MySQLdbStruct) GetRowsInfo(rows *sql.Rows) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	var err error
 	var colTypes []*sql.ColumnType
@@ -583,7 +586,7 @@ func (conn *MySQLdbStruct) ShowDatabases() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -632,7 +635,7 @@ func (conn *MySQLdbStruct) ShowTables() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -683,7 +686,7 @@ func (conn *MySQLdbStruct) ShowTablesMap() (map[string]map[string]string, error)
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tablesMap = map[string]map[string]string{}
+	tablesMap := map[string]map[string]string{}
 	//----------------------------------------
 	for rows.Next() {
 		//----------------------------------------
@@ -728,6 +731,24 @@ func (conn *MySQLdbStruct) Close() error {
 	conn.DB = nil
 	//------------------------------------------------------------
 	return err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// NullStringToString
+//------------------------------------------------------------
+
+func NullStringToString(nullString sql.NullString) string {
+	//------------------------------------------------------------
+	if nullString.Valid {
+		return nullString.String
+	}
+	//------------------------------------------------------------
+	return ""
 	//------------------------------------------------------------
 }
 

@@ -12,6 +12,7 @@ package sqldb
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -36,11 +37,10 @@ type SQLdbStruct struct {
 	//--------------------
 	AllowNativePasswords bool
 	//--------------------
-	Database string
-	//--------------------
+	FilePath    string
+	DataPath    string
+	Database    string
 	DatabaseExt string
-	//--------------------
-	FilePath string
 	//--------------------
 	AutoCreate bool
 	//--------------------
@@ -85,7 +85,7 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 	if strings.ToLower(conn.DBType) == "mysql" {
 
 		//------------------------------------------------------------
-		if checkENV != nil && checkENV[0] {
+		if len(checkENV) > 0 && checkENV[0] {
 			//------------------------------------------------------------
 			conn.Host = os.Getenv("MYSQL_HOST")
 			//--------------------
@@ -118,7 +118,7 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 	} else if strings.ToLower(conn.DBType) == "postgres" {
 
 		//------------------------------------------------------------
-		if checkENV != nil && checkENV[0] {
+		if len(checkENV) > 0 && checkENV[0] {
 			//------------------------------------------------------------
 			conn.Host = os.Getenv("POSTGRES_HOST")
 			//--------------------
@@ -153,27 +153,32 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 		// if file path is not passed then check environment variables
 		//------------------------------------------------------------
 		if conn.FilePath != ":memory:" && conn.Database != ":memory:" {
-
 			//------------------------------------------------------------
 
 			if conn.FilePath != "" {
 				//--------------------
+				conn.DataPath = ""
 				conn.Database = ""
 				conn.DatabaseExt = ""
 				//--------------------
-
 			} else {
-
 				//------------------------------------------------------------
-				var filePath, dataPath, database string
+				var filePath, database string
 				//------------------------------------------------------------
-				if checkENV != nil && checkENV[0] {
+				if len(checkENV) > 0 && checkENV[0] {
 					//--------------------
 					filePath = os.Getenv("SQLITE_FILEPATH")
-					dataPath = os.Getenv("SQLITE_DATA_PATH")
+					//--------------------
+					if conn.DataPath == "" {
+						conn.DataPath = os.Getenv("SQLITE_DATA_PATH")
+					}
 					//--------------------
 					if conn.Database == "" {
 						database = os.Getenv("SQLITE_DATABASE")
+					}
+					//--------------------
+					if conn.DatabaseExt == "" {
+						conn.DatabaseExt = os.Getenv("SQLITE_DATABASE_EXT")
 					}
 					//--------------------
 				}
@@ -181,26 +186,11 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 				if filePath != "" {
 					//--------------------
 					conn.FilePath = filePath
+					conn.DataPath = ""
 					conn.Database = ""
 					conn.DatabaseExt = ""
 					//--------------------
 				} else {
-					//--------------------
-					if conn.Database == "" {
-						//--------------------
-						if database != "" {
-							//--------------------
-							conn.Database = database
-							conn.DatabaseExt = "db"
-							//--------------------
-						} else {
-							//--------------------
-							conn.Database = "_system"
-							conn.DatabaseExt = "db"
-							//--------------------
-						}
-						//--------------------
-					}
 					//--------------------
 					if conn.DatabaseExt == "" {
 						//--------------------
@@ -208,13 +198,30 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 						//--------------------
 					}
 					//--------------------
-					if dataPath != "" {
+					if conn.Database == "" {
 						//--------------------
-						conn.FilePath = file.FilePathJoin(dataPath, conn.Database+"."+conn.DatabaseExt)
+						if database != "" {
+							//--------------------
+							conn.Database = database
+							//--------------------
+						} else {
+							//--------------------
+							conn.Database = "_system"
+							//--------------------
+						}
 						//--------------------
+					}
+					//--------------------
+					if conn.DataPath != "" {
+						//--------------------
+						conn.FilePath = file.FilePathJoin(conn.DataPath, conn.Database+"."+conn.DatabaseExt)
+						//--------------------
+						conn.DataPath = ""
 						conn.Database = ""
 						conn.DatabaseExt = ""
 						//--------------------
+					} else {
+						return fmt.Errorf("invalid dataPath")
 					}
 					//--------------------
 				}
@@ -223,7 +230,7 @@ func (conn *SQLdbStruct) Connect(checkENV ...bool) error {
 			//------------------------------------------------------------
 		}
 		//------------------------------------------------------------
-		conn.connSQLite = sqlitedb.SQLiteDBStruct{FilePath: conn.FilePath, Database: conn.Database, DatabaseExt: conn.DatabaseExt, AutoCreate: conn.AutoCreate}
+		conn.connSQLite = sqlitedb.SQLiteDBStruct{FilePath: conn.FilePath, DataPath: conn.DataPath, Database: conn.Database, DatabaseExt: conn.DatabaseExt, AutoCreate: conn.AutoCreate}
 		//--------------------
 		err = conn.connSQLite.Connect()
 		//------------------------------------------------------------
@@ -353,7 +360,8 @@ func (conn *SQLdbStruct) GetSQLTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -406,7 +414,8 @@ func (conn *SQLdbStruct) GetTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -556,6 +565,27 @@ func (conn *SQLdbStruct) TableExists(tableName string) (bool, error) {
 //############################################################
 //------------------------------------------------------------
 
+//------------------------------------------------------------
+// NullStringToString
+//------------------------------------------------------------
+
+func NullStringToString(value sql.NullString) string {
+	//------------------------------------------------------------
+	if value.Valid {
+		return value.String
+	}
+	return ""
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// EscapeApostrophes
+//------------------------------------------------------------
+
 func EscapeApostrophes(dataString string) string {
 	//------------------------------------------------------------
 	replacer := strings.NewReplacer(
@@ -566,6 +596,8 @@ func EscapeApostrophes(dataString string) string {
 	//------------------------------------------------------------
 }
 
+//------------------------------------------------------------
+// EscapeDoubleQuotes
 //------------------------------------------------------------
 
 func EscapeDoubleQuotes(dataString string) string {
@@ -579,6 +611,8 @@ func EscapeDoubleQuotes(dataString string) string {
 }
 
 //------------------------------------------------------------
+// EscapeMySQLString
+//------------------------------------------------------------
 
 func EscapeMySQLString(dataString string) string {
 	//------------------------------------------------------------
@@ -586,6 +620,8 @@ func EscapeMySQLString(dataString string) string {
 	//------------------------------------------------------------
 }
 
+//------------------------------------------------------------
+// EscapePostgreSQLString
 //------------------------------------------------------------
 
 func EscapePostgreSQLString(dataString string) string {
@@ -598,12 +634,18 @@ func EscapePostgreSQLString(dataString string) string {
 //############################################################
 //------------------------------------------------------------
 
+//------------------------------------------------------------
+// CheckDatabaseName
+//------------------------------------------------------------
+
 func CheckDatabaseName(databaseName string) bool {
 	//------------------------------------------------------------
 	return CheckTableName(databaseName)
 	//------------------------------------------------------------
 }
 
+//------------------------------------------------------------
+// CheckTableName
 //------------------------------------------------------------
 
 func CheckTableName(tableName string) bool {

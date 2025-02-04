@@ -26,6 +26,7 @@ import (
 type SQLiteDBStruct struct {
 	//--------------------
 	FilePath    string
+	DataPath    string
 	Database    string
 	DatabaseExt string
 	//--------------------
@@ -44,17 +45,16 @@ type SQLiteDBStruct struct {
 //------------------------------------------------------------
 
 func (conn *SQLiteDBStruct) Connect() error {
-
 	//------------------------------------------------------------
 	var err error
-	var filePath, database, databaseExt string
+	var filePath, dataPath, database, databaseExt string
 	//------------------------------------------------------------
 	filePath = conn.FilePath
+	dataPath = conn.DataPath
 	database = conn.Database
 	databaseExt = conn.DatabaseExt
 	//------------------------------------------------------------
 	if database != "" {
-
 		if database == ":memory:" {
 
 			//--------------------
@@ -75,16 +75,14 @@ func (conn *SQLiteDBStruct) Connect() error {
 				databaseExt = "db"
 			}
 			//--------------------
-			if filePath == "" {
-				filePath = file.Path()
+			if dataPath == "" {
+				dataPath = file.Path()
 			}
 			//--------------------
-			filePath = file.FilePathJoin(filePath, database+"."+databaseExt)
+			filePath = file.FilePathJoin(dataPath, database+"."+databaseExt)
 			//--------------------
 		}
-
 	} else {
-
 		if filePath == ":memory:" {
 
 			//--------------------
@@ -122,11 +120,11 @@ func (conn *SQLiteDBStruct) Connect() error {
 	}
 	//------------------------------------------------------------
 	conn.FilePath = filePath
+	conn.DataPath = dataPath
 	conn.Database = database
 	conn.DatabaseExt = databaseExt
 	//------------------------------------------------------------
 	if filePath != ":memory:" && !conn.AutoCreate && !file.FilePathExists(filePath) {
-
 		return fmt.Errorf("database file %q does not exists ", filePath)
 	}
 	//------------------------------------------------------------
@@ -143,7 +141,6 @@ func (conn *SQLiteDBStruct) Connect() error {
 //------------------------------------------------------------
 
 func Connect(conn SQLiteDBStruct) (SQLiteDBStruct, error) {
-
 	//------------------------------------------------------------
 	return conn, conn.Connect()
 	//------------------------------------------------------------
@@ -300,7 +297,7 @@ func (conn *SQLiteDBStruct) ShowTables() ([]string, error) {
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tables = []string{}
+	tables := []string{}
 	//------------------------------
 	for rows.Next() {
 		//--------------------
@@ -343,7 +340,7 @@ func (conn *SQLiteDBStruct) ShowTablesMap() (map[string]map[string]string, error
 	//------------------------------------------------------------
 	defer rows.Close()
 	//------------------------------------------------------------
-	var tablesMap = map[string]map[string]string{}
+	tablesMap := map[string]map[string]string{}
 	//----------------------------------------
 	for rows.Next() {
 		//----------------------------------------
@@ -425,7 +422,8 @@ func (conn *SQLiteDBStruct) GetSQLTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -490,7 +488,8 @@ func (conn *SQLiteDBStruct) GetTableInfo(tableName string) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	if conn.DB == nil {
 		return nil, nil, errors.New("not connected")
@@ -530,7 +529,8 @@ func (conn *SQLiteDBStruct) GetRowsInfo(rows *sql.Rows) (
 		Type     string
 	},
 	map[string]string,
-	error) {
+	error,
+) {
 	//------------------------------------------------------------
 	var err error
 	var colTypes []*sql.ColumnType
@@ -573,7 +573,6 @@ func (conn *SQLiteDBStruct) GetRowsInfo(rows *sql.Rows) (
 //------------------------------------------------------------
 
 func (conn *SQLiteDBStruct) Close() error {
-
 	//------------------------------------------------------------
 	var err error
 	//------------------------------------------------------------
@@ -641,6 +640,24 @@ func CheckTableName(tableName string) bool {
 	match, err = regexp.MatchString(`^[_A-Za-z0-9]*$`, tableName)
 	//--------------------
 	return err == nil && match
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// NullStringToString
+//------------------------------------------------------------
+
+func NullStringToString(nullString sql.NullString) string {
+	//------------------------------------------------------------
+	if nullString.Valid {
+		return nullString.String
+	}
+	//------------------------------------------------------------
+	return ""
 	//------------------------------------------------------------
 }
 
