@@ -3,6 +3,7 @@
 package file
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,15 +14,16 @@ import (
 
 //------------------------------------------------------------
 
-var testTempPath, testTempGolangPath string
-var testDataFilename, testLogFilename string
+var (
+	testTempPath, testTempGolangPath  string
+	testDataFilename, testLogFilename string
+)
 
 //------------------------------------------------------------
 // initial setup
 //------------------------------------------------------------
 
 func TestMain(t *testing.T) {
-
 	//------------------------------------------------------------
 	testTempPath = os.TempDir()
 	testTempGolangPath = testTempPath + "/golang"
@@ -29,9 +31,8 @@ func TestMain(t *testing.T) {
 	//------------------------------------------------------------
 	if !FilePathExists(testTempGolangPath) {
 
-		err := os.Mkdir(testTempGolangPath, 0700)
+		err := os.Mkdir(testTempGolangPath, 0o700)
 		if err != nil {
-
 			t.Error(err)
 		}
 	}
@@ -55,7 +56,6 @@ func TestMain(t *testing.T) {
 //------------------------------------------------------------
 
 func TestMutexLockUnlock(t *testing.T) {
-
 	//------------------------------------------------------------
 	var resultString, EXPECTED_string string
 	var resultInt, EXPECTED_int int
@@ -126,21 +126,18 @@ func TestMutexLockUnlock(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilePathExists(t *testing.T) {
-
 	//------------------------------------------------------------
 	var result bool
 	//------------------------------------------------------------
 	result = FilePathExists(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
 	//------------------------------------------------------------
 	if result {
-
 		t.Errorf("result = %v but should = %v", result, false)
 	}
 	//------------------------------------------------------------
 	result = FilePathExists(`/`)
 	//------------------------------------------------------------
 	if !result {
-
 		t.Errorf("result = %v but should = %v", result, true)
 	}
 	//------------------------------------------------------------
@@ -151,7 +148,6 @@ func TestFilePathExists(t *testing.T) {
 //------------------------------------------------------------
 
 func TestIsDir(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -159,7 +155,6 @@ func TestIsDir(t *testing.T) {
 	result, err = IsDirectory(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
 	//------------------------------------------------------------
 	if err == nil || result {
-
 		// t.Error(err)
 		t.Errorf("result = %v but should = %v", result, false)
 	}
@@ -167,7 +162,6 @@ func TestIsDir(t *testing.T) {
 	result, err = IsDirectory(`/`)
 	//------------------------------------------------------------
 	if err != nil || !result {
-
 		t.Errorf("result = %v but should = %v", result, true)
 	}
 	//------------------------------------------------------------
@@ -178,7 +172,6 @@ func TestIsDir(t *testing.T) {
 //------------------------------------------------------------
 
 func TestIsFile(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var result bool
@@ -186,7 +179,6 @@ func TestIsFile(t *testing.T) {
 	result, err = IsFile(`MADEUP_PATH_fdsfhkdfghd7s8gds78f78`)
 	//------------------------------------------------------------
 	if err == nil || result {
-
 		// t.Error(err)
 		t.Errorf("result = %v but should = %v", result, false)
 	}
@@ -194,14 +186,12 @@ func TestIsFile(t *testing.T) {
 	result, err = IsFile(`/`)
 	//------------------------------------------------------------
 	if err != nil || result {
-
 		t.Errorf("result = %v but should = %v", result, false)
 	}
 	//------------------------------------------------------------
 	result, err = IsFile(`/etc/fstab`)
 	//------------------------------------------------------------
 	if err != nil || !result {
-
 		t.Errorf("result = %v but should = %v", result, true)
 	}
 	//------------------------------------------------------------
@@ -212,35 +202,30 @@ func TestIsFile(t *testing.T) {
 //------------------------------------------------------------
 
 func TestPath(t *testing.T) {
-
 	//------------------------------------------------------------
 	var path string
 	//------------------------------------------------------------
 	path = Path()
 	//------------------------------------------------------------
 	if path == "" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//------------------------------------------------------------
 	path = Path(`/path1/path2/`)
 	//------------------------------------------------------------
 	if path != "/path1/path2/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//------------------------------------------------------------
 	path = Path(`/path3/path4/`)
 	//------------------------------------------------------------
 	if path != "/path3/path4/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//------------------------------------------------------------
 	path = Path(`/path5/path6/filename.txt`)
 	//------------------------------------------------------------
 	if path != "/path5/path6/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//------------------------------------------------------------
@@ -251,7 +236,6 @@ func TestPath(t *testing.T) {
 //------------------------------------------------------------
 
 func TestPathJoin(t *testing.T) {
-
 	//------------------------------------------------------------
 	var path, path1, path2 string
 	//------------------------------------------------------------
@@ -261,7 +245,6 @@ func TestPathJoin(t *testing.T) {
 	path = PathJoin(path1, path2)
 	//------------------------------------------------------------
 	if path != "/path1/path2/path3/path4/" {
-
 		t.Errorf(`filePath = %q`, path)
 	}
 	//------------------------------------------------------------
@@ -271,7 +254,6 @@ func TestPathJoin(t *testing.T) {
 	path = PathJoin(path1, path2)
 	//------------------------------------------------------------
 	if path != "/path11/path12/path13/path14/" {
-
 		t.Errorf(`filePath = %q`, path)
 	}
 	//------------------------------------------------------------
@@ -282,7 +264,6 @@ func TestPathJoin(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilePathJoin(t *testing.T) {
-
 	//------------------------------------------------------------
 	var filePath, path, filename string
 	//------------------------------------------------------------
@@ -292,7 +273,6 @@ func TestFilePathJoin(t *testing.T) {
 	filePath = FilePathJoin(path, filename)
 	//------------------------------------------------------------
 	if filePath != "/path1/path2/filename.txt" {
-
 		t.Errorf(`filePath = %q`, filePath)
 	}
 	//------------------------------------------------------------
@@ -302,7 +282,6 @@ func TestFilePathJoin(t *testing.T) {
 	filePath = FilePathJoin(path, filename)
 	//------------------------------------------------------------
 	if filePath != "/path3/path4/filename.txt" {
-
 		t.Errorf(`filePath = %q`, filePath)
 	}
 	//------------------------------------------------------------
@@ -313,55 +292,46 @@ func TestFilePathJoin(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilePathSplit(t *testing.T) {
-
 	//------------------------------------------------------------
 	var path, filename string
 	//------------------------------------------------------------
 	path, filename = FilePathSplit()
 	//------------------------------------------------------------
 	if path == "" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//--------------------
 	if filename == "" {
-
 		t.Errorf(`filename = %q`, filename)
 	}
 	//------------------------------------------------------------
 	path, filename = FilePathSplit(`/path1/filename`)
 	//------------------------------------------------------------
 	if path != "/path1/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//--------------------
 	if filename != "filename" {
-
 		t.Errorf(`filename = %q`, filename)
 	}
 	//------------------------------------------------------------
 	path, filename = FilePathSplit(`/path3/path4/`)
 	//------------------------------------------------------------
 	if path != "/path3/path4/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//--------------------
 	if filename != "" {
-
 		t.Errorf(`filename = %q`, filename)
 	}
 	//------------------------------------------------------------
 	path, filename = FilePathSplit(`/path5/path6/filename.txt`)
 	//------------------------------------------------------------
 	if path != "/path5/path6/" {
-
 		t.Errorf(`path = %q`, path)
 	}
 	//--------------------
 	if filename != "filename.txt" {
-
 		t.Errorf(`filename = %q`, filename)
 	}
 	//------------------------------------------------------------
@@ -372,7 +342,6 @@ func TestFilePathSplit(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilePathBaseToFilename(t *testing.T) {
-
 	//------------------------------------------------------------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
@@ -382,7 +351,6 @@ func TestFilePathBaseToFilename(t *testing.T) {
 	filePath = testTempGolangPath + `/` + filePath + `.txt`
 	//------------------------------------------------------------
 	if filePath != testDataFilename {
-
 		t.Errorf("filename = %q but should = %q", filePath, testDataFilename)
 	}
 	//------------------------------------------------------------
@@ -391,7 +359,6 @@ func TestFilePathBaseToFilename(t *testing.T) {
 	filePath = FilePathBaseToFilename("/tmp/golang/test.txt")
 	//------------------------------------------------------------
 	if filePath != "tmp-golang-test" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "tmp-golang-test")
 	}
 	//------------------------------------------------------------
@@ -400,7 +367,6 @@ func TestFilePathBaseToFilename(t *testing.T) {
 	filePath = FilePathBaseToFilename("/tmp/golang/")
 	//------------------------------------------------------------
 	if filePath != "tmp-golang" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "tmp-golang")
 	}
 	//------------------------------------------------------------
@@ -411,7 +377,6 @@ func TestFilePathBaseToFilename(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilePathBase(t *testing.T) {
-
 	//------------------------------------------------------------
 	var filePath string
 	//------------------------------------------------------------
@@ -420,7 +385,6 @@ func TestFilePathBase(t *testing.T) {
 	filePath = FilePathBase("/tmp/golang/test.txt")
 	//------------------------------------------------------------
 	if filePath != "/tmp/golang/test" {
-
 		t.Errorf("filePath base = %q but should = %q", filePath, "tmp/golang/test")
 	}
 	//------------------------------------------------------------
@@ -429,7 +393,6 @@ func TestFilePathBase(t *testing.T) {
 	filePath = FilePathBase("/tmp/golang/")
 	//------------------------------------------------------------
 	if filePath != "/tmp/golang" {
-
 		t.Errorf("filePath base = %q but should = %q", filePath, "tmp/golang")
 	}
 	//------------------------------------------------------------
@@ -438,7 +401,6 @@ func TestFilePathBase(t *testing.T) {
 	filePath = FilePathBase("/tmp/golang")
 	//------------------------------------------------------------
 	if filePath != "/tmp/golang" {
-
 		t.Errorf("filePath base = %q but should = %q", filePath, "tmp/golang")
 	}
 	//------------------------------------------------------------
@@ -449,7 +411,6 @@ func TestFilePathBase(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilenameBase(t *testing.T) {
-
 	//------------------------------------------------------------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
@@ -457,7 +418,6 @@ func TestFilenameBase(t *testing.T) {
 	filePath = FilenameBase(filePath)
 	//------------------------------------------------------------
 	if filePath != "file_test" {
-
 		t.Errorf("filename base = %q but should = %q", filePath, "file_test")
 	}
 	//------------------------------------------------------------
@@ -466,7 +426,6 @@ func TestFilenameBase(t *testing.T) {
 	filePath = FilenameBase("/tmp/golang/test")
 	//------------------------------------------------------------
 	if filePath != "test" {
-
 		t.Errorf("filename base = %q but should = %q", filePath, "test")
 	}
 	//------------------------------------------------------------
@@ -475,7 +434,6 @@ func TestFilenameBase(t *testing.T) {
 	filePath = FilenameBase("/tmp/golang/")
 	//------------------------------------------------------------
 	if filePath != "golang" {
-
 		t.Errorf("filename base = %q but should = %q", filePath, "golang")
 	}
 	//------------------------------------------------------------
@@ -484,7 +442,6 @@ func TestFilenameBase(t *testing.T) {
 	filePath = FilenameBase("/tmp/golang")
 	//------------------------------------------------------------
 	if filePath != "golang" {
-
 		t.Errorf("filename base = %q but should = %q", filePath, "golang")
 	}
 	//------------------------------------------------------------
@@ -495,7 +452,6 @@ func TestFilenameBase(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilename(t *testing.T) {
-
 	//------------------------------------------------------------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
@@ -503,7 +459,6 @@ func TestFilename(t *testing.T) {
 	filePath = Filename(filePath)
 	//------------------------------------------------------------
 	if filePath != "file_test.go" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "file_test.go")
 	}
 	//------------------------------------------------------------
@@ -512,7 +467,6 @@ func TestFilename(t *testing.T) {
 	filePath = Filename("/tmp/golang/test.txt")
 	//------------------------------------------------------------
 	if filePath != "test.txt" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "test.txt")
 	}
 	//------------------------------------------------------------
@@ -521,7 +475,6 @@ func TestFilename(t *testing.T) {
 	filePath = Filename("/tmp/golang/")
 	//------------------------------------------------------------
 	if filePath != "" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "")
 	}
 	//------------------------------------------------------------
@@ -530,7 +483,6 @@ func TestFilename(t *testing.T) {
 	filePath = Filename("/tmp/golang")
 	//------------------------------------------------------------
 	if filePath != "golang" {
-
 		t.Errorf("filename = %q but should = %q", filePath, "")
 	}
 	//------------------------------------------------------------
@@ -541,7 +493,6 @@ func TestFilename(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFilenameExt(t *testing.T) {
-
 	//------------------------------------------------------------
 	// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 	_, filePath, _, _ := runtime.Caller(0)
@@ -549,7 +500,6 @@ func TestFilenameExt(t *testing.T) {
 	filePath = FilenameExt(filePath)
 	//------------------------------------------------------------
 	if filePath != "go" {
-
 		t.Errorf("filePath = %q but should = %q", filePath, "go")
 	}
 	//------------------------------------------------------------
@@ -558,7 +508,6 @@ func TestFilenameExt(t *testing.T) {
 	filePath = FilenameExt("/tmp/golang/test.txt")
 	//------------------------------------------------------------
 	if filePath != "txt" {
-
 		t.Errorf("extension = %q but should = %q", filePath, "txt")
 	}
 	//------------------------------------------------------------
@@ -567,7 +516,6 @@ func TestFilenameExt(t *testing.T) {
 	filePath = FilenameExt("/tmp/golang/")
 	//------------------------------------------------------------
 	if filePath != "" {
-
 		t.Errorf("extension = %q but should = %q", filePath, "")
 	}
 	//------------------------------------------------------------
@@ -578,12 +526,10 @@ func TestFilenameExt(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFileSave(t *testing.T) {
-
 	//------------------------------------------------------------
 	err := FileSave(testDataFilename, "<TEST_DATA>")
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//------------------------------------------------------------
@@ -594,7 +540,6 @@ func TestFileSave(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFileAppend(t *testing.T) {
-
 	//------------------------------------------------------------
 	err := FileAppend(testDataFilename, "<TEST_DATA>")
 	//------------------------------------------------------------
@@ -609,24 +554,27 @@ func TestFileAppend(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFileLoad(t *testing.T) {
-
 	//--------------------------------------------------------------------------------
 	var err error
 	//--------------------------------------------------------------------------------
 	var dataString, restulString string
+	//------------------------------------------------------------
+	expectedError := errors.New("file does not exist")
+	//------------------------------------------------------------
+	_, err = FileLoad("INVALID_FILENAME_djv8hdf87vh8dv8d9")
+	//------------------------------------------------------------
+	if err == nil || err.Error() != expectedError.Error() {
+		t.Errorf(`err = %q but should = %q\n`, err, expectedError)
+	}
 	//------------------------------------------------------------
 	restulString = "<TEST_DATA><TEST_DATA>"
 	//------------------------------------------------------------
 	dataString, err = FileLoad(testDataFilename)
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		if dataString != restulString {
-
 			t.Errorf(`dataString = %q but should = %q\n`, dataString, restulString)
 		}
 	}
@@ -638,29 +586,31 @@ func TestFileLoad(t *testing.T) {
 //------------------------------------------------------------
 
 func TestFileRemove(t *testing.T) {
-
 	//--------------------------------------------------------------------------------
 	var err error
 	//--------------------------------------------------------------------------------
+	expectedError := errors.New("file does not exist")
+	//------------------------------------------------------------
+	err = FileRemove("INVALID_FILENAME_djv8hdf87vh8dv8d9")
+	//------------------------------------------------------------
+	if err == nil || err.Error() != expectedError.Error() {
+		t.Errorf(`err = %q but should = %q\n`, err, expectedError)
+	}
+	//------------------------------------------------------------
 	testTempFilename := testTempGolangPath + "/TEMP_FILE.txt"
 	//--------------------------------------------------------------------------------
 	err = FileSave(testTempFilename, "<TEST_DATA>")
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//------------------------------------------------------------
 	err = FileRemove(testTempFilename)
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		if FilePathExists(testTempFilename) {
-
 			t.Error("error occurred while trying to remove file")
 		}
 	}
@@ -672,17 +622,14 @@ func TestFileRemove(t *testing.T) {
 //------------------------------------------------------------
 
 func TestTempPath(t *testing.T) {
-
 	//------------------------------------------------------------
 	tempPath, err := TempPath()
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//--------------------
 	if tempPath == "" {
-
 		t.Errorf("tempPath should not = %q", "")
 	}
 	//------------------------------------------------------------
@@ -693,17 +640,14 @@ func TestTempPath(t *testing.T) {
 //------------------------------------------------------------
 
 func TestTempFilePath(t *testing.T) {
-
 	//------------------------------------------------------------
 	tempFilePath, err := TempFilePath()
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//--------------------
 	if tempFilePath == "" {
-
 		t.Errorf("tempFilePath should not = %q", "")
 	}
 	//------------------------------------------------------------
@@ -714,12 +658,10 @@ func TestTempFilePath(t *testing.T) {
 //------------------------------------------------------------
 
 func TestLogFilePath(t *testing.T) {
-
 	//------------------------------------------------------------
 	logFilePath := LogFilePath()
 	//------------------------------------------------------------
 	if logFilePath != testLogFilename {
-
 		t.Errorf("logFilePath = %q but should = %q", logFilePath, testLogFilename)
 	}
 	//------------------------------------------------------------
@@ -730,7 +672,6 @@ func TestLogFilePath(t *testing.T) {
 //------------------------------------------------------------
 
 func TestLog(t *testing.T) {
-
 	//------------------------------------------------------------
 	var err error
 	var len1, len2, len3 int
@@ -742,9 +683,7 @@ func TestLog(t *testing.T) {
 	err = Log("<TEST_DATA>")
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//--------------------
@@ -753,7 +692,6 @@ func TestLog(t *testing.T) {
 		len2 = len(dataBytes2)
 		//--------------------
 		if len1 >= len2 || len2 == 0 {
-
 			t.Error("error occurred while trying to write to log file")
 		}
 		//--------------------
@@ -762,9 +700,7 @@ func TestLog(t *testing.T) {
 	err = Log("<TEST_DATA>", testLogFilename)
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
 
 		//--------------------
@@ -773,7 +709,6 @@ func TestLog(t *testing.T) {
 		len3 = len(dataBytes3)
 		//--------------------
 		if len2 >= len3 || len3 == 0 {
-
 			t.Error("error occurred while trying to write to log file")
 		}
 		//--------------------

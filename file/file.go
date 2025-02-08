@@ -10,6 +10,7 @@ LICENSE file in the root directory of this source tree.
 package file
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"math/rand"
@@ -175,6 +176,10 @@ func FileLoad(filePath string) (string, error) {
 	var dataBytes []byte
 	var dataString string
 	//------------------------------------------------------------
+	if !FilePathExists(filePath) {
+		return dataString, errors.New("file does not exist")
+	}
+	//------------------------------------------------------------
 	fslock := fslock.New(filePath)
 	fslock.Lock()
 	defer fslock.Unlock()
@@ -229,7 +234,7 @@ func FileAppend(filePath string, data string) error {
 	fslock.Lock()
 	defer fslock.Unlock()
 	//------------------------------------------------------------
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	//--------------------
 	if err == nil && data != "" {
 		//--------------------
@@ -251,6 +256,10 @@ func FileRemove(filePath string) error {
 	//------------------------------------------------------------
 	filePath = filepath.FromSlash(filePath)
 	//------------------------------------------------------------
+	if !FilePathExists(filePath) {
+		return errors.New("file does not exist")
+	}
+	//------------------------------------------------------------
 	fslock := fslock.New(filePath)
 	fslock.Lock()
 	defer fslock.Unlock()
@@ -268,21 +277,15 @@ func Path(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
 	//------------------------------------------------------------
 	if filepath.Ext(filePath) != "" {
-
 		return strings.TrimRight(filepath.Dir(filePath), "/") + "/"
-
 	} else {
-
 		return strings.TrimRight(filePath, "/") + "/"
 	}
 	//------------------------------------------------------------
@@ -317,11 +320,8 @@ func FilePathSplit(FilePath ...string) (string, string) {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -339,11 +339,8 @@ func FilePathBaseToFilename(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -368,11 +365,8 @@ func FilePathBase(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -394,11 +388,8 @@ func FilenameBase(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -420,11 +411,8 @@ func Filename(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -448,11 +436,8 @@ func FilenameExt(FilePath ...string) string {
 	var filePath string
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		filePath = FilePath[0]
-
 	} else {
-
 		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
 		_, filePath, _, _ = runtime.Caller(1)
 	}
@@ -474,8 +459,7 @@ func TempPath() (string, error) {
 	tempPath := strings.TrimRight(os.TempDir(), "/") + "/golang/"
 	//------------------------------------------------------------
 	if !FilePathExists(tempPath) {
-
-		err = os.MkdirAll(tempPath, 0700)
+		err = os.MkdirAll(tempPath, 0o700)
 	}
 	//------------------------------------------------------------
 	return filepath.FromSlash(tempPath), err
@@ -490,7 +474,6 @@ func TempFilePath() (string, error) {
 	//------------------------------------------------------------
 	tempFilePath, err := TempPath()
 	if err == nil {
-
 		tempFilePath += fmt.Sprintf("tmp_%d_%d.tmp", time.Now().UnixMicro(), rand.Int())
 	}
 	//------------------------------------------------------------
@@ -522,11 +505,8 @@ func Log(messageString string, FilePath ...string) error {
 	var ok bool
 	//------------------------------------------------------------
 	if FilePath != nil && FilePath[0] != "" {
-
 		logFilePath = filepath.FromSlash(FilePath[0])
-
 	} else {
-
 		logFilePath = LogFilePath()
 	}
 	//------------------------------------------------------------
@@ -582,7 +562,7 @@ func Log(messageString string, FilePath ...string) error {
 		callingLineNumber,
 		escapedMessageString)
 	//------------------------------------------------------------
-	file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	//--------------------
 	if err == nil {
 		//--------------------
