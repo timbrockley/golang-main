@@ -3,6 +3,7 @@
 package system
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -73,7 +74,6 @@ func TestToBytes(t *testing.T) {
 	stringVal := ToBytes("stringVal")
 	//------------------------------------------------------------
 	if string(stringVal) != "stringVal" {
-
 		t.Errorf("ToBytes(\"stringVal\") = %q but should = %q", stringVal, []byte("stringVal"))
 	}
 	//------------------------------------------------------------
@@ -368,7 +368,6 @@ func TestGetHostname(t *testing.T) {
 	result := GetHostname()
 	//------------------------------------------------------------
 	if result == "" {
-
 		t.Errorf("hostname = %q", result)
 	}
 	//------------------------------------------------------------
@@ -383,11 +382,9 @@ func TestGetLocalIPs(t *testing.T) {
 	result, err := GetLocalIPs()
 	//------------------------------------------------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	if result == nil {
-
 		t.Errorf("LocalIPs = %q", result)
 	}
 	//------------------------------------------------------------
@@ -402,7 +399,6 @@ func TestGetLocalIPAddr(t *testing.T) {
 	result := GetLocalIPAddr()
 	//------------------------------------------------------------
 	if result == "" {
-
 		t.Errorf("LocalIPs = %q", result)
 	}
 	//------------------------------------------------------------
@@ -417,7 +413,6 @@ func TestGetOS(t *testing.T) {
 	result := GetHostname()
 	//------------------------------------------------------------
 	if result == "" {
-
 		t.Errorf("hostname = %q", result)
 	}
 	//------------------------------------------------------------
@@ -433,17 +428,11 @@ func TestCLIParams(t *testing.T) {
 	resultType := fmt.Sprintf("%T", result)
 	//------------------------------------------------------------
 	if resultType != "[]string" {
-
 		t.Errorf("result type = %q but should = %q", resultType, "[]string")
-
 	} else {
-
 		if len(result) <= 0 {
-
 			t.Error("result does not contain any elements")
-
 		} else if resultType != "[]string" || result[0] != os.Args[0] {
-
 			t.Errorf("result[0] = %q but should = %q", result[0], os.Args[0])
 		}
 	}
@@ -476,7 +465,6 @@ func TestGetENV(t *testing.T) {
 	result := GetENV("GOLANG_TEST")
 	//------------------------------------------------------------
 	if result != "TEST1234" {
-
 		t.Errorf("GOLANG_TEST = %q", result)
 	}
 	//------------------------------------------------------------
@@ -511,7 +499,6 @@ func TestSetENV(t *testing.T) {
 	result := os.Getenv("GOLANG_SETENV_TEST")
 	//------------------------------------------------------------
 	if result != "SETENV_TEST1234" {
-
 		t.Errorf("GOLANG_SETENV_TEST = %q", result)
 	}
 	//------------------------------------------------------------
@@ -535,12 +522,10 @@ func TestSetENVs(t *testing.T) {
 	} else {
 		//--------------------
 		if result1 != "SETENV_TEST1" {
-
 			t.Errorf("GOLANG_SETENV_TEST1 = %q", result1)
 		}
 		//--------------------
 		if result2 != "SETENV_TEST2" {
-
 			t.Errorf("GOLANG_SETENV_TEST2 = %q", result2)
 		}
 		//--------------------
@@ -557,13 +542,58 @@ func TestLoadENVs(t *testing.T) {
 	err := LoadENVs()
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
 	}
 	//--------------------
 	if os.Getenv("_SYSTEM_TEST") != "_SYSTEM_TEST_VALUE" {
-
 		t.Error("error getting environment variables")
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// GenerateOTP
+//------------------------------------------------------------
+
+func TestGenerateOTP(t *testing.T) {
+	//------------------------------------------------------------
+	tests := []struct {
+		timestamp     int
+		secret        string
+		expectedOTP   string
+		expectedError error
+	}{
+		{0, "", "", errors.New("invalid timestamp")},
+		{1, "INVALID!@#", "", errors.New("secret contains invalid base32 characters")},
+		{1478167454, "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ", "488676", nil},
+	}
+	//------------------------------------------------------------
+	for _, test := range tests {
+		//--------------------
+		otp, err := GenerateOTP(test.timestamp, test.secret)
+		//--------------------
+		if (err != nil && test.expectedError == nil) || (err == nil && test.expectedError != nil) || (err != nil && test.expectedError != nil && err.Error() != test.expectedError.Error()) {
+			//--------------------
+			t.Errorf("GenerateOTP(%v) returned error '%v', expected '%v'", test.timestamp, err, test.expectedError)
+			//--------------------
+		}
+		//--------------------
+		if otp != test.expectedOTP {
+			//--------------------
+			t.Errorf("GenerateOTP(%v) returned error '%v', expected '%v'", otp, err, test.expectedOTP)
+			//--------------------
+		}
+		//--------------------
+		expectedLen := 6
+		//--------------------
+		if err == nil && len(otp) != expectedLen {
+			t.Errorf("GenerateOTP expected OTP length %d, got %d", expectedLen, len(otp))
+		}
+		//--------------------
 	}
 	//------------------------------------------------------------
 }
@@ -576,7 +606,6 @@ func UUIDIsValid(uuidString string) bool {
 	//------------------------------------------------------------
 	match, err := regexp.MatchString(`^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$`, uuidString)
 	if err != nil {
-
 		return false
 	}
 	//------------------------------------------------------------
