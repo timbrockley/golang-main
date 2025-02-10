@@ -510,13 +510,14 @@ func Log(messageString string, FilePath ...string) error {
 		logFilePath = LogFilePath()
 	}
 	//------------------------------------------------------------
-	fslock := fslock.New(logFilePath)
-	fslock.Lock()
-	defer fslock.Unlock()
-	//------------------------------------------------------------
+	// check if file exists before fslock used because fslock creates a file
 	if !FilePathExists(logFilePath) {
 		logLineString = "utm\tcymd\thms\tpath\tfilename\tline\terror\n"
 	}
+	//------------------------------------------------------------
+	fslock := fslock.New(logFilePath)
+	fslock.Lock()
+	defer fslock.Unlock()
 	//------------------------------------------------------------
 	timeNow := time.Now()
 	utm := timeNow.UnixMicro()
