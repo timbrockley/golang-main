@@ -57,14 +57,14 @@ func TestMain(t *testing.T) {
 
 func TestMutexLockUnlock(t *testing.T) {
 	//------------------------------------------------------------
-	var resultString, EXPECTED_string string
+	var resultString, EXPECTED_sub_string string
 	var resultInt, EXPECTED_int int
 	//------------------------------------------------------------
-	resultString = fmt.Sprint(&FileMutex.SyncMutex)
-	EXPECTED_string = "&{0 0}"
+	resultString = fmt.Sprintf("%#v", &FileMutex.SyncMutex)
+	EXPECTED_sub_string = "Mutex{state:0, sema:0x0}"
 	//--------------------
-	if resultString != EXPECTED_string {
-		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
+	if !strings.Contains(resultString, EXPECTED_sub_string) {
+		t.Errorf("expected sub string %q not found: %q", EXPECTED_sub_string, resultString)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
@@ -78,11 +78,11 @@ func TestMutexLockUnlock(t *testing.T) {
 	FileMutex.lock()
 	FileMutex.lock()
 	//------------------------------------------------------------
-	resultString = fmt.Sprint(&FileMutex.SyncMutex)
-	EXPECTED_string = "&{1 0}"
+	resultString = fmt.Sprintf("%#v", &FileMutex.SyncMutex)
+	EXPECTED_sub_string = "Mutex{state:1, sema:0x0}"
 	//--------------------
-	if resultString != EXPECTED_string {
-		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
+	if !strings.Contains(resultString, EXPECTED_sub_string) {
+		t.Errorf("expected sub string %q not found: %q", EXPECTED_sub_string, resultString)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
@@ -96,11 +96,11 @@ func TestMutexLockUnlock(t *testing.T) {
 	FileMutex.unlock()
 	FileMutex.Unlock()
 	//------------------------------------------------------------
-	resultString = fmt.Sprint(&FileMutex.SyncMutex)
-	EXPECTED_string = "&{0 0}"
+	resultString = fmt.Sprintf("%#v", &FileMutex.SyncMutex)
+	EXPECTED_sub_string = "Mutex{state:0, sema:0x0}"
 	//--------------------
-	if resultString != EXPECTED_string {
-		t.Errorf("expected result = %q but should = %q", resultString, EXPECTED_string)
+	if !strings.Contains(resultString, EXPECTED_sub_string) {
+		t.Errorf("expected sub string %q not found: %q", EXPECTED_sub_string, resultString)
 	}
 	//------------------------------------------------------------
 	resultInt = FileMutex.LockLevel
