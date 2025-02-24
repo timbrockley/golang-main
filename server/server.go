@@ -46,8 +46,10 @@ var stopChan chan os.Signal
 
 const TCPServerPort = 4000
 
-const UDPServerPort = 4001
-const UDPClientPort = 4002
+const (
+	UDPServerPort = 4001
+	UDPClientPort = 4002
+)
 
 const BufferSize = 1024
 
@@ -87,10 +89,12 @@ type SocketStruct struct {
 
 //------------------------------------------------------------
 
-const contentTypeText string = "text/plain; charset=UTF-8"
-const contentTypeTextHTML string = "text/html; charset=UTF-8"
-const contentTypeTextCSS string = "text/css; charset=UTF-8"
-const contentTypeJavascript string = "application/javascript; charset=UTF-8"
+const (
+	contentTypeText       string = "text/plain; charset=UTF-8"
+	contentTypeTextHTML   string = "text/html; charset=UTF-8"
+	contentTypeTextCSS    string = "text/css; charset=UTF-8"
+	contentTypeJavascript string = "application/javascript; charset=UTF-8"
+)
 
 //------------------------------------------------------------
 
@@ -101,7 +105,6 @@ var flags = map[string]any{}
 //------------------------------------------------------------
 
 func init() {
-
 	//--------------------------------------------------
 	// set debug / test flags
 	//--------------------------------------------------
@@ -143,7 +146,6 @@ func init() {
 //------------------------------------------------------------
 
 func StartServer() {
-
 	//--------------------------------------------------
 	http.HandleFunc("/", servePath)
 	//----------------------------------------
@@ -189,7 +191,6 @@ func StartServer() {
 //--------------------------------------------------------------------------------
 
 func servePath(responseWriter http.ResponseWriter, httpRequest *http.Request) {
-
 	//--------------------------------------------------
 	var path, ext, contentType string
 	//--------------------------------------------------
@@ -231,7 +232,6 @@ func servePath(responseWriter http.ResponseWriter, httpRequest *http.Request) {
 //------------------------------------------------------------
 
 func Echo(responseWriter http.ResponseWriter, httpRequest *http.Request) {
-
 	//--------------------------------------------------
 	requestBytes, err := io.ReadAll(httpRequest.Body)
 	if err != nil {
@@ -273,7 +273,6 @@ func Echo(responseWriter http.ResponseWriter, httpRequest *http.Request) {
 //------------------------------------------------------------
 
 func Headers(responseWriter http.ResponseWriter, httpRequest *http.Request) {
-
 	//--------------------------------------------------
 	var headers []string
 	//--------------------------------------------------
@@ -338,12 +337,12 @@ func SplitAddrPort(addr string) (string, int) {
 //############################################################
 //------------------------------------------------------------
 
-func (networkObject *NetworkStruct) TCPServerEcho() error {
+func (networkInstance *NetworkStruct) TCPServerEcho() error {
 	//--------------------------------------------------
 	var err error
 	var requestBytes []byte
 	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------------------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
@@ -351,7 +350,7 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 	//--------------------------------------------------
 	ipAddr := fmt.Sprintf("%s:%d", serverIPAddr, serverPort)
 	//--------------------------------------------------
-	networkObject.TCPListener, err = net.Listen("tcp4", ipAddr)
+	networkInstance.TCPListener, err = net.Listen("tcp4", ipAddr)
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------------------------------------
@@ -359,16 +358,14 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 			fmt.Printf("starting server: (%s) ...\n", ipAddr)
 		}
 		//--------------------------------------------------
-		defer networkObject.TCPListener.Close()
+		defer networkInstance.TCPListener.Close()
 		//--------------------------------------------------
 		for {
 			//--------------------------------------------------
-			networkObject.TCPConn, err = networkObject.TCPListener.Accept()
+			networkInstance.TCPConn, err = networkInstance.TCPListener.Accept()
 			//--------------------
 			if err != nil {
-
 				break
-
 			} else {
 
 				//--------------------------------------------------
@@ -384,9 +381,9 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 					//--------------------------------------------------
 					conn.Write(requestBytes)
 					//--------------------------------------------------
-				}(networkObject.TCPConn)
+				}(networkInstance.TCPConn)
 				//--------------------------------------------------
-				if !networkObject.KeepAlive {
+				if !networkInstance.KeepAlive {
 					break
 				}
 				//--------------------------------------------------
@@ -402,31 +399,31 @@ func (networkObject *NetworkStruct) TCPServerEcho() error {
 
 //------------------------------------------------------------
 
-func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, error) {
+func (networkInstance *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, error) {
 	//--------------------------------------------------
 	var err error
 	var responseBytes []byte
 	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------------------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
 	}
 	//--------------------------------------------------
-	networkObject.TCPConn, err = net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
+	networkInstance.TCPConn, err = net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------
-		defer networkObject.TCPConn.Close()
+		defer networkInstance.TCPConn.Close()
 		//--------------------
-		_, err = networkObject.TCPConn.Write(requestBytes)
+		_, err = networkInstance.TCPConn.Write(requestBytes)
 		//--------------------
 		if err == nil {
 			//--------------------
-			err = networkObject.TCPConn.(*net.TCPConn).CloseWrite()
+			err = networkInstance.TCPConn.(*net.TCPConn).CloseWrite()
 			//--------------------
 			if err == nil {
-				responseBytes, _ = io.ReadAll(networkObject.TCPConn)
+				responseBytes, _ = io.ReadAll(networkInstance.TCPConn)
 			}
 			//--------------------
 		}
@@ -441,7 +438,7 @@ func (networkObject *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, erro
 //############################################################
 //------------------------------------------------------------
 
-func (networkObject *NetworkStruct) UDPServerEcho() error {
+func (networkInstance *NetworkStruct) UDPServerEcho() error {
 	//--------------------------------------------------
 	/*
 		does not use a go routine as this causes issues when trying to process connections
@@ -454,7 +451,7 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 	var err error
 	var bytesRead int
 	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------------------
 	if serverPort == 0 {
 		serverPort = UDPServerPort
@@ -468,12 +465,10 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 	//--------------------------------------------------
 	for {
 		//--------------------------------------------------
-		networkObject.UDPConn, err = net.ListenPacket("udp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
+		networkInstance.UDPConn, err = net.ListenPacket("udp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
 		//--------------------------------------------------
 		if err != nil {
-
 			break
-
 		} else {
 
 			//--------------------------------------------------
@@ -481,27 +476,27 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 			//--------------------------------------------------
 			bufferSize := BufferSize
 			//--------------------
-			if networkObject.BufferSize > 0 {
-				bufferSize = networkObject.BufferSize
+			if networkInstance.BufferSize > 0 {
+				bufferSize = networkInstance.BufferSize
 			}
 			//--------------------------------------------------
 			requestBytes := make([]byte, bufferSize)
 			//--------------------
-			bytesRead, networkObject.RemoteAddr, err = networkObject.UDPConn.ReadFrom(requestBytes)
+			bytesRead, networkInstance.RemoteAddr, err = networkInstance.UDPConn.ReadFrom(requestBytes)
 			//--------------------
 			if flags["debug"] == true {
-				fmt.Printf("(%s): %s\n", networkObject.RemoteAddr, string(requestBytes[0:bytesRead]))
+				fmt.Printf("(%s): %s\n", networkInstance.RemoteAddr, string(requestBytes[0:bytesRead]))
 			}
 			//--------------------------------------------------
 			if bytesRead > 0 {
 				//--------------------
-				_, err = networkObject.UDPConn.WriteTo(requestBytes[0:bytesRead], networkObject.RemoteAddr)
+				_, err = networkInstance.UDPConn.WriteTo(requestBytes[0:bytesRead], networkInstance.RemoteAddr)
 				//--------------------
 			}
 			//--------------------------------------------------
-			networkObject.UDPConn.Close()
+			networkInstance.UDPConn.Close()
 			//--------------------------------------------------
-			if !networkObject.KeepAlive {
+			if !networkInstance.KeepAlive {
 				break
 			}
 			//--------------------------------------------------
@@ -515,47 +510,47 @@ func (networkObject *NetworkStruct) UDPServerEcho() error {
 
 //------------------------------------------------------------
 
-func (networkObject *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, error) {
+func (networkInstance *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, error) {
 	//--------------------------------------------------
 	var err error
 	var responseBytes []byte
 	var bytesRead int
 	//--------------------------------------------------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------------------
 	if serverPort == 0 {
 		serverPort = UDPServerPort
 	}
 	//--------------------------------------------------
-	clientIPAddr, clientPort := SplitAddrPort(networkObject.ClientAddr)
+	clientIPAddr, clientPort := SplitAddrPort(networkInstance.ClientAddr)
 	//--------------------
 	if clientPort == 0 {
 		clientPort = UDPClientPort
 	}
 	//--------------------------------------------------
-	networkObject.UDPConn, err = net.ListenPacket("udp4", fmt.Sprintf("%s:%d", clientIPAddr, clientPort))
+	networkInstance.UDPConn, err = net.ListenPacket("udp4", fmt.Sprintf("%s:%d", clientIPAddr, clientPort))
 	//--------------------
 	if err == nil {
 		//--------------------------------------------------
 		remoteAddr, _ := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
 		//--------------------------------------------------
-		_, err = networkObject.UDPConn.WriteTo(requestBytes, remoteAddr)
+		_, err = networkInstance.UDPConn.WriteTo(requestBytes, remoteAddr)
 		//--------------------------------------------------
 		if err == nil {
 			//--------------------
-			defer networkObject.UDPConn.Close()
+			defer networkInstance.UDPConn.Close()
 			//--------------------------------------------------
 			// fixed buffer size used as can only read 1 udp packet per connection
 			//--------------------------------------------------
 			bufferSize := BufferSize
 			//--------------------------------------------------
-			if networkObject.BufferSize > 0 {
-				bufferSize = networkObject.BufferSize
+			if networkInstance.BufferSize > 0 {
+				bufferSize = networkInstance.BufferSize
 			}
 			//--------------------------------------------------
 			responseBytes = make([]byte, bufferSize)
 			//--------------------------------------------------
-			bytesRead, _, err = networkObject.UDPConn.ReadFrom(responseBytes)
+			bytesRead, _, err = networkInstance.UDPConn.ReadFrom(responseBytes)
 			//--------------------------------------------------
 			if bytesRead > 0 {
 				responseBytes = responseBytes[0:bytesRead]
@@ -573,7 +568,7 @@ func (networkObject *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, erro
 //############################################################
 //------------------------------------------------------------
 
-func (socketObject *SocketStruct) SocketServerEcho() error {
+func (socketInstance *SocketStruct) SocketServerEcho() error {
 	//--------------------------------------------------
 	var err error
 	var baseHeaderBytes, extendedbaseHeaderBytes, requestBytes []byte
@@ -581,26 +576,24 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 	var bodyLength uint32
 	var bytesRead int
 	//--------------------------------------------------
-	_ = os.Remove(socketObject.Addr)
+	_ = os.Remove(socketInstance.Addr)
 	//--------------------------------------------------
-	socketObject.Listener, err = net.Listen("unix", socketObject.Addr)
+	socketInstance.Listener, err = net.Listen("unix", socketInstance.Addr)
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------------------------------------
 		if flags["debug"] == true {
-			fmt.Printf("starting server: (%s) ...\n", socketObject.Addr)
+			fmt.Printf("starting server: (%s) ...\n", socketInstance.Addr)
 		}
 		//--------------------------------------------------
-		defer socketObject.Listener.Close()
+		defer socketInstance.Listener.Close()
 		//--------------------------------------------------
 		for {
 			//--------------------------------------------------
-			socketObject.Conn, err = socketObject.Listener.Accept()
+			socketInstance.Conn, err = socketInstance.Listener.Accept()
 			//--------------------
 			if err != nil {
-
 				break
-
 			} else {
 
 				//--------------------------------------------------
@@ -644,9 +637,9 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 						//--------------------
 					}
 					//--------------------------------------------------
-				}(socketObject.Conn)
+				}(socketInstance.Conn)
 				//--------------------------------------------------
-				if !socketObject.KeepAlive {
+				if !socketInstance.KeepAlive {
 					break
 				}
 				//--------------------------------------------------
@@ -662,17 +655,17 @@ func (socketObject *SocketStruct) SocketServerEcho() error {
 
 //------------------------------------------------------------
 
-func (socketObject *SocketStruct) SocketClient(requestBytes []byte) ([]byte, error) {
+func (socketInstance *SocketStruct) SocketClient(requestBytes []byte) ([]byte, error) {
 	//--------------------------------------------------
 	var err error
 	var combinedRequestBytes, responseBytes []byte
 	var headerLength uint8
 	//--------------------------------------------------
-	socketObject.Conn, err = net.Dial("unix", socketObject.Addr)
+	socketInstance.Conn, err = net.Dial("unix", socketInstance.Addr)
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------
-		defer socketObject.Conn.Close()
+		defer socketInstance.Conn.Close()
 		//--------------------
 		headerLength = 5 // (base header length + optional extended header length)
 		//--------------------
@@ -686,10 +679,10 @@ func (socketObject *SocketStruct) SocketClient(requestBytes []byte) ([]byte, err
 		//--------------------
 		copy(combinedRequestBytes[headerLength:], requestBytes)
 		//--------------------
-		_, err = socketObject.Conn.Write(combinedRequestBytes)
+		_, err = socketInstance.Conn.Write(combinedRequestBytes)
 		//--------------------
 		if err == nil {
-			responseBytes, _ = io.ReadAll(socketObject.Conn)
+			responseBytes, _ = io.ReadAll(socketInstance.Conn)
 		}
 		//--------------------
 	}

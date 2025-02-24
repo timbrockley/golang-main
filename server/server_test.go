@@ -21,7 +21,6 @@ import (
 //------------------------------------------------------------
 
 func TestEcho(t *testing.T) {
-
 	//--------------------------------------------------
 	// Echo
 	//--------------------------------------------------
@@ -50,11 +49,8 @@ func TestEcho(t *testing.T) {
 	responseBytes, err := io.ReadAll(httpResponse.Body)
 	//--------------------
 	if err != nil {
-
 		t.Error(err)
-
 	} else {
-
 		//--------------------
 		if string(responseBytes) != EXPECTED_responseString {
 			t.Errorf("response %q expected %q", string(responseBytes), EXPECTED_responseString)
@@ -65,7 +61,6 @@ func TestEcho(t *testing.T) {
 	responseContentType := httpRequest.Header.Get("Content-Type")
 	//--------------------
 	if responseContentType != EXPECTED_contentType {
-
 		t.Errorf("content type = %q but should be %q", responseContentType, EXPECTED_contentType)
 	}
 	//--------------------------------------------------
@@ -76,7 +71,6 @@ func TestEcho(t *testing.T) {
 //------------------------------------------------------------
 
 func TestHeaders(t *testing.T) {
-
 	//--------------------------------------------------
 	// Headers
 	//--------------------------------------------------
@@ -108,7 +102,6 @@ func TestHeaders(t *testing.T) {
 //------------------------------------------------------------
 
 func TestSplitAddrPort(t *testing.T) {
-
 	//--------------------------------------------------
 	// SplitAddrPort
 	//--------------------------------------------------
@@ -135,15 +128,14 @@ func TestSplitAddrPort(t *testing.T) {
 //------------------------------------------------------------
 
 func TestTCPServerEcho(t *testing.T) {
-
 	//--------------------------------------------------
 	// TCPServerEcho
 	//--------------------------------------------------
 	serverIPAddr := "127.0.0.1"
 	//--------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
+	networkInstance := NetworkStruct{ServerAddr: serverIPAddr}
 	//--------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
@@ -157,7 +149,7 @@ func TestTCPServerEcho(t *testing.T) {
 		//--------------------------------------------------
 		wg.Done()
 		//--------
-		err := networkObject.TCPServerEcho()
+		err := networkInstance.TCPServerEcho()
 		//--------
 		if err != nil {
 			t.Error(err)
@@ -206,15 +198,14 @@ func TestTCPServerEcho(t *testing.T) {
 //------------------------------------------------------------
 
 func TestTCPClient(t *testing.T) {
-
 	//--------------------------------------------------
 	// TCPClient
 	//--------------------------------------------------
 	serverIPAddr := "127.0.0.1"
 	//--------
-	networkObject := NetworkStruct{ServerAddr: serverIPAddr}
+	networkInstance := NetworkStruct{ServerAddr: serverIPAddr}
 	//--------
-	serverIPAddr, serverPort := SplitAddrPort(networkObject.ServerAddr)
+	serverIPAddr, serverPort := SplitAddrPort(networkInstance.ServerAddr)
 	//--------
 	if serverPort == 0 {
 		serverPort = TCPServerPort
@@ -249,7 +240,7 @@ func TestTCPClient(t *testing.T) {
 	//--------------------------------------------------
 	requestString := "TCPClient test"
 	//--------------------
-	responseBytes, err := networkObject.TCPClient([]byte(requestString))
+	responseBytes, err := networkInstance.TCPClient([]byte(requestString))
 	//--------------------------------------------------
 	if err != nil {
 		t.Error(err)
@@ -272,7 +263,6 @@ func TestTCPClient(t *testing.T) {
 //------------------------------------------------------------
 
 func TestUDPServerEcho(t *testing.T) {
-
 	//--------------------------------------------------
 	// UDPServerEcho
 	//--------------------------------------------------
@@ -282,7 +272,7 @@ func TestUDPServerEcho(t *testing.T) {
 	clientIPAddr := "127.0.0.1"
 	clientPort := UDPClientPort
 	//--------------------------------------------------
-	networkObject := NetworkStruct{ServerAddr: fmt.Sprintf("%s:%d", serverIPAddr, serverPort)}
+	networkInstance := NetworkStruct{ServerAddr: fmt.Sprintf("%s:%d", serverIPAddr, serverPort)}
 	//--------------------------------------------------
 	wg := sync.WaitGroup{}
 	//--------
@@ -292,7 +282,7 @@ func TestUDPServerEcho(t *testing.T) {
 		//--------
 		wg.Done()
 		//--------
-		err := networkObject.UDPServerEcho()
+		err := networkInstance.UDPServerEcho()
 		//--------
 		if err != nil {
 			t.Error(err)
@@ -351,7 +341,6 @@ func TestUDPServerEcho(t *testing.T) {
 }
 
 func TestUDPClient(t *testing.T) {
-
 	//--------------------------------------------------
 	// UDPClient
 	//--------------------------------------------------
@@ -361,7 +350,7 @@ func TestUDPClient(t *testing.T) {
 	clientIPAddr := "127.0.0.1"
 	clientPort := UDPClientPort
 	//--------------------------------------------------
-	networkObject := NetworkStruct{ServerAddr: fmt.Sprintf("%s:%d", serverIPAddr, serverPort), ClientAddr: fmt.Sprintf("%s:%d", clientIPAddr, clientPort)}
+	networkInstance := NetworkStruct{ServerAddr: fmt.Sprintf("%s:%d", serverIPAddr, serverPort), ClientAddr: fmt.Sprintf("%s:%d", clientIPAddr, clientPort)}
 	//--------------------------------------------------
 	wg := sync.WaitGroup{}
 	//--------
@@ -401,7 +390,7 @@ func TestUDPClient(t *testing.T) {
 	//--------------------------------------------------
 	requestString := "UDPClient test"
 	//--------------------
-	responseBytes, err := networkObject.UDPClient([]byte(requestString))
+	responseBytes, err := networkInstance.UDPClient([]byte(requestString))
 	//--------------------
 	if err != nil {
 		t.Error(err)
@@ -424,13 +413,12 @@ func TestUDPClient(t *testing.T) {
 //------------------------------------------------------------
 
 func TestSocketServerEcho(t *testing.T) {
-
 	//--------------------------------------------------
 	// SocketServerEcho
 	//--------------------------------------------------
 	socketAddr := "golang-socket-test.sock"
 	//--------
-	socketObject := SocketStruct{Addr: socketAddr}
+	socketInstance := SocketStruct{Addr: socketAddr}
 	//--------------------------------------------------
 	wg := sync.WaitGroup{}
 	//--------
@@ -440,7 +428,7 @@ func TestSocketServerEcho(t *testing.T) {
 		//--------------------------------------------------
 		wg.Done()
 		//--------
-		err := socketObject.SocketServerEcho()
+		err := socketInstance.SocketServerEcho()
 		//--------
 		if err != nil {
 			t.Error(err)
@@ -500,13 +488,12 @@ func TestSocketServerEcho(t *testing.T) {
 //------------------------------------------------------------
 
 func TestSocketClient(t *testing.T) {
-
 	//--------------------------------------------------
 	// SocketClient
 	//--------------------------------------------------
 	socketAddr := "golang-socket-test.sock"
 	//--------
-	socketObject := SocketStruct{Addr: socketAddr}
+	socketInstance := SocketStruct{Addr: socketAddr}
 	//--------------------------------------------------
 	wg := sync.WaitGroup{}
 	//--------
@@ -539,7 +526,7 @@ func TestSocketClient(t *testing.T) {
 	//--------------------------------------------------
 	requestString := "SocketClient test"
 	//--------------------
-	responseBytes, err := socketObject.SocketClient([]byte(requestString))
+	responseBytes, err := socketInstance.SocketClient([]byte(requestString))
 	//--------------------------------------------------
 	if err != nil {
 		t.Error(err)
