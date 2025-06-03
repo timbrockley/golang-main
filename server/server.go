@@ -410,7 +410,7 @@ func (networkInstance *NetworkStruct) TCPClient(requestBytes []byte) ([]byte, er
 		serverPort = TCPServerPort
 	}
 	//--------------------------------------------------
-	networkInstance.TCPConn, err = net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
+	networkInstance.TCPConn, err = net.Dial("tcp4", net.JoinHostPort(serverIPAddr, fmt.Sprintf("%d", serverPort)))
 	//--------------------------------------------------
 	if err == nil {
 		//--------------------
