@@ -10,6 +10,7 @@ LICENSE file in the root directory of this source tree.
 package system
 
 import (
+	"bufio"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base32"
@@ -433,6 +434,65 @@ func LoadENVs(FilePath ...string) error {
 	}
 	//--------------------
 	return godotenv.Load(filePath)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ReadENVFile
+//------------------------------------------------------------
+
+func ReadENVFile(FilePath ...string) (map[string]string, error) {
+	//------------------------------------------------------------
+	var filePath, filename string
+	//------------------------------------------------------------
+	if FilePath != nil && FilePath[0] != "" {
+		//--------------------
+		filePath = FilePath[0]
+		//--------------------
+		if IsDirectory, _ := file.IsDirectory(filePath); IsDirectory {
+			filename = FindENVFilename(filePath)
+			filePath = file.FilePathJoin(filePath, filename)
+		}
+		//--------------------
+	} else {
+		//--------------------
+		// runtime.Caller(0) => this script / runtime.Caller(1) => calling script
+		_, filePath, _, _ = runtime.Caller(1)
+		//--------------------
+		filename = FindENVFilename(file.Path(filePath))
+		filePath = file.FilePathJoin(file.Path(filePath), filename)
+		//--------------------
+		// if !file.FilePathExists(filePath) {
+		// 	return nil
+		// }
+		//--------------------
+	}
+	//------------------------------------------------------------
+	var err error
+	var file *os.File
+	//------------------------------------------------------------
+	env := map[string]string{}
+	//------------------------------------------------------------
+	file, err = os.Open(filename)
+	//------------------------------------------------------------
+	if err == nil {
+		//------------------------------------------------------------
+		defer file.Close()
+		//------------------------------------------------------------
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				env[strings.TrimSpace(parts[0])] = strings.Trim(parts[1], `"' `)
+			}
+		}
+		//------------------------------------------------------------
+		err = scanner.Err()
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+	return env, err
 	//------------------------------------------------------------
 }
 
