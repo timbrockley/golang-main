@@ -9,6 +9,8 @@ This software is licensed under the MIT License.
 package crypto
 
 import (
+	"encoding/hex"
+	"errors"
 	"strings"
 
 	"github.com/timbrockley/golang-main/conv"
@@ -138,7 +140,7 @@ func ObfuscateV4_decode(dataString string) string {
 	//------------------------------------------------------------
 	dataString = replacer.Replace(dataString)
 	//------------------------------------------------------------
-	dataString = strings.Replace(dataString, "\\SUB", "\\", -1)
+	dataString = strings.ReplaceAll(dataString, "\\SUB", "\\")
 	//------------------------------------------------------------
 	return ObfuscateV4(dataString)
 	//------------------------------------------------------------
@@ -166,15 +168,17 @@ func ObfuscateV4_base_encode(dataString string) string {
 
 func ObfuscateV4_base_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base_decode(dataString)
+	dataString, err := conv.Base_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV4(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV4(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -200,15 +204,17 @@ func ObfuscateV4_base64_encode(dataString string) string {
 
 func ObfuscateV4_base64_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64_decode(dataString)
+	dataString, err := conv.Base64_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV4(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV4(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -234,15 +240,17 @@ func ObfuscateV4_base64url_encode(dataString string) string {
 
 func ObfuscateV4_base64url_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64url_decode(dataString)
+	dataString, err := conv.Base64url_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV4(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV4(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -268,15 +276,53 @@ func ObfuscateV4_base91_encode(dataString string) string {
 
 func ObfuscateV4_base91_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base91_decode(dataString, true)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV4(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateV4_hex_encode
+//------------------------------------------------------------
+
+func ObfuscateV4_hex_encode(dataString string) string {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString
+	}
+	//------------------------------------------------------------
+	dataString = ObfuscateV4(dataString)
+	//------------------------------------------------------------
+	return strings.ToUpper(hex.EncodeToString([]byte(dataString)))
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateV4_hex_decode
+//------------------------------------------------------------
+
+func ObfuscateV4_hex_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base91_decode(dataString, true)
+	dataBytes, err := hex.DecodeString(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV4(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV4(string(dataBytes)), nil
 	//------------------------------------------------------------
 }
 
@@ -414,7 +460,7 @@ func ObfuscateV5_decode(dataString string) string {
 	//------------------------------------------------------------
 	dataString = replacer.Replace(dataString)
 	//------------------------------------------------------------
-	dataString = strings.Replace(dataString, "-SUB", "-", -1)
+	dataString = strings.ReplaceAll(dataString, "-SUB", "-")
 	//------------------------------------------------------------
 	return ObfuscateV5(dataString)
 	//------------------------------------------------------------
@@ -442,15 +488,17 @@ func ObfuscateV5_base_encode(dataString string) string {
 
 func ObfuscateV5_base_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base_decode(dataString)
+	dataString, err := conv.Base_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV5(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV5(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -476,15 +524,17 @@ func ObfuscateV5_base64_encode(dataString string) string {
 
 func ObfuscateV5_base64_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64_decode(dataString)
+	dataString, err := conv.Base64_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV5(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV5(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -510,15 +560,17 @@ func ObfuscateV5_base64url_encode(dataString string) string {
 
 func ObfuscateV5_base64url_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64url_decode(dataString)
+	dataString, err := conv.Base64url_decode(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV5(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV5(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -544,15 +596,388 @@ func ObfuscateV5_base91_encode(dataString string) string {
 
 func ObfuscateV5_base91_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base91_decode(dataString, true)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV5(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateV5_hex_encode
+//------------------------------------------------------------
+
+func ObfuscateV5_hex_encode(dataString string) string {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString
+	}
+	//------------------------------------------------------------
+	dataString = ObfuscateV5(dataString)
+	//------------------------------------------------------------
+	return strings.ToUpper(hex.EncodeToString([]byte(dataString)))
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateV5_hex_decode
+//------------------------------------------------------------
+
+func ObfuscateV5_hex_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base91_decode(dataString, true)
+	dataBytes, err := hex.DecodeString(dataString)
 	//------------------------------------------------------------
-	return ObfuscateV5(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateV5(string(dataBytes)), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateXOR
+//------------------------------------------------------------
+
+func ObfuscateXOR(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataBytes := []byte(dataString)
+	//------------------------------------------------------------
+	if len(dataBytes) > 0 {
+		for i := range dataBytes {
+			dataBytes[i] ^= value
+		}
+	}
+	//------------------------------------------------------------
+	return string(dataBytes), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	replacer := strings.NewReplacer(
+		"-", "--",
+		"\x09", "-t", // tab
+		"\x0A", "-n", // new line
+		"\x0D", "-r", // carriage return
+		"\x20", "-s", // space
+		"\x22", "-q", // double quote
+		"\x24", "-d", // dollar sign
+		"\x27", "-a", // apostrophy
+		"\x5C", "-b", // backslash
+		"\x60", "-g", // grave accent
+	)
+	//------------------------------------------------------------
+	return replacer.Replace(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	replacer := strings.NewReplacer(
+		"--", "-SUB",
+		"-g", "\x60", // grave accent
+		"-b", "\x5C", // backslash
+		"-a", "\x27", // apostrophy
+		"-d", "\x24", // dollar sign
+		"-q", "\x22", // double quote
+		"-s", "\x20", // space
+		"-r", "\x0D", // carriage return
+		"-n", "\x0A", // new line
+		"-t", "\x09", // tab
+	)
+	//------------------------------------------------------------
+	dataString = replacer.Replace(dataString)
+	//------------------------------------------------------------
+	dataString = strings.ReplaceAll(dataString, "-SUB", "-")
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return conv.Base_encode(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base_decode(dataString)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base64_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base64_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return conv.Base64_encode(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base64_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base64_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base64_decode(dataString)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base64url_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base64url_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return conv.Base64url_encode(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base64url_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base64url_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base64url_decode(dataString)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base91_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base91_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return conv.Base91_encode(dataString, true), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_base91_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_base91_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base91_decode(dataString, true)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOR_hex_encode
+//------------------------------------------------------------
+
+func ObfuscateXOR_hex_encode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	var err error
+	dataString, err = ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return strings.ToUpper(hex.EncodeToString([]byte(dataString))), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateV5_hex_decode
+//------------------------------------------------------------
+
+func ObfuscateXOR_hex_decode(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	dataBytes, err := hex.DecodeString(dataString)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(string(dataBytes), value)
 	//------------------------------------------------------------
 }
 
@@ -638,7 +1063,7 @@ func SwapStringV0_decode(dataString string) string {
 	//------------------------------------------------------------
 	dataString = replacer.Replace(dataString)
 	//------------------------------------------------------------
-	dataString = strings.Replace(dataString, "-SUB", "-", -1)
+	dataString = strings.ReplaceAll(dataString, "-SUB", "-")
 	//------------------------------------------------------------
 	return SwapStringV0(dataString)
 	//------------------------------------------------------------
@@ -666,15 +1091,17 @@ func SwapStringV0_base_encode(dataString string) string {
 
 func SwapStringV0_base_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base_decode(dataString)
+	dataString, err := conv.Base_decode(dataString)
 	//------------------------------------------------------------
-	return SwapStringV0(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return SwapStringV0(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -700,15 +1127,17 @@ func SwapStringV0_base64_encode(dataString string) string {
 
 func SwapStringV0_base64_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64_decode(dataString)
+	dataString, err := conv.Base64_decode(dataString)
 	//------------------------------------------------------------
-	return SwapStringV0(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return SwapStringV0(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -734,15 +1163,17 @@ func SwapStringV0_base64url_encode(dataString string) string {
 
 func SwapStringV0_base64url_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base64url_decode(dataString)
+	dataString, err := conv.Base64url_decode(dataString)
 	//------------------------------------------------------------
-	return SwapStringV0(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return SwapStringV0(dataString), nil
 	//------------------------------------------------------------
 }
 
@@ -768,15 +1199,53 @@ func SwapStringV0_base91_encode(dataString string) string {
 
 func SwapStringV0_base91_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
-	var err error
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataString, err := conv.Base91_decode(dataString, true)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return SwapStringV0(dataString), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// SwapStringV0_hex_encode
+//------------------------------------------------------------
+
+func SwapStringV0_hex_encode(dataString string) string {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString
+	}
+	//------------------------------------------------------------
+	dataString = SwapStringV0(dataString)
+	//------------------------------------------------------------
+	return strings.ToUpper(hex.EncodeToString([]byte(dataString)))
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// SwapStringV0_hex_decode
+//------------------------------------------------------------
+
+func SwapStringV0_hex_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
 	}
 	//------------------------------------------------------------
-	dataString, err = conv.Base91_decode(dataString, true)
+	dataBytes, err := hex.DecodeString(dataString)
 	//------------------------------------------------------------
-	return SwapStringV0(dataString), err
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return SwapStringV0(string(dataBytes)), nil
 	//------------------------------------------------------------
 }
 
