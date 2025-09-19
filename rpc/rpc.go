@@ -11,6 +11,7 @@ package rpc
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -73,7 +74,6 @@ func (rpcInstance *RPCStruct) RPC_read_request() error {
 	requestBytes, err = io.ReadAll(rpcInstance.HttpRequest.Body)
 	//--------------------------------------------------
 	if err == nil {
-
 		//--------------------------------------------------
 		// replace the body with a new reader incase re-read by another function
 		//
@@ -84,21 +84,15 @@ func (rpcInstance *RPCStruct) RPC_read_request() error {
 		//--------------------------------------------------
 		requestString = string(requestBytes)
 		//--------------------
-		if rpcInstance.Encoding == "base64" {
-			requestString, err = conv.Base64_decode(requestString)
-		} else if rpcInstance.Encoding == "base64url" {
-			requestString, err = conv.Base64url_decode(requestString)
-		}
+		requestString, err = DecodeData(requestString, rpcInstance.Encoding)
 		//--------------------
 		if err == nil {
-
 			//--------------------
 			rpcInstance.RequestString = requestString
 			//--------------------
 			// if request looks like it might be single json try decode but don't report any errors
 			match, _ := regexp.MatchString(`^\s*{.*}\s*$`, requestString)
 			if match {
-
 				//--------------------
 				jsonInterface, err = RPC_decode_json(rpcInstance.RequestString)
 				//--------------------
@@ -132,49 +126,42 @@ func (rpcInstance *RPCStruct) RPC_send_request(requestString string) (string, er
 	//--------------------------------------------------
 	responseString := ""
 	//--------------------------------------------------
-	if rpcInstance.Encoding == "base64" {
-		requestString = conv.Base64_encode(requestString)
-	} else if rpcInstance.Encoding == "base64url" {
-		requestString = conv.Base64url_encode(requestString)
-	}
-	//--------------------
-	httpRequest, err = http.NewRequest("POST", rpcInstance.ResponseURL, bytes.NewBuffer([]byte(requestString)))
+	requestString, err = EncodeData(requestString, rpcInstance.Encoding)
 	//--------------------
 	if err == nil {
-
 		//--------------------
-		if rpcInstance.ResponseHeadersMap["Content-Type"] == "" {
-			rpcInstance.ResponseHeadersMap["Content-Type"] = ContentTypeText
-		}
-		//--------------------
-		for headerKey, headerValue := range rpcInstance.ResponseHeadersMap {
-			httpRequest.Header.Add(headerKey, headerValue)
-		}
-		//--------------------
-		httpResponse, err = http.DefaultClient.Do(httpRequest)
+		httpRequest, err = http.NewRequest("POST", rpcInstance.ResponseURL, bytes.NewBuffer([]byte(requestString)))
 		//--------------------
 		if err == nil {
-
 			//--------------------
-			defer httpResponse.Body.Close()
+			if rpcInstance.ResponseHeadersMap["Content-Type"] == "" {
+				rpcInstance.ResponseHeadersMap["Content-Type"] = ContentTypeText
+			}
 			//--------------------
-			responseBytes, err = io.ReadAll(httpResponse.Body)
+			for headerKey, headerValue := range rpcInstance.ResponseHeadersMap {
+				httpRequest.Header.Add(headerKey, headerValue)
+			}
+			//--------------------
+			httpResponse, err = http.DefaultClient.Do(httpRequest)
 			//--------------------
 			if err == nil {
 				//--------------------
-				responseString = string(responseBytes)
+				defer httpResponse.Body.Close()
 				//--------------------
-				if rpcInstance.Encoding == "base64" {
-					responseString, err = conv.Base64_decode(responseString)
-				} else if rpcInstance.Encoding == "base64url" {
-					responseString, err = conv.Base64url_decode(responseString)
+				responseBytes, err = io.ReadAll(httpResponse.Body)
+				//--------------------
+				if err == nil {
+					//--------------------
+					responseString = string(responseBytes)
+					//--------------------
+					responseString, err = DecodeData(responseString, rpcInstance.Encoding)
+					//--------------------
 				}
 				//--------------------
 			}
 			//--------------------
 		}
 		//--------------------
-
 	}
 	//--------------------------------------------------
 	return responseString, err
@@ -197,7 +184,6 @@ func (rpcInstance *RPCStruct) RPC_send_json_request(requestMap map[string]any) (
 	requestString, err = RPC_encode_json(requestMap)
 	//--------------------
 	if err == nil {
-
 		//--------------------
 		if rpcInstance.ResponseHeadersMap["Content-Type"] == "" {
 			rpcInstance.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
@@ -227,14 +213,12 @@ func (rpcInstance *RPCStruct) RPC_read_json_request() error {
 	err = rpcInstance.RPC_read_request()
 	//--------------------
 	if err == nil {
-
 		//--------------------
 		// match what looks like a single json request
 		match, _ := regexp.MatchString(`^\s*{.*}\s*$`, rpcInstance.RequestString)
 		if !match {
 			err = errors.New("invalid request")
 		} else {
-
 			//--------------------
 			jsonInterface, err = RPC_decode_json(rpcInstance.RequestString)
 			//--------------------
@@ -266,7 +250,6 @@ func (rpcInstance *RPCStruct) RPC_read_jsonrpc_request() error {
 	err = rpcInstance.RPC_read_request()
 	//--------------------
 	if err == nil {
-
 		//--------------------
 		jsonInterface, err = RPC_decode_json(rpcInstance.RequestString)
 		//--------------------
@@ -318,7 +301,6 @@ func (rpcInstance *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any
 	requestString, err = RPC_encode_json(requestMap)
 	//--------------------
 	if err == nil {
-
 		//--------------------
 		if rpcInstance.ResponseHeadersMap["Content-Type"] == "" {
 			rpcInstance.ResponseHeadersMap["Content-Type"] = ContentTypeJSON
@@ -342,6 +324,8 @@ func (rpcInstance *RPCStruct) RPC_send_jsonrpc_request(requestMap map[string]any
 
 func (rpcInstance *RPCStruct) RPC_send_response(responseString string) {
 	//--------------------------------------------------
+	var err error
+	//--------------------------------------------------
 	if rpcInstance.ResponseHeadersMap["Content-Type"] == "" {
 		rpcInstance.ResponseHeadersMap["Content-Type"] = ContentTypeText
 	}
@@ -350,13 +334,17 @@ func (rpcInstance *RPCStruct) RPC_send_response(responseString string) {
 		rpcInstance.ResponseWriter.Header().Set(headerKey, headerValue)
 	}
 	//--------------------
-	if rpcInstance.Encoding == "base64" {
-		responseString = conv.Base64_encode(responseString)
-	} else if rpcInstance.Encoding == "base64url" {
-		responseString = conv.Base64url_encode(responseString)
-	}
+	responseString, err = EncodeData(responseString, rpcInstance.Encoding)
 	//--------------------
-	fmt.Fprint(rpcInstance.ResponseWriter, responseString)
+	if err != nil {
+		//--------------------------------------------------
+		fmt.Fprintf(rpcInstance.ResponseWriter, `{"error":%q}`, err)
+		//--------------------------------------------------
+	} else {
+		//--------------------------------------------------
+		fmt.Fprint(rpcInstance.ResponseWriter, responseString)
+		//--------------------------------------------------
+	}
 	//--------------------------------------------------
 }
 
@@ -375,6 +363,7 @@ func (rpcInstance *RPCStruct) RPC_send_json_response(responseMap map[string]any)
 	}
 	//--------------------------------------------------
 	responseString, err = RPC_encode_json(responseMap)
+	//--------------------------------------------------
 	if err != nil {
 		//--------------------------------------------------
 		rpcInstance.RPC_send_response(fmt.Sprintf(`{"error":%q}`, err))
@@ -671,7 +660,6 @@ func RPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Request) 
 		rpcInstance.RPC_send_error_response(fmt.Sprint(err))
 		//--------------------
 	} else {
-
 		//--------------------------------------------------
 		method, exists := rpcInstance.RequestMap["method"]
 		if !exists {
@@ -724,7 +712,6 @@ func JSONRPC_Handler(responseWriter http.ResponseWriter, httpRequest *http.Reque
 		rpcInstance.RPC_send_jsonrpc_parse_error(fmt.Sprint(err))
 		//--------------------
 	} else {
-
 		//--------------------------------------------------
 		method, exists := rpcInstance.RequestMap["method"]
 		if !exists {
@@ -800,6 +787,108 @@ func GetRemoteIPAddr(httpRequest *http.Request) string {
 	}
 	//--------------------
 	return ipAddr
+	//--------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+//################################################################################
+//--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+// EncodeData
+//--------------------------------------------------------------------------------
+
+func EncodeData(dataString string, encoding string) (string, error) {
+	//--------------------------------------------------
+	if dataString == "" || encoding == "" {
+		return dataString, nil
+	}
+	//--------------------------------------------------
+	switch encoding {
+	case "obfuscate":
+		return ObfuscateData(dataString, true, false)
+	case "base64":
+		dataString = conv.Base64_encode(dataString)
+	case "base64url":
+		dataString = conv.Base64url_encode(dataString)
+	default:
+		return "", errors.New("invalid encoding")
+	}
+	//--------------------------------------------------
+	return dataString, nil
+	//--------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+// DecodeData
+//--------------------------------------------------------------------------------
+
+func DecodeData(dataString string, encoding string) (string, error) {
+	//--------------------------------------------------
+	if dataString == "" || encoding == "" {
+		return dataString, nil
+	}
+	//--------------------------------------------------
+	switch encoding {
+	case "obfuscate":
+		return ObfuscateData(dataString, false, true)
+	case "base64":
+		return conv.Base64_decode(dataString)
+	case "base64url":
+		return conv.Base64url_decode(dataString)
+	default:
+		return "", errors.New("invalid encoding")
+	}
+	//--------------------------------------------------
+}
+
+//--------------------------------------------------------------------------------
+// ObfuscateData
+//--------------------------------------------------------------------------------
+
+func ObfuscateData(dataString string, base64Encode bool, base64Decode bool, Value ...byte) (string, error) {
+	//--------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//--------------------------------------------------
+	var value byte
+	//--------------------------------------------------
+	if len(Value) > 0 {
+		//--------------------------------------------------
+		value = Value[0]
+		//--------------------------------------------------
+		if value == 0 {
+			return "", errors.New("value should be an integer between 1 and 255")
+		}
+		//--------------------------------------------------
+	} else {
+		//--------------------------------------------------
+		value = 0b10101010
+		//--------------------------------------------------
+	}
+	//--------------------------------------------------
+	var err error
+	var dataBytes []byte
+	//--------------------------------------------------
+	if base64Decode {
+		dataBytes, err = base64.StdEncoding.DecodeString(dataString)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		dataBytes = []byte(dataString)
+	}
+	//--------------------------------------------------
+	for i := range dataBytes {
+		dataBytes[i] ^= value
+	}
+	//--------------------------------------------------
+	if base64Encode {
+		return base64.StdEncoding.EncodeToString(dataBytes), nil
+	} else {
+		return string(dataBytes), nil
+	}
 	//--------------------------------------------------
 }
 

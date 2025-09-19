@@ -1,6 +1,6 @@
 /*
 
-Copyright 2023-2024, Tim Brockley. All rights reserved.
+Copyright 2023-2025, Tim Brockley. All rights reserved.
 
 This source code is licensed under the BSD-style license found in the
 LICENSE file in the root directory of this source tree.
@@ -12,7 +12,9 @@ package conv
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -20,6 +22,122 @@ import (
 )
 
 const BASE_CHARSET = "!#%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz"
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// EncodeData
+//------------------------------------------------------------
+
+func EncodeData(dataString string, encoding string) (string, error) {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	switch encoding {
+	case "base":
+		return Base_encode(dataString), nil
+	case "base64":
+		return Base64_encode(dataString), nil
+	case "base64url":
+		return Base64url_encode(dataString), nil
+	case "base91":
+		return Base91_encode(dataString, true), nil
+	case "hex":
+		return strings.ToUpper(hex.EncodeToString([]byte(dataString))), nil
+	default:
+		return "", errors.New("invalid encoding")
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// DecodeData
+//------------------------------------------------------------
+
+func DecodeData(dataString string, encoding string) (string, error) {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	switch encoding {
+	case "base":
+		return Base_decode(dataString)
+	case "base64":
+		return Base64_decode(dataString)
+	case "base64url":
+		return Base64url_decode(dataString)
+	case "base91":
+		return Base91_decode(dataString, true)
+	case "hex":
+		dataBytes, err := hex.DecodeString(dataString)
+		if err != nil {
+			return "", err
+		}
+		return string(dataBytes), nil
+	default:
+		return "", errors.New("invalid encoding")
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateData
+//------------------------------------------------------------
+
+func ObfuscateData(dataString string, base64Encode bool, base64Decode bool, Value ...byte) (string, error) {
+	//--------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//--------------------------------------------------
+	var value byte
+	//--------------------------------------------------
+	if len(Value) > 0 {
+		//--------------------------------------------------
+		value = Value[0]
+		//--------------------------------------------------
+		if value == 0 {
+			return "", errors.New("value should be an integer between 1 and 255")
+		}
+		//--------------------------------------------------
+	} else {
+		//--------------------------------------------------
+		value = 0b10101010
+		//--------------------------------------------------
+	}
+	//--------------------------------------------------
+	var err error
+	var dataBytes []byte
+	//--------------------------------------------------
+	if base64Decode {
+		dataBytes, err = base64.StdEncoding.DecodeString(dataString)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		dataBytes = []byte(dataString)
+	}
+	//--------------------------------------------------
+	for i := range dataBytes {
+		dataBytes[i] ^= value
+	}
+	//--------------------------------------------------
+	if base64Encode {
+		return base64.StdEncoding.EncodeToString(dataBytes), nil
+	} else {
+		return string(dataBytes), nil
+	}
+	//--------------------------------------------------
+}
 
 //------------------------------------------------------------
 //############################################################
@@ -144,6 +262,18 @@ func Base_decode(dataString string) (string, error) {
 }
 
 //------------------------------------------------------------
+// OutputToByteSlice
+//------------------------------------------------------------
+
+func OutputToByteSlice(slice *[]byte, index int, value byte) bool {
+	if index >= 0 && index < len(*slice) {
+		(*slice)[index] = value
+		return true
+	}
+	return false
+}
+
+//------------------------------------------------------------
 //############################################################
 //------------------------------------------------------------
 
@@ -181,18 +311,6 @@ func Base64_decode(dataString string) (string, error) {
 	//------------------------------------------------------------
 	return string(dataBytes), err
 	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// BaseEncodeByte
-//------------------------------------------------------------
-
-func OutputToByteSlice(slice *[]byte, index int, value byte) bool {
-	if index >= 0 && index < len(*slice) {
-		(*slice)[index] = value
-		return true
-	}
-	return false
 }
 
 //------------------------------------------------------------
@@ -358,6 +476,44 @@ func Base91_decode(dataString string, unescapeBool bool) (string, error) {
 	}
 	//------------------------------------------------------------
 	return string(dataBytes), err
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// Hex_encode
+//------------------------------------------------------------
+
+func Hex_encode(dataString string) string {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString
+	}
+	//------------------------------------------------------------
+	return strings.ToUpper(hex.EncodeToString([]byte(dataString)))
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// Hex_decode
+//------------------------------------------------------------
+
+func Hex_decode(dataString string) (string, error) {
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataBytes, err := hex.DecodeString(dataString)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return string(dataBytes), nil
 	//------------------------------------------------------------
 }
 

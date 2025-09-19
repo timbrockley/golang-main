@@ -11,6 +11,181 @@ import (
 //############################################################
 //------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// EncodeData
+//----------------------------------------------------------------------
+
+func TestEncodeData(t *testing.T) {
+	//--------------------------------------------------
+	type testDataStruct struct {
+		inputString    string
+		encoding       string
+		expectedString string
+		expectedError  string
+	}
+	//--------------------------------------------------
+	testData := []testDataStruct{
+		{"ABCD", "INVALID_ENCODING", "", "invalid encoding"},
+		{"", "", "", ""},
+		{"ABCD", "base", "8xiv/", ""},
+		{"ABCD", "base64", "QUJDRA==", ""},
+		{"ABCD", "base64url", "QUJDRA", ""},
+		{"ABCD", "base91", "fG^FR", ""},
+		{"ABCD", "hex", "41424344", ""},
+	}
+	//--------------------------------------------------
+	for _, test := range testData {
+		//--------------------------------------------------
+		resultString, err := EncodeData(test.inputString, test.encoding)
+		//--------------------------------------------------
+		if resultString != test.expectedString {
+			//--------------------
+			t.Errorf("returned result = %q but should = %q", test.expectedString, resultString)
+			//--------------------
+		}
+		//--------------------------------------------------
+		if err != nil {
+			//--------------------
+			resultError := err.Error()
+			//--------------------
+			if resultError != test.expectedError {
+				t.Errorf("returned error = %q but should = %q", test.expectedError, resultError)
+			}
+			//--------------------
+		} else {
+			//--------------------
+			if test.expectedError != "" {
+				t.Errorf("returned error is nil but should = %q", test.expectedError)
+			}
+			//--------------------
+		}
+		//--------------------------------------------------
+	}
+	//--------------------------------------------------
+}
+
+//----------------------------------------------------------------------
+// DecodeData
+//----------------------------------------------------------------------
+
+func TestDecodeData(t *testing.T) {
+	//--------------------------------------------------
+	type testDataStruct struct {
+		inputString    string
+		encoding       string
+		expectedString string
+		expectedError  string
+	}
+	//--------------------------------------------------
+	testData := []testDataStruct{
+		{"ABCD", "INVALID_ENCODING", "", "invalid encoding"},
+		{"", "", "", ""},
+		{"8xiv/", "base", "ABCD", ""},
+		{"QUJDRA==", "base64", "ABCD", ""},
+		{"QUJDRA", "base64url", "ABCD", ""},
+		{"fG^FR", "base91", "ABCD", ""},
+		{"41424344", "hex", "ABCD", ""},
+	}
+	//--------------------------------------------------
+	for _, test := range testData {
+		//--------------------------------------------------
+		resultString, err := DecodeData(test.inputString, test.encoding)
+		//--------------------------------------------------
+		if resultString != test.expectedString {
+			//--------------------
+			t.Errorf("returned result = %q but should = %q", resultString, test.expectedString)
+			//--------------------
+		}
+		//--------------------------------------------------
+		if err != nil {
+			//--------------------
+			resultError := err.Error()
+			//--------------------
+			if resultError != test.expectedError {
+				t.Errorf("returned error = %q but should = %q", resultError, test.expectedError)
+			}
+			//--------------------
+		} else {
+			//--------------------
+			if test.expectedError != "" {
+				t.Errorf("returned error is nil but should = %q", test.expectedError)
+			}
+			//--------------------
+		}
+		//--------------------------------------------------
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateData
+//------------------------------------------------------------
+
+func TestObfuscateData(t *testing.T) {
+	//--------------------------------------------------
+	testCases := []struct {
+		dataString     string
+		base64Encode   bool
+		base64Decode   bool
+		value          byte
+		useValue       bool
+		expectedString string
+		expectedError  string
+	}{
+		{"ABCD", false, false, 0, true, "", "value should be an integer between 1 and 255"},
+		{"", false, false, 0, false, "", ""},
+		{"\xEB\xE8\xE9\xEE", false, false, 0, false, "ABCD", ""},
+		{"ABCD", true, false, 0, false, "6+jp7g==", ""},
+		{"ABCD", true, false, 170, true, "6+jp7g==", ""},
+		{"6+jp7g==", false, true, 0, false, "ABCD", ""},
+		{"6+jp7g==", false, true, 170, true, "ABCD", ""},
+	}
+	//--------------------------------------------------
+	for _, testCase := range testCases {
+		//--------------------------------------------------
+		var resultString string
+		var err error
+		//--------------------------------------------------
+		if testCase.useValue {
+			resultString, err = ObfuscateData(testCase.dataString, testCase.base64Encode, testCase.base64Decode, testCase.value)
+		} else {
+			resultString, err = ObfuscateData(testCase.dataString, testCase.base64Encode, testCase.base64Decode)
+		}
+		//--------------------------------------------------
+		if resultString != testCase.expectedString {
+			//--------------------------------------------------
+			t.Errorf("(%q) resultString = %q %v but should = %q %v", testCase.dataString, resultString, []byte(resultString), testCase.expectedString, []byte(testCase.expectedString))
+			//--------------------------------------------------
+		}
+		//--------------------------------------------------
+		if err != nil {
+			//--------------------
+			resultError := err.Error()
+			//--------------------
+			if resultError != testCase.expectedError {
+				t.Errorf("returned error = %q but should = %q", resultError, testCase.expectedError)
+			}
+			//--------------------
+		} else {
+			//--------------------
+			if testCase.expectedError != "" {
+				t.Errorf("returned error is nil but should = %q", testCase.expectedError)
+			}
+			//--------------------
+		}
+		//--------------------------------------------------
+	}
+	//--------------------------------------------------
+}
+
+//------------------------------------------------------------
+//############################################################
+//------------------------------------------------------------
+
 //------------------------------------------------------------
 // Base_encode
 //------------------------------------------------------------
@@ -403,7 +578,7 @@ func TestBase91_decode(t *testing.T) {
 }
 
 //------------------------------------------------------------
-// ############################################################
+//############################################################
 //------------------------------------------------------------
 
 //------------------------------------------------------------
@@ -519,5 +694,5 @@ func TestJSON_decode(t *testing.T) {
 }
 
 //------------------------------------------------------------
-// ############################################################
+//############################################################
 //------------------------------------------------------------
