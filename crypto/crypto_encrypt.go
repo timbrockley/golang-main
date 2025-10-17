@@ -104,7 +104,6 @@ func EncryptString(dataString string, keyBytes []byte) (string, error) {
 	outputBytes = append(ivBytes, cipherBytes...)
 	//------------------------------------------------------------
 	return base64.StdEncoding.EncodeToString(outputBytes), nil
-
 	//------------------------------------------------------------
 }
 

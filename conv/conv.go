@@ -14,7 +14,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -28,64 +27,6 @@ const BASE_CHARSET = "!#%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^
 //------------------------------------------------------------
 
 //------------------------------------------------------------
-// EncodeData
-//------------------------------------------------------------
-
-func EncodeData(dataString string, encoding string) (string, error) {
-	//------------------------------------------------------------
-	if dataString == "" {
-		return dataString, nil
-	}
-	//------------------------------------------------------------
-	switch encoding {
-	case "base":
-		return Base_encode(dataString), nil
-	case "base64":
-		return Base64_encode(dataString), nil
-	case "base64url":
-		return Base64url_encode(dataString), nil
-	case "base91":
-		return Base91_encode(dataString, true), nil
-	case "hex":
-		return strings.ToUpper(hex.EncodeToString([]byte(dataString))), nil
-	default:
-		return "", errors.New("invalid encoding")
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// DecodeData
-//------------------------------------------------------------
-
-func DecodeData(dataString string, encoding string) (string, error) {
-	//------------------------------------------------------------
-	if dataString == "" {
-		return dataString, nil
-	}
-	//------------------------------------------------------------
-	switch encoding {
-	case "base":
-		return Base_decode(dataString)
-	case "base64":
-		return Base64_decode(dataString)
-	case "base64url":
-		return Base64url_decode(dataString)
-	case "base91":
-		return Base91_decode(dataString, true)
-	case "hex":
-		dataBytes, err := hex.DecodeString(dataString)
-		if err != nil {
-			return "", err
-		}
-		return string(dataBytes), nil
-	default:
-		return "", errors.New("invalid encoding")
-	}
-	//--------------------------------------------------
-}
-
-//------------------------------------------------------------
 //############################################################
 //------------------------------------------------------------
 
@@ -93,26 +34,10 @@ func DecodeData(dataString string, encoding string) (string, error) {
 // ObfuscateData
 //------------------------------------------------------------
 
-func ObfuscateData(dataString string, base64Encode bool, base64Decode bool, Value ...byte) (string, error) {
+func ObfuscateData(dataString string, base64Encode bool, base64Decode bool) (string, error) {
 	//--------------------------------------------------
 	if dataString == "" {
 		return dataString, nil
-	}
-	//--------------------------------------------------
-	var value byte
-	//--------------------------------------------------
-	if len(Value) > 0 {
-		//--------------------------------------------------
-		value = Value[0]
-		//--------------------------------------------------
-		if value == 0 {
-			return "", errors.New("value should be an integer between 1 and 255")
-		}
-		//--------------------------------------------------
-	} else {
-		//--------------------------------------------------
-		value = 0b10101010
-		//--------------------------------------------------
 	}
 	//--------------------------------------------------
 	var err error
@@ -127,8 +52,18 @@ func ObfuscateData(dataString string, base64Encode bool, base64Decode bool, Valu
 		dataBytes = []byte(dataString)
 	}
 	//--------------------------------------------------
-	for i := range dataBytes {
-		dataBytes[i] ^= value
+	// for loop uses bytes instead of range which would use UTF-8 runes
+	for index := 0; index < len(dataBytes); index++ {
+		switch {
+		case dataBytes[index] <= 0x1F:
+			dataBytes[index] = 0x1F - dataBytes[index]
+		case dataBytes[index] <= 0x7E:
+			dataBytes[index] = 0x7E - (dataBytes[index] - 0x20)
+		case dataBytes[index] == 0x7F:
+			continue
+		default:
+			dataBytes[index] = 0xFF - (dataBytes[index] - 0x80)
+		}
 	}
 	//--------------------------------------------------
 	if base64Encode {
