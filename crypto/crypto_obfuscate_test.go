@@ -11,123 +11,6 @@ import (
 //----------------------------------------------------------------------
 
 //------------------------------------------------------------
-// ObfuscateXOR
-//------------------------------------------------------------
-
-func TestObfuscateXOR(t *testing.T) {
-	//------------------------------------------------------------
-	type testRecord struct {
-		input  string
-		output string
-		value  byte
-	}
-	//------------------------------------------------------------
-	testData := []testRecord{
-		{"", "", 0},
-		{"", "", 32},
-		{"ABCD", "abcd", 32},
-		{"abcd", "ABCD", 32},
-	}
-	//--------------------------------------------------
-	for index, test := range testData {
-		//------------------------------------------------------------
-		result, err := ObfuscateXOR(test.input, test.value)
-		//------------------------------------------------------------
-		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
-			t.Error("unexpected error: ", err.Error())
-		} else if err != nil && test.value != 0 {
-			t.Error(err)
-		} else if result != test.output {
-			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
-		}
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ObfuscateXOREncode
-//------------------------------------------------------------
-
-func TestObfuscateXOREncode(t *testing.T) {
-	//------------------------------------------------------------
-	type testRecord struct {
-		input    string
-		output   string
-		value    byte
-		encoding string
-	}
-	//------------------------------------------------------------
-	testData := []testRecord{
-		{"", "", 0, ""},
-		{"", "", 32, ""},
-		{"ABCD", "C=HdZ", 32, "base"},
-		{"ABCD", "YWJjZA==", 32, "base64"},
-		{"ABCD", "YWJjZA", 32, "base64url"},
-		{"ABCD", "#G(IZ", 32, "base91"},
-		{"ABCD", "61626364", 32, "hex"},
-	}
-	//--------------------------------------------------
-	for index, test := range testData {
-		//------------------------------------------------------------
-		result, err := ObfuscateXOREncode(test.input, test.value, test.encoding)
-		//------------------------------------------------------------
-		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
-			t.Error("unexpected error: ", err.Error())
-		} else if err != nil && test.value != 0 {
-			t.Error(err)
-		} else if result != test.output {
-			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
-		}
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ObfuscateXORDecode
-//------------------------------------------------------------
-
-func TestObfuscateXORDecode(t *testing.T) {
-	//------------------------------------------------------------
-	type testRecord struct {
-		input    string
-		output   string
-		value    byte
-		encoding string
-	}
-	//------------------------------------------------------------
-	testData := []testRecord{
-		{"", "", 0, ""},
-		{"", "", 32, ""},
-		{"C=HdZ", "ABCD", 32, "base"},
-		{"YWJjZA==", "ABCD", 32, "base64"},
-		{"YWJjZA", "ABCD", 32, "base64url"},
-		{"#G(IZ", "ABCD", 32, "base91"},
-		{"61626364", "ABCD", 32, "hex"},
-	}
-	//--------------------------------------------------
-	for index, test := range testData {
-		//------------------------------------------------------------
-		result, err := ObfuscateXORDecode(test.input, test.value, test.encoding)
-		//------------------------------------------------------------
-		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
-			t.Error("unexpected error: ", err.Error())
-		} else if err != nil && test.value != 0 {
-			t.Error(err)
-		} else if result != test.output {
-			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
-		}
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-}
-
-//----------------------------------------------------------------------
-//######################################################################
-//----------------------------------------------------------------------
-
-//------------------------------------------------------------
 // ObfuscateV0
 //------------------------------------------------------------
 
@@ -525,6 +408,123 @@ func TestObfuscateV5Decode(t *testing.T) {
 		result, err := ObfuscateV5Decode(test.input, test.encoding)
 		//------------------------------------------------------------
 		if err != nil {
+			t.Error(err)
+		} else if result != test.output {
+			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+}
+
+//----------------------------------------------------------------------
+//######################################################################
+//----------------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateXOR
+//------------------------------------------------------------
+
+func TestObfuscateXOR(t *testing.T) {
+	//------------------------------------------------------------
+	type testRecord struct {
+		input  string
+		output string
+		value  byte
+	}
+	//------------------------------------------------------------
+	testData := []testRecord{
+		{"", "", 0},
+		{"", "", 32},
+		{"ABCD", "abcd", 32},
+		{"abcd", "ABCD", 32},
+	}
+	//--------------------------------------------------
+	for index, test := range testData {
+		//------------------------------------------------------------
+		result, err := ObfuscateXOR(test.input, test.value)
+		//------------------------------------------------------------
+		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
+			t.Error("unexpected error: ", err.Error())
+		} else if err != nil && test.value != 0 {
+			t.Error(err)
+		} else if result != test.output {
+			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXOREncode
+//------------------------------------------------------------
+
+func TestObfuscateXOREncode(t *testing.T) {
+	//------------------------------------------------------------
+	type testRecord struct {
+		input    string
+		output   string
+		value    byte
+		encoding string
+	}
+	//------------------------------------------------------------
+	testData := []testRecord{
+		{"", "", 0, ""},
+		{"", "", 32, ""},
+		{"ABCD", "C=HdZ", 32, "base"},
+		{"ABCD", "YWJjZA==", 32, "base64"},
+		{"ABCD", "YWJjZA", 32, "base64url"},
+		{"ABCD", "#G(IZ", 32, "base91"},
+		{"ABCD", "61626364", 32, "hex"},
+	}
+	//--------------------------------------------------
+	for index, test := range testData {
+		//------------------------------------------------------------
+		result, err := ObfuscateXOREncode(test.input, test.value, test.encoding)
+		//------------------------------------------------------------
+		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
+			t.Error("unexpected error: ", err.Error())
+		} else if err != nil && test.value != 0 {
+			t.Error(err)
+		} else if result != test.output {
+			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
+		}
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXORDecode
+//------------------------------------------------------------
+
+func TestObfuscateXORDecode(t *testing.T) {
+	//------------------------------------------------------------
+	type testRecord struct {
+		input    string
+		output   string
+		value    byte
+		encoding string
+	}
+	//------------------------------------------------------------
+	testData := []testRecord{
+		{"", "", 0, ""},
+		{"", "", 32, ""},
+		{"C=HdZ", "ABCD", 32, "base"},
+		{"YWJjZA==", "ABCD", 32, "base64"},
+		{"YWJjZA", "ABCD", 32, "base64url"},
+		{"#G(IZ", "ABCD", 32, "base91"},
+		{"61626364", "ABCD", 32, "hex"},
+	}
+	//--------------------------------------------------
+	for index, test := range testData {
+		//------------------------------------------------------------
+		result, err := ObfuscateXORDecode(test.input, test.value, test.encoding)
+		//------------------------------------------------------------
+		if err != nil && test.value == 0 && err.Error() != "value should be an integer between 1 and 255" {
+			t.Error("unexpected error: ", err.Error())
+		} else if err != nil && test.value != 0 {
 			t.Error(err)
 		} else if result != test.output {
 			t.Errorf("index %v: result = %v but should = %v", index, []byte(result), []byte(test.output))
