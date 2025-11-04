@@ -56,149 +56,6 @@ func NewOptions(options ...Option) Options {
 //----------------------------------------------------------------------
 
 //------------------------------------------------------------
-// ObfuscateXOR
-//------------------------------------------------------------
-
-func ObfuscateXOR(dataString string, value byte) (string, error) {
-	//------------------------------------------------------------
-	if value == 0 {
-		return "", errors.New("value should be an integer between 1 and 255")
-	}
-	//------------------------------------------------------------
-	if dataString == "" {
-		return dataString, nil
-	}
-	//------------------------------------------------------------
-	dataLength := len(dataString)
-	//------------------------------------------------------------
-	outputBytes := make([]byte, dataLength)
-	//------------------------------------------------------------
-	// for loop uses bytes instead of range which would use UTF-8 runes
-	for index := 0; index < len(dataString); index += 1 {
-		outputBytes[index] = dataString[index] ^ value
-	}
-	//------------------------------------------------------------
-	return string(outputBytes), nil
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-
-//------------------------------------------------------------
-// ObfuscateXOREncode
-//------------------------------------------------------------
-
-func ObfuscateXOREncode(dataString string, value byte, Encoding ...string) (string, error) {
-	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
-	if value == 0 {
-		return "", errors.New("value should be an integer between 1 and 255")
-	}
-	//------------------------------------------------------------
-	if dataString == "" {
-		return dataString, nil
-	}
-	//------------------------------------------------------------
-	encoding := ""
-	if len(Encoding) > 0 {
-		encoding = Encoding[0]
-	}
-	//------------------------------------------------------------
-	dataString, err = ObfuscateXOR(dataString, value)
-	//------------------------------------------------------------
-	if err != nil {
-		return "", err
-	}
-	//------------------------------------------------------------
-	switch encoding {
-	case "base":
-		return conv.Base_encode(dataString), nil
-	case "base64":
-		return conv.Base64_encode(dataString), nil
-	case "base64url":
-		return conv.Base64url_encode(dataString), nil
-	case "base91":
-		return conv.Base91_encode(dataString, true), nil
-	case "hex":
-		return conv.Hex_encode(dataString), nil
-	default:
-		replacer := strings.NewReplacer(
-			"-", "--",
-			"\x09", "-t", // tab
-			"\x0A", "-n", // new line
-			"\x0D", "-r", // carriage return
-			"\x20", "-s", // space
-			"\x22", "-q", // double quote
-			"\x24", "-d", // dollar sign
-			"\x27", "-a", // apostrophy
-			"\x5C", "-b", // backslash
-			"\x60", "-g", // grave accent
-		)
-		return replacer.Replace(dataString), nil
-	}
-	//------------------------------------------------------------
-}
-
-//------------------------------------------------------------
-// ObfuscateXORDecode
-//------------------------------------------------------------
-
-func ObfuscateXORDecode(dataString string, value byte, Encoding ...string) (string, error) {
-	//------------------------------------------------------------
-	var err error
-	//------------------------------------------------------------
-	if dataString == "" {
-		return dataString, nil
-	}
-	//------------------------------------------------------------
-	encoding := ""
-	if len(Encoding) > 0 {
-		encoding = Encoding[0]
-	}
-	//------------------------------------------------------------
-	switch encoding {
-	case "base":
-		dataString, err = conv.Base_decode(dataString)
-	case "base64":
-		dataString, err = conv.Base64_decode(dataString)
-	case "base64url":
-		dataString, err = conv.Base64url_decode(dataString)
-	case "base91":
-		dataString, err = conv.Base91_decode(dataString, true)
-	case "hex":
-		dataString, err = conv.Hex_decode(dataString)
-	default:
-		replacer := strings.NewReplacer(
-			"--", "-SUB",
-			"-g", "\x60", // grave accent
-			"-b", "\x5C", // backslash
-			"-a", "\x27", // apostrophy
-			"-d", "\x24", // dollar sign
-			"-q", "\x22", // double quote
-			"-s", "\x20", // space
-			"-r", "\x0D", // carriage return
-			"-n", "\x0A", // new line
-			"-t", "\x09", // tab
-		)
-		dataString = replacer.Replace(dataString)
-		dataString = strings.ReplaceAll(dataString, "-SUB", "-")
-		//------------------------------------------------------------
-	}
-	//------------------------------------------------------------
-	if err != nil {
-		return "", err
-	}
-	//------------------------------------------------------------
-	return ObfuscateXOR(dataString, value)
-	//------------------------------------------------------------
-}
-
-//----------------------------------------------------------------------
-//######################################################################
-//----------------------------------------------------------------------
-
-//------------------------------------------------------------
 // ObfuscateV0
 //------------------------------------------------------------
 
@@ -672,6 +529,149 @@ func ObfuscateV5Decode(dataString string, Encoding ...string) (string, error) {
 	}
 	//------------------------------------------------------------
 	return ObfuscateV5(dataString), nil
+	//------------------------------------------------------------
+}
+
+//----------------------------------------------------------------------
+//######################################################################
+//----------------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateXOR
+//------------------------------------------------------------
+
+func ObfuscateXOR(dataString string, value byte) (string, error) {
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	dataLength := len(dataString)
+	//------------------------------------------------------------
+	outputBytes := make([]byte, dataLength)
+	//------------------------------------------------------------
+	// for loop uses bytes instead of range which would use UTF-8 runes
+	for index := 0; index < len(dataString); index += 1 {
+		outputBytes[index] = dataString[index] ^ value
+	}
+	//------------------------------------------------------------
+	return string(outputBytes), nil
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// ObfuscateXOREncode
+//------------------------------------------------------------
+
+func ObfuscateXOREncode(dataString string, value byte, Encoding ...string) (string, error) {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if value == 0 {
+		return "", errors.New("value should be an integer between 1 and 255")
+	}
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	encoding := ""
+	if len(Encoding) > 0 {
+		encoding = Encoding[0]
+	}
+	//------------------------------------------------------------
+	dataString, err = ObfuscateXOR(dataString, value)
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	switch encoding {
+	case "base":
+		return conv.Base_encode(dataString), nil
+	case "base64":
+		return conv.Base64_encode(dataString), nil
+	case "base64url":
+		return conv.Base64url_encode(dataString), nil
+	case "base91":
+		return conv.Base91_encode(dataString, true), nil
+	case "hex":
+		return conv.Hex_encode(dataString), nil
+	default:
+		replacer := strings.NewReplacer(
+			"-", "--",
+			"\x09", "-t", // tab
+			"\x0A", "-n", // new line
+			"\x0D", "-r", // carriage return
+			"\x20", "-s", // space
+			"\x22", "-q", // double quote
+			"\x24", "-d", // dollar sign
+			"\x27", "-a", // apostrophy
+			"\x5C", "-b", // backslash
+			"\x60", "-g", // grave accent
+		)
+		return replacer.Replace(dataString), nil
+	}
+	//------------------------------------------------------------
+}
+
+//------------------------------------------------------------
+// ObfuscateXORDecode
+//------------------------------------------------------------
+
+func ObfuscateXORDecode(dataString string, value byte, Encoding ...string) (string, error) {
+	//------------------------------------------------------------
+	var err error
+	//------------------------------------------------------------
+	if dataString == "" {
+		return dataString, nil
+	}
+	//------------------------------------------------------------
+	encoding := ""
+	if len(Encoding) > 0 {
+		encoding = Encoding[0]
+	}
+	//------------------------------------------------------------
+	switch encoding {
+	case "base":
+		dataString, err = conv.Base_decode(dataString)
+	case "base64":
+		dataString, err = conv.Base64_decode(dataString)
+	case "base64url":
+		dataString, err = conv.Base64url_decode(dataString)
+	case "base91":
+		dataString, err = conv.Base91_decode(dataString, true)
+	case "hex":
+		dataString, err = conv.Hex_decode(dataString)
+	default:
+		replacer := strings.NewReplacer(
+			"--", "-SUB",
+			"-g", "\x60", // grave accent
+			"-b", "\x5C", // backslash
+			"-a", "\x27", // apostrophy
+			"-d", "\x24", // dollar sign
+			"-q", "\x22", // double quote
+			"-s", "\x20", // space
+			"-r", "\x0D", // carriage return
+			"-n", "\x0A", // new line
+			"-t", "\x09", // tab
+		)
+		dataString = replacer.Replace(dataString)
+		dataString = strings.ReplaceAll(dataString, "-SUB", "-")
+		//------------------------------------------------------------
+	}
+	//------------------------------------------------------------
+	if err != nil {
+		return "", err
+	}
+	//------------------------------------------------------------
+	return ObfuscateXOR(dataString, value)
 	//------------------------------------------------------------
 }
 
