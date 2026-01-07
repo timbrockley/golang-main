@@ -103,6 +103,7 @@ func TestExec(t *testing.T) {
 	var err error
 	//------------------------------------------------------------
 	stmt := `
+	PRAGMA journal_mode=WAL;
 	DROP TABLE IF EXISTS cars;
 	CREATE TABLE cars(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), price INT DEFAULT 0 NOT NULL);
 	INSERT INTO cars(name, price) VALUES('Skoda',9000);
@@ -198,7 +199,7 @@ func TestQuery(t *testing.T) {
 // QueryRow
 //--------------------------------------------------------------------------------
 
-func TestQueryRow(t *testing.T) {
+func TestQueryRow1(t *testing.T) {
 	//------------------------------------------------------------
 	var err1, err2 error
 	var row1, row2 *sql.Row
@@ -242,6 +243,29 @@ func TestQueryRow(t *testing.T) {
 	//--------------------
 	if price != EXPECTED_price {
 		t.Errorf("price = %d but should = %d", price, EXPECTED_price)
+	}
+	//------------------------------------------------------------
+}
+
+func TestQueryRow2(t *testing.T) {
+	//------------------------------------------------------------
+	var err error
+	var row *sql.Row
+	//------------------------------------------------------------
+	var mode string
+	//------------------------------------------------------------
+	EXPECTED_mode := "wal"
+	//------------------------------------------------------------
+	row = conn1.QueryRow("PRAGMA journal_mode;")
+	//------------------------------------------------------------
+	err = row.Scan(&mode)
+	//------------------------------------------------------------
+	if err != nil {
+		t.Error(err)
+	}
+	//------------------------------------------------------------
+	if mode != EXPECTED_mode {
+		t.Errorf("name = %q but should = %q", mode, EXPECTED_mode)
 	}
 	//------------------------------------------------------------
 }
