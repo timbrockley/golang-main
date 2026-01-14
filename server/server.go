@@ -32,7 +32,7 @@ import (
 
 //------------------------------------------------------------
 
-const host = ":3000"
+const host = ":4000"
 
 const pathRoot = "/www/golang/main/html/"
 
@@ -44,11 +44,11 @@ var stopChan chan os.Signal
 
 //------------------------------------------------------------
 
-const TCPServerPort = 4000
+const TCPServerPort = 3000
 
 const (
-	UDPServerPort = 4001
-	UDPClientPort = 4002
+	UDPServerPort = 3001
+	UDPClientPort = 3002
 )
 
 const BufferSize = 1024
