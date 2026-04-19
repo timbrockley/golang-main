@@ -197,7 +197,6 @@ func servePath(responseWriter http.ResponseWriter, httpRequest *http.Request) {
 	path = strings.TrimRight(file.PathJoin(pathRoot, httpRequest.URL.String()), "/")
 	//--------------------
 	if file.FilePathExists(path) {
-
 		//--------------------
 		ext = file.FilenameExt(path)
 		//--------------------
@@ -367,7 +366,6 @@ func (networkInstance *NetworkStruct) TCPServerEcho() error {
 			if err != nil {
 				break
 			} else {
-
 				//--------------------------------------------------
 				go func(conn net.Conn) {
 					//--------------------------------------------------
@@ -470,7 +468,6 @@ func (networkInstance *NetworkStruct) UDPServerEcho() error {
 		if err != nil {
 			break
 		} else {
-
 			//--------------------------------------------------
 			// fixed buffer size used as can only read 1 udp packet per connection
 			//--------------------------------------------------
@@ -571,8 +568,7 @@ func (networkInstance *NetworkStruct) UDPClient(requestBytes []byte) ([]byte, er
 func (socketInstance *SocketStruct) SocketServerEcho() error {
 	//--------------------------------------------------
 	var err error
-	var baseHeaderBytes, extendedbaseHeaderBytes, requestBytes []byte
-	var baseHeaderLength, extendedHeaderLength, headerLength uint8
+	var headerBytes, requestBytes []byte
 	var bodyLength uint32
 	var bytesRead int
 	//--------------------------------------------------
@@ -595,43 +591,28 @@ func (socketInstance *SocketStruct) SocketServerEcho() error {
 			if err != nil {
 				break
 			} else {
-
 				//--------------------------------------------------
 				go func(conn net.Conn) {
 					//--------------------------------------------------
 					defer conn.Close()
 					//--------------------------------------------------
-					// baseHeaderLength = header length (1 byte) + body length (4 bytes)
-					// extendedHeaderLength = optional extended header (headerLength - baseHeaderLength)
-					baseHeaderLength = 5
+					headerBytes = make([]byte, 4)
 					//--------------------
-					baseHeaderBytes = make([]byte, baseHeaderLength)
-					_, err = conn.Read(baseHeaderBytes)
+					_, err = conn.Read(headerBytes)
+					bodyLength = binary.BigEndian.Uint32(headerBytes)
+					//--------------------
 					if err == nil {
 						//--------------------
-						headerLength = uint8(baseHeaderBytes[0])
-						bodyLength = binary.BigEndian.Uint32(baseHeaderBytes[1:5])
+						requestBytes = make([]byte, bodyLength)
+						bytesRead, err = conn.Read(requestBytes)
 						//--------------------
-						extendedHeaderLength = headerLength - baseHeaderLength
-						if extendedHeaderLength > 0 {
-							extendedbaseHeaderBytes = make([]byte, extendedHeaderLength)
-							_, err = conn.Read(extendedbaseHeaderBytes)
-						}
-						//--------------------
-						if err == nil {
+						if bytesRead > 0 {
 							//--------------------
-							requestBytes = make([]byte, bodyLength)
-							bytesRead, err = conn.Read(requestBytes)
-							//--------------------
-							if bytesRead > 0 {
-								//--------------------
-								if flags["debug"] == true {
-									fmt.Printf("client request: %s\n", string(requestBytes))
-								}
-								//--------------------
-								conn.Write(requestBytes)
-								//--------------------
+							if flags["debug"] == true {
+								fmt.Printf("client request: %s\n", string(requestBytes))
 							}
+							//--------------------
+							conn.Write(requestBytes)
 							//--------------------
 						}
 						//--------------------
@@ -667,15 +648,10 @@ func (socketInstance *SocketStruct) SocketClient(requestBytes []byte) ([]byte, e
 		//--------------------
 		defer socketInstance.Conn.Close()
 		//--------------------
-		headerLength = 5 // (base header length + optional extended header length)
+		headerLength = 4
 		//--------------------
 		combinedRequestBytes = make([]byte, int(headerLength)+len(requestBytes))
-		combinedRequestBytes[0] = headerLength
-		binary.BigEndian.PutUint32(combinedRequestBytes[1:5], uint32(len(requestBytes)))
-		//--------------------
-		/*
-			create optional extended header here
-		*/
+		binary.BigEndian.PutUint32(combinedRequestBytes[0:4], uint32(len(requestBytes)))
 		//--------------------
 		copy(combinedRequestBytes[headerLength:], requestBytes)
 		//--------------------

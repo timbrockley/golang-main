@@ -451,15 +451,11 @@ func TestSocketServerEcho(t *testing.T) {
 		//--------------------
 		defer conn.Close()
 		//--------------------
-		headerLength := uint8(5) // (base header length + optional extended header length)
+		headerLength := uint8(4)
 		//--------------------
 		combinedRequestBytes := make([]byte, int(headerLength)+len(requestBytes))
 		combinedRequestBytes[0] = headerLength
-		binary.BigEndian.PutUint32(combinedRequestBytes[1:5], uint32(len(requestBytes)))
-		//--------------------
-		/*
-			create optional extended header here
-		*/
+		binary.BigEndian.PutUint32(combinedRequestBytes[0:4], uint32(len(requestBytes)))
 		//--------------------
 		copy(combinedRequestBytes[headerLength:], requestBytes)
 		//--------------------
@@ -515,7 +511,7 @@ func TestSocketClient(t *testing.T) {
 		n, err := conn.Read(requestBytes)
 		//--------
 		if err == nil && n > 0 {
-			conn.Write(requestBytes[5:n]) // ignore header
+			conn.Write(requestBytes[4:n]) // ignore header
 		}
 		//--------------------------------------------------
 	}()
