@@ -163,7 +163,7 @@ func TestTCPServerEcho(t *testing.T) {
 	//--------------------------------------------------
 	requestString := "TCPServerEcho test"
 	//--------------------
-	TCPConn, err := net.Dial("tcp4", fmt.Sprintf("%s:%d", serverIPAddr, serverPort))
+	TCPConn, err := net.Dial("tcp4", net.JoinHostPort(serverIPAddr, fmt.Sprintf("%d", serverPort)))
 	//--------------------------------------------------
 	if err != nil {
 		t.Error(err)
